@@ -1,0 +1,18 @@
+source: mozilla
+date: August 28th, 2005
+author: Joey Hess
+vuln-type: frame injection spoofing
+problem-scope: remote
+debian-specific: no
+cve: CVE-2004-0718 CVE-2005-1937
+testing-fix: 2:1.7.8-1sarge1
+sid-fix: 2:1.7.10-1
+upgrade: apt-get install mozilla
+
+A vulnerability has been discovered in Mozilla that allows remote attackers
+to inject arbitrary Javascript from one page into the frameset of another
+site. Thunderbird is not affected by this and Galeon will be automatically
+fixed as it uses Mozilla components. Mozilla Firefox is vulnerable and will
+be covered by a separate advisory.
+
+Note that this is the same security fix put into stable in DSA-777.

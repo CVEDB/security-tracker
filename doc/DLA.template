@@ -1,0 +1,29 @@
+From: $DEBFULLNAME <$DEBEMAIL>
+To: debian-lts-announce@lists.debian.org
+Subject: [SECURITY] [DLA $DLAID] $PACKAGE security update
+
+-------------------------------------------------------------------------
+Debian LTS Advisory DLA-$DLAID                debian-lts@lists.debian.org
+https://www.debian.org/lts/security/             $SPACEDDEBFULLNAME
+$SPACEDDATE                        https://wiki.debian.org/LTS
+-------------------------------------------------------------------------
+
+Package        : $PACKAGE
+Version        : $buster_VERSION
+CVE ID         : $CVE
+Debian Bug     : $BUGNUM
+
+$TEXT
+
+For Debian 10 buster, this problem has been fixed in version
+$buster_VERSION.
+
+We recommend that you upgrade your $PACKAGE packages.
+
+For the detailed security status of $PACKAGE please refer to
+its security tracker page at:
+https://security-tracker.debian.org/tracker/$PACKAGE
+
+Further information about Debian LTS security advisories, how to apply
+these updates to your system and frequently asked questions can be
+found at: https://wiki.debian.org/LTS

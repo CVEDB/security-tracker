@@ -1,0 +1,17 @@
+source: trackballs
+date: December 5th, 2005
+author: Neil McGovern
+vuln-type: symlink attack
+problem-scope: remote/local
+debian-specifc: yes/no
+cve:
+vendor-advisory: 
+testing-fix: 1.1.1-0.0etch1
+sid-fix: 1.1.1-1
+upgrade: apt-get upgrade
+
+Ulf Harnhammar notices that that trackballs follows symlinks when running as
+gid games. It writes to files such as $HOME/.trackballs/[USERNAME].gmr and
+$HOME/.trackballs/settings without checking if they are symlinks somewhere
+else. This can be abused for overwriting or creating files wherever the games
+group is allowed to do so.

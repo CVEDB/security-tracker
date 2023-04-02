@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+vuln=$(grep "^Vulnerability.*: " $1 | cut -d ':' -f 2 | sed 's/^ //')
+package=$(grep "^Package.*: " $1 | cut -d ':' -f 2 | sed 's/^ //')
+if [ -z "$vuln" ] || [ -z "$package" ]; then
+	echo "cannot determine info"
+	exit 1
+fi
+subject="[$(basename $1)] New $package packages fix $vuln"
+echo "$subject"
+printf "Send advisory now? [yn] "
+read resp
+if [ "$resp" != y ]; then
+	echo "aborting"
+	exit 1
+fi
+gpg --charset utf-8 --no-verbose --output - --armor --textmode --clearsign $1 |
+mail -s "$subject" secure-testing-announce@lists.alioth.debian.org
+echo "Sent."

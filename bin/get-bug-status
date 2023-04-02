@@ -1,0 +1,40 @@
+#!/usr/bin/ruby
+require 'soap/rpc/driver'
+# Nico Golde <nion@debian.org>
+# Latest change: Di Nov 13 16:37:13 CET 2007
+# return fixed version or TODO: fix for given bug
+
+bug = ARGV[0].to_i
+fixed_only = (ARGV[1].to_s == 'fixed')
+host = "bugs.debian.org"
+port = 80
+server="http://#{host}:#{port}/cgi-bin/soap.cgi"
+ns = 'Debbugs/SOAP/'
+drv = SOAP::RPC::Driver.new(server, ns) 
+drv.add_method('get_status','bugnumber')
+
+response = drv.get_status(bug)
+
+if response[bug] == nil then
+    puts "bug not found"
+    exit
+end
+
+fix = response[bug].fixed_versions[0].to_s
+tags =  response[bug].tags.to_s
+severity = response[bug].severity.to_s
+
+if fix == nil or fix == "" then
+    exit if fixed_only
+    print "TODO: fix (" + severity + ")"
+    if tags =~ /patch/
+        print ", patch available"
+    end
+    if tags =~ /pending/
+        print ", pending"
+    end
+    puts
+else
+    puts "TODO: mark #{bug} as fixed in " + fix
+end
+

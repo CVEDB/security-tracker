@@ -1,0 +1,23 @@
+source: kismet
+date: August 26th, 2005
+author: Joey Hess
+vuln-type: various
+problem-scope: remote
+debian-specific: no
+cve: CVE-2005-2626 CVE-2005-2627
+testing-fix: 2005.08.R1-0.1etch1
+sid-fix: 2005.08.R1-1
+upgrade: apt-get install kismet
+
+Multiple security holes have been discovered in kismet:
+
+  CVE-2005-2627
+
+  Multiple integer underflows in Kismet allow remote attackers to execute
+  arbitrary code via (1) kernel headers in a pcap file or (2) data frame
+  dissection, which leads to heap-based buffer overflows.
+
+  CVE-2005-2626
+
+  Unspecified vulnerability in Kismet allows remote attackers to have an
+  unknown impact via unprintable characters in the SSID.

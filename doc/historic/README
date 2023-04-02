@@ -1,0 +1,55 @@
+The checklist program can be run on a system with madison available to
+check vulnerability info from the list files against what packages are in
+testing. Also the updatelist is used by the Makefile to update the lists
+with new info from Mitre. So the various list files need a common, machine
+parsable format. That format is:
+
+begin claimed by foo
+
+[date] id description
+	{id id id}
+	UPCASE: text
+	- package [version] (note; note; note)
+
+end claimed by foo
+
+
+Without writing a format grammar, because this is really rather ad-hoc and
+probably will be replaced with something better:
+
+[date]
+	The date of the advisory in the form dd Mmm YYYY (01 Nov 2004).
+	Optional, only given for DSAs at the moment.
+id
+	DSA-nnn-n, CVE-YYY-nnnn, etc
+description
+	Pretty much freeform description of the problem. Short and optional.
+	By convention, if it's taken from upstream data source
+	automatically, it will be in parens.  If you want to use a different
+	description, put it in square brackets instead.
+{id id id}
+	This is used to link to other ids that describe the same hole.
+	Generally used to link DSAs to CVEs and back.
+UPCASE
+	Any word in upper case, typically NOTE, HELP, TODO, RESERVED,
+	REJECTED, NOT-FOR-US.
+	May be repeated for each entry.
+- package [version] (note; notes; note)
+	Indicates that the problem is fixed in the given version of the
+	package. May repeat for other packages. If the problem is unfixed,
+	use "<unfixed>" as the version. If the problem doesn't affect Debian,
+	use "<not-affected>" as the version. If the problem only affects
+	shipped releases, for which the stable security team provides
+	security support and the affected package has meanwhile been removed
+	from the archive use "<removed>" as the version.  If the problem
+	affects a particular release, prepend "[release]" before the
+	"- package" to reflect as much.
+
+	The notes can be freeform, but some are understood by the tools,
+	including "bug #nnnnn", "bug filed", and "high",
+        "medium", "low", "unimportant" and "unknown" urgencies.
+
+begin claimed by foo
+end claimed by foo
+	Marks a set of items that are being checked by someone.
+	Used to avoid duplicate work.

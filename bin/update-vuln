@@ -1,0 +1,361 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+  update-vuln - #1001453
+
+  - mark a given released suite (stable/oldstable/LTS) as <not-affected>
+    for a specific CVE ID
+  - add a bug number to an existing CVE entry
+  - add a NOTE: entry to an existing CVE
+
+Only make one change to one CVE at a time. Review and merge that
+change and delete the merged file before updating the same CVE.
+
+The workflow would be:
+./bin/update-vuln --cve CVE-YYYY-NNNNN ...
+# on exit zero:
+./bin/merge-cve-files ./CVE-YYYY-NNNNN.list
+# review change to data/CVE/list
+git diff data/CVE/list
+rm ./CVE-YYYY-NNNNN.list
+# .. repeat
+git add data/CVE/list
+git commit
+
+"""
+#  Copyright 2021-2022 Neil Williams <codehelp@debian.org>
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+
+import os
+import argparse
+import bisect
+import logging
+import sys
+
+import setup_paths  # noqa # pylint: disable=unused-import
+from sectracker.parsers import (
+    PackageAnnotation,
+    PackageBugAnnotation,
+    StringAnnotation,
+    Bug,
+    cvelist,
+    writecvelist,
+)
+
+# pylint: disable=line-too-long
+
+
+class ParseUpdates:
+    """
+    Update a CVE with requested changes and produce a file for
+    manual review and use with merge-cve-files.
+    """
+
+    def __init__(self):
+        self.cves = []
+        self.bugs = {}
+        self.marker = "aaaaaaaaaaaaa"  # replacement for NoneType to always sort first
+        self.logger = logging.getLogger("update-vuln")
+        self.logger.setLevel(logging.DEBUG)
+        # console logging
+        ch_log = logging.StreamHandler()
+        ch_log.setLevel(logging.DEBUG)
+        formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+        ch_log.setFormatter(formatter)
+        self.logger.addHandler(ch_log)
+
+    def _read_cvelist(self):
+        """Build a list of Bug items for the CVE from data/CVE/list"""
+        os.chdir(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+        data = cvelist("data/CVE/list")
+        for cve in self.cves:
+            for bug in data:
+                if bug.header.name == cve:
+                    self.bugs[cve] = bug
+
+    def _add_annotation_to_cve(self, cve, annotation):
+        """
+        Adds an annotation to a CVE entry.
+
+        StringAnnotation - appended to the end
+        PackageAnnotation - inserted in alphabetical order by release
+
+        Accounts for PackageAnnotation.release == None for unstable.
+        """
+        bug = self.bugs[cve]
+
+        if isinstance(annotation, PackageAnnotation):
+            store = {ann.release: ann for ann in bug.annotations if isinstance(ann, PackageAnnotation)}
+            store[annotation.release] = annotation
+            # this is needed despite python3 >= 3.7 having ordered dicts
+            # because using the dict.keys() would need a copy of that list anyway.
+            existing = [ann.release for ann in bug.annotations if isinstance(ann, PackageAnnotation)]
+            if None in existing:
+                # release == None for unstable
+                index = existing.index(None)
+                existing[index] = self.marker
+            insertion = annotation.release if annotation.release else self.marker
+
+            # bisect cannot work with NoneType
+            bisect.insort(existing, insertion)
+
+            if self.marker in existing:
+                index = existing.index(self.marker)
+                existing[index] = None
+
+            bug_list = []
+            for item in existing:
+                bug_list.append(store[item])
+            bug.annotations = bug_list
+
+        elif isinstance(annotation, StringAnnotation):
+            bug.annotations.append(annotation)
+        else:
+            raise ValueError(f"Unsupported annotation type: {type(annotation)}")
+
+        return bug
+
+    def write_modified(self, modified, cve_file):
+        """
+        Write out a CVE snippet for review and merge
+
+        Fails if the file already exists.
+        """
+        if not modified:
+            return 0
+        if not isinstance(modified, list):
+            return 0
+        if os.path.exists(cve_file):
+            self.logger.critical(
+                "%s already exists - merge the update and remove the file first.",
+                cve_file,
+            )
+            return -1
+        for cve in modified:
+            self.logger.info("Writing to ./%s with update for %s", cve_file, cve.header.name)
+        with open(cve_file, "a") as snippet:
+            writecvelist(modified, snippet)
+        return 0
+
+    def mark_not_affected(self, suite, src, description):
+        """
+        Writes out a CVE file snippet with the filename:
+        ./<cve>.list
+        Fails if the file already exists.
+        """
+        release = suite
+        if suite in ("unstable", "sid"):
+            # special handling for unstable
+            suite = None
+            release = "unstable"
+        modified = []
+        cve = self.cves[0]
+        cve_file = f"{cve}.list"
+        bug = self.bugs[cve]
+        existing = [line.release for line in bug.annotations if isinstance(line, PackageAnnotation)]
+        if suite not in existing:
+            # line type release package kind version description flags
+            line = PackageAnnotation(0, "package", suite, src, "not-affected", None, description, [])
+            mod_bug = self._add_annotation_to_cve(cve, line)
+            modified.append(mod_bug)
+        for line in bug.annotations:
+            if not isinstance(line, PackageAnnotation):
+                continue  # skip notes etc.
+            if line.release != suite:
+                continue
+            if line.package != src:
+                continue
+            # need to define the allowed changes
+            # if fixed, version would need to be undone too.
+            if line.kind == "not-affected":
+                self.logger.info("Nothing to do for %s in %s.", cve, suite)
+                return
+            line.kind = "not-affected"
+            self.logger.info("Modified %s for %s in %s to <not-affected>", cve, src, release)
+            if line.version:
+                self.logger.info("Removing version %s", line.version)
+                line.version = None
+            if description:
+                self.logger.info("Replacing description %s", line.description)
+                line.description = description
+            elif line.description:
+                self.logger.info("Removing description %s", line.description)
+                line.description = None
+            modified.append(bug)
+        self.write_modified(modified, cve_file)
+
+    def add_note(self, note):
+        """
+        Writes out a CVE file snippet with the filename:
+        ./<cve>.list
+        Fails if the file already exists.
+        """
+        # use _add_annotation_to_cve to add the note
+        modified = []
+        cve = self.cves[0]
+        cve_file = f"{cve}.list"
+        existing = [note.description for note in self.bugs[cve].annotations if isinstance(note, StringAnnotation)]
+        if note in existing:
+            self.logger.info("Note already exists, ignoring")
+            return
+        new_note = StringAnnotation(line=0, type="NOTE", description=note)
+        mod_bug = self._add_annotation_to_cve(cve, new_note)
+        modified.append(mod_bug)
+        self.write_modified(modified, cve_file)
+
+    def add_bug_number(self, bug, itp=False):  # pylint: disable=too-many-locals
+        """
+        Writes out a CVE file snippet with the filename:
+        ./<cve>.list
+        Fails if the file already exists.
+        """
+        # bugs only apply to unstable (or itp)
+        modified = []
+        cve = self.cves[0]
+        cve_file = f"{cve}.list"
+        existing = [
+            pkg.flags
+            for pkg in self.bugs[cve].annotations
+            if isinstance(pkg, PackageAnnotation)
+            if not pkg.release and pkg.kind != "removed"
+        ]
+        bugs = [bug for sublist in existing for bug in sublist]
+        if bugs:
+            self.logger.warning("%s already has a bug annotation for unstable: %s", cve, bugs[0].bug)
+            return -1
+        pkgs = [
+            pkg
+            for pkg in self.bugs[cve].annotations
+            if isinstance(pkg, PackageAnnotation)
+            if not pkg.release and pkg.kind != "removed"
+        ]
+        if itp:
+            # no useful entry will exist in pkgs
+            new_flags = [PackageBugAnnotation(bug)]
+            new_pkg = PackageAnnotation(
+                0,
+                "package",
+                None,
+                itp,
+                "itp",
+                None,
+                None,
+                new_flags,
+            )
+            others = []
+        else:
+            if not pkgs:
+                self.logger.error("%s does not have a package annotation.", cve)
+                return -1
+            old_pkg = pkgs[0]
+            if itp and old_pkg.kind == "fixed":
+                self.logger.error("%s is already marked as <fixed> but --itp flag was set.", cve)
+                return -3
+            new_flags = [PackageBugAnnotation(bug)]
+            new_pkg = PackageAnnotation(
+                old_pkg.line,
+                old_pkg.type,
+                old_pkg.release,
+                old_pkg.package,
+                old_pkg.kind,
+                old_pkg.version,
+                old_pkg.description,
+                new_flags,
+            )
+            bug_list = list(self.bugs[cve].annotations)
+            others = [pkg for pkg in bug_list if pkg.line != old_pkg.line]
+        bug_list = list(self.bugs[cve].annotations)
+        # may need to retain the original order.
+        new_list = [new_pkg] + others
+        mod_bug = Bug(self.bugs[cve].file, self.bugs[cve].header, tuple(new_list))
+        modified.append(mod_bug)
+        self.write_modified(modified, cve_file)
+        return 0
+
+    def load_cve(self, cve):
+        """Load all data for the specified CVE"""
+        self.logger.info("Loading data for %s...", cve)
+        self.cves.append(cve)
+        self._read_cvelist()
+
+
+def main():
+    """
+    This script does NOT reparse the output file - create, review and
+    merge ONE update at a time.
+    (For some operations, check-new-issues may be more suitable).
+
+    For example, --bug 100 --itp intended_pkg_name
+    then, merge-cve-list, then:
+    --note "URL:"
+    """
+    parser = argparse.ArgumentParser(
+        description="Make a single update to specified CVE data as not-affected, add bug number or add a note",
+        usage="%(prog)s [-h] --cve CVE [--src SRC --suite SUITE "
+        "[--description DESCRIPTION]] | [[--number NUMBER] [--itp SRC]] | [--note NOTE]",
+        epilog="Data is written to a new <cve_number>.list "
+        "file which can be used with './bin/merge-cve-files'. "
+        "Make sure the output file is merged and removed before "
+        "updating the same CVE again.",
+    )
+
+    required = parser.add_argument_group("Required arguments")
+    required.add_argument("--cve", required=True, help="The CVE ID to update")
+
+    affected = parser.add_argument_group(
+        "Marking a CVE as not-affected - must use --src and --suite "
+        "Optionally add a description or omit to remove the current description"
+    )
+    # needs to specify the src_package as well as suite to cope with removed etc.
+    affected.add_argument("--src", help="Source package name in SUITE")
+    affected.add_argument("--suite", default="unstable", help="Mark the CVE as <not-affected> in SUITE")
+    affected.add_argument(
+        "--description",
+        help="Optional description of why the SRC is unaffected in SUITE",
+    )
+
+    buggy = parser.add_argument_group("Add a bug number to the CVE")
+    buggy.add_argument("--number", help="Debian BTS bug number")
+    buggy.add_argument(
+        "--itp",
+        metavar="SRC",
+        help="Mark as an ITP bug for the specified source package name",
+    )
+
+    notes = parser.add_argument_group("Add a NOTE: entry to the CVE")
+    notes.add_argument("--note", help="Content of the NOTE: entry to add to the CVE")
+
+    args = parser.parse_args()
+    parser = ParseUpdates()
+    parser.load_cve(args.cve)
+
+    logger = logging.getLogger("update-vuln")
+    if not parser.bugs:
+        logger.critical("Unable to parse CVE ID %s", args.cve)
+        return -1
+    if args.src and args.suite:
+        parser.mark_not_affected(args.suite, args.src, args.description)
+    if args.note:
+        parser.add_note(args.note)
+    if args.number:
+        # to set itp properly, the source package name also needs to be set.
+        parser.add_bug_number(args.number, args.itp)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

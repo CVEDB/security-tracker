@@ -1,0 +1,22 @@
+#!/bin/sh
+set -e
+
+SCRIPT=$(readlink -f "$0")
+BASEDIR=$(dirname "$SCRIPT")
+
+if [ ! -d CVE ]; then
+	echo "run in data subdirectory" >&2
+	exit 1
+fi
+
+cd CVE
+rm -f allitems.html
+# wget disabled since fetching allitems.html.gz via wget fails since 2015-04-09 from
+# cve.mitre.org, add workaround with curl until solved
+# wget --quiet https://cve.mitre.org/data/downloads/allitems.html.gz
+# Note: ~/.curlrc on soriano contains:
+# capath=/etc/ssl/ca-global
+curl -s -o allitems.html.gz https://cve.mitre.org/data/downloads/allitems.html.gz
+gunzip allitems.html.gz
+$BASEDIR/updatelist allitems.html ../DSA/list ../DTSA/list ../DLA/list list > list.new
+mv -f list.new list

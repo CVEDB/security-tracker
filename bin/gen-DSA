@@ -1,0 +1,441 @@
+#!/bin/sh
+
+####################
+#    Copyright (C) 2011, 2012, 2013, 2014 by Raphael Geissert <geissert@debian.org>
+#
+#
+#    This file is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This file is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this file.  If not, see <https://www.gnu.org/licenses/>.
+####################
+
+set -e
+
+IDMODE=DSA
+case "$(basename "$0")" in
+    *gen-*)
+	IDMODE=${0#*gen-}
+    ;;
+esac
+
+if ! command -v jq >/dev/null ; then
+    echo "error: jq is needed to parse distributions, please install it"
+    exit 1
+fi
+
+RELEASES=`jq -r '.distributions | to_entries[] | select(.value.release) | .value.release | ascii_upcase' data/config.json`
+CODENAMES=`jq -r '.distributions | to_entries[] | select(.value.release) | .key' data/config.json`
+
+while read dist; do
+    read codename
+    eval $dist=$codename
+done << EOF
+`jq -r '.distributions | to_entries[] | select(.value.release) | (.value.release | ascii_upcase), .key' data/config.json`
+EOF
+
+NAME_SPACING=24
+DATE_SPACING=22
+
+export LC_ALL=C
+
+[ -f doc/$IDMODE.template ] || {
+    echo "error: call this script from the root of the repository" >&2
+    exit 1
+}
+
+[ $# -ge 1 ] || {
+    echo "usage: $0 [--save] [--embargoed|--unembargo] [$IDMODE] package[.changes] [regression] [cve(s) [bugnumber(s)]] "
+    echo "       '$IDMODE' is the $IDMODE number, required when issuing a revision"
+    echo "       'cve(s)' and 'bugnumber(s)' can be passed in any order but"
+    echo "         always AFTER the description"
+    echo ""
+    echo "       When specifying package.changes the package name, version, additional bug(s) and cve(s)"
+    echo "       are parsed from the .changes file."
+    echo ""
+    echo "       If it doesn't like your bug number, prefix it with # and report"
+    exit 1
+} >&2
+
+save=false
+if [ "$1" = "--save" ]; then
+    save=true
+    shift
+fi
+
+embargoed=false
+if [ "$1" = "--embargoed" ]; then
+    embargoed=true
+    shift
+fi
+
+unembargo=false
+if [ "$1" = "--unembargo" ]; then
+    unembargo=true
+    shift
+    set -- "$1"
+fi
+
+toupper() {
+    printf '%s' "$1" | tr '[:lower:]' '[:upper:]'
+}
+
+tolower() {
+    printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
+}
+
+split_n_sort() {
+    printf '%s' "$1" | sed -r 's/[ ,;]+/ /g;s/^ //' | tr ' ' "\n" | sort -u |
+    sort ${2:--n} | tr "\n" ' ' | sed -r 's/\s+/ /g;s/\s$//'
+}
+
+_d_space() {
+    local direction="$1" text="$2" to_length="$3"
+    local right='' left='' output='' spacing=0
+
+    if [ "$direction" = 'right' ]; then
+	right=' '
+    elif [ "$direction" = 'left' ]; then
+	left=' '
+    else
+	echo FIXME >&2
+	exit 1
+    fi
+
+    spacing=$(($to_length-${#text}))
+    output="$text"
+    while [ $spacing -gt 0 ]; do
+	output="${left}${output}${right}"
+	spacing=$((spacing-1))
+    done
+    printf '%s' "$output"
+}
+
+left_space() {
+    _d_space left "$@"
+}
+
+right_space() {
+    _d_space right "$@"
+}
+
+warn() {
+    printf "${YELLOW}warning:${NORMAL} %s\n" "$1"
+}
+
+notice() {
+    printf "${MAGENTA}notice:${NORMAL} %s\n" "$1"
+}
+
+error() {
+    printf "${RED}error:${NORMAL} %s\n" "$1"
+}
+
+setvar() {
+    local var="$1" value="$2"
+
+    if [ -z "$value" ]; then
+	value="$(eval 'printf "%s" "$'"$var"'"')"
+    fi
+
+    sed -i "s=\$$var=$value=g" "$tmpf"
+}
+
+if command -v tput >/dev/null; then
+    RED=$(tput setaf 1)
+    YELLOW=$(tput setaf 3)
+    MAGENTA=$(tput setaf 5)
+    NORMAL=$(tput op)
+else
+    RED=''
+    YELLOW=''
+    MAGENTA=''
+    NORMAL=''
+fi
+
+DAID=
+if printf '%s' "$1" | grep -Eq '^('"$IDMODE"'-|)[0-9]+(-[0-9]+|)$'; then
+    DAID="${1#$IDMODE-}"
+    shift
+fi
+
+PACKAGE=
+CHANGES=
+
+if echo "$1" | grep -q '_.*\.changes$'; then
+    CHANGES="$1"
+    PACKAGE=$(awk '/^Source: / {print $2}' $CHANGES)
+else
+    PACKAGE="$(tolower "$1")"
+fi
+
+shift
+
+TYPE=security
+if [ regression = "$1" ]; then
+    TYPE=regression
+    shift
+fi
+
+CVE=
+BUGNUM=
+REFERENCES=0
+TEXT=
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+	[cC][vV][eE]-*)
+	    CVE="$CVE $(toupper "$1")"
+	;;
+	[0-9][0-9][0-9][0-9][0-9][0-9][0-9]|[#][0-9]*)
+	    BUGNUM="$BUGNUM ${1#\#}"
+	;;
+	*)
+	    error "Don't know what to do with '$1' argument" >&2
+	    exit 1
+	;;
+    esac
+    shift
+done
+
+if ! [ -z "$CHANGES" ]; then
+    # parse info from .changes file
+    # Version can occur in GPG signature, thus we exit on first occurence
+    version="$(awk '/^Version: / {print $2; exit 0}' $CHANGES)"
+    dist="$(awk '/^Distribution: / {print $2}' $CHANGES | sed 's/-.*//')"
+    export ${dist}_VERSION="$version"
+
+    for bug in $(awk '/^Closes: / {sub(".*"$2,$2); print $0}' $CHANGES); do
+        BUGNUM="$BUGNUM ${bug#\#}"
+    done
+    for cve in $(awk 'BEGIN {RS="[ ().,:;\n\\[\\]]" } /^CVE-[0-9]+-[0-9]+$/ {print $1}' $CHANGES); do
+        CVE="$CVE $cve"
+    done
+fi
+
+BUGNUM="$(split_n_sort "$BUGNUM")"
+
+CVE="$(split_n_sort "$CVE" -V)"
+cve_spacing="$(right_space '' 17)"
+
+sed_cmd='s/((CVE-[0-9-]+[ ]+){4})/\1\\n'"$cve_spacing"'/g;P;D'
+CVE_LIST="$(printf '%s' "$CVE" | sed -r "$sed_cmd")"
+
+for id in $CVE; do
+    REFERENCES=$(($REFERENCES+1))
+    grep -wq "^$id" data/CVE/list || {
+	warn "'$id' is not known" >&2
+    }
+
+    TEXT="$TEXT\n\n$id\n\n    Description"
+done
+
+if [ $REFERENCES -eq 1 ]; then
+    TEXT=
+fi
+
+if [ -n "$TEXT" ]; then
+    TEXT="Brief introduction $TEXT"
+    
+    if ! $save; then
+	TEXT="The CVE ids will be listed here when --save'ing"
+    fi
+fi
+
+case "$DAID" in
+    *-*|'')
+	:
+    ;;
+    *)
+	notice "missing $IDMODE revision number, assuming 1" >&2
+	DAID="$DAID-1"
+    ;;
+esac
+
+daid_exists() {
+    grep -wq "$IDMODE-$1" data/$IDMODE/list
+}
+
+if $embargoed; then
+    DAID=EMBRGD-"$PACKAGE"
+fi
+
+if [ -z "$DAID" ]; then
+    if [ "$TYPE" = regression ]; then
+	latest_daid="$(sed -nr '/'"$IDMODE"'-[0-9]+-[0-9]+'" $PACKAGE "'/{s/^.+'"$IDMODE"'-[0]*([0-9-]+).*$/\1/;p;q}' data/$IDMODE/list)"
+	revision=${latest_daid#*-}
+	daid=${latest_daid%-*}
+    else
+	latest_daid="$(sed -nr '/'"$IDMODE"'-[0-9]+-1/{s/^.+'"$IDMODE"'-[0]*([0-9]+).*$/\1/;p;q}' data/$IDMODE/list)"
+	daid=$(($latest_daid+1))
+	revision=1
+    fi
+
+    c=0
+    while daid_exists "$daid-$revision"; do
+	if [ "$TYPE" = regression ]; then
+	    revision=$(($revision+1))
+	else
+	    daid=$(($daid+1))
+	fi
+	c=$(($c+1))
+	if [ $c -eq 10 ]; then
+	    error "unable to find an unused $IDMODE id after $c attempts" >&2
+	    error "to workaround specify an id as the first parameter" >&2
+	    exit 1
+	fi
+    done
+    DAID="$daid-$revision"
+fi
+
+if daid_exists "$DAID"; then
+    error "$IDMODE-$DAID has already been used" >&2
+    exit 1
+fi
+
+if $unembargo; then
+    EMBRGD_ID="EMBRGD-$PACKAGE"
+    mv "$IDMODE-${EMBRGD_ID}" $IDMODE-"$DAID"
+
+    # get the date of when the embargoed entry was generated
+    gen_date="$(sed -rn "/$IDMODE-${EMBRGD_ID}/{s/^\[(.+)\].+$/\1/;p;t}" data/$IDMODE/list)"
+
+    OLD_DATE="$(date -d "$gen_date" +"%B %d, %Y")"
+    OLD_SPACEDDATE="$(right_space "$OLD_DATE" "$DATE_SPACING")"
+
+    NEW_DATE="$(date +"%B %d, %Y")"
+    NEW_SPACEDDATE="$(right_space "$NEW_DATE" "$DATE_SPACING")"
+
+    sed -ri "/$IDMODE-${EMBRGD_ID}/{s/\[.+\]/[$(date +"%d %b %Y")]/;s/$IDMODE-${EMBRGD_ID}/$IDMODE-$DAID/;}" data/$IDMODE/list
+    sed -i "s/${EMBRGD_ID}/$DAID/g" $IDMODE-"$DAID"
+    sed -i "s/^$OLD_SPACEDDATE/$NEW_SPACEDDATE/" $IDMODE-"$DAID"
+
+    echo "'Unembargoing' as $IDMODE-$DAID"
+    exit
+fi
+
+tmpf=$(mktemp)
+cat doc/$IDMODE.template > $tmpf
+
+if [ "$TYPE" = regression ]; then
+    sed -ri '/^Subject:/s/security update$/regression update/' $tmpf
+fi
+
+if [ $REFERENCES -gt 1 ]; then
+    sed -ri 's/this problem has/these problems have/' $tmpf
+fi
+
+if [ -z "$DEBFULLNAME" ]; then
+    "error: DEBFULLNAME env variable required"
+    exit 1
+fi
+SPACEDDEBFULLNAME="$(left_space "$DEBFULLNAME" "$NAME_SPACING")"
+
+DATE="$(date +"%B %d, %Y")"
+SPACEDDATE="$(right_space "$DATE" "$DATE_SPACING")"
+
+setvar DEBEMAIL
+setvar DEBFULLNAME
+setvar SPACEDDEBFULLNAME
+setvar PACKAGE
+setvar CVE "$CVE_LIST"
+setvar ${IDMODE}ID "$DAID"
+setvar BUGNUM
+setvar SPACEDDATE
+setvar DATE
+setvar TEXT "${TEXT:-$IDMODE text goes here}"
+
+for dist in $RELEASES; do
+    setvar $dist
+done
+
+DISTS=
+
+for dist in $CODENAMES; do
+    version="$(eval 'printf "%s" "$'"$dist"_VERSION'"')"
+    if $save && [ -z "$version" ] && grep -q "${dist}_VERSION" "$tmpf"; then
+	printf "Enter $dist's version [unset]: "
+	read version
+	if [ -n "$version" ]; then
+	    eval "${dist}_VERSION='$version'"
+	fi
+    fi
+    [ -z "$version" ] || setvar "${dist}_VERSION" "$version"
+    [ -z "$version" ] || DISTS="${DISTS},${dist}"
+done
+
+DISTS="${DISTS#,}"
+
+if [ -n "${DISTS}" ]; then
+    bin/remove-cve-dist-tags "${DISTS}" "${PACKAGE}" ${CVE}
+fi
+
+if ! $save; then
+    cat $tmpf
+    echo
+    echo " ---- "
+    echo "Pass --save as the first parameter to save the text to $IDMODE-$DAID"
+    echo "(the data/$IDMODE/list entry will also be added)"
+    rm -f "$tmpf"
+    exit
+else
+    mv -i $tmpf "$IDMODE-$DAID" || { rm -f $tmpf; exit; }
+
+    needed_file=data/"$(tolower "$IDMODE")"-needed.txt
+
+    daid_entry=$(mktemp)
+    cat <<EOF > $daid_entry
+[$(date +"%d %b %Y")] $IDMODE-$DAID $PACKAGE - $TYPE update
+EOF
+
+    if [ "$CVE" ]; then
+	printf "\t{%s}\n" "$CVE" >> $daid_entry
+    fi
+
+    for dist in $CODENAMES; do
+	version="$(eval 'printf "%s" "$'"$dist"_VERSION'"')"
+	[ -z "$version" ] || \
+	    printf "\t[%s] - %s %s\n" "$dist" "$PACKAGE" "$version" >> $daid_entry
+    done
+    tmp_list="$(mktemp)"
+    cat $daid_entry data/$IDMODE/list > $tmp_list
+    cat $tmp_list > data/$IDMODE/list
+    rm -f $tmp_list
+    sed -rn '/^'"$PACKAGE"'(\/\w+)?(\s.*|$)\b/{: next;n;/^\s/b next;d};p' $needed_file > $needed_file.new
+    mv $needed_file.new $needed_file
+    echo "$IDMODE text written to ./$IDMODE-$DAID"
+    if [ "$IDMODE" = "DLA" ] || [ "$IDMODE" = "ELA" ]; then
+	idmode=$(echo "$IDMODE" | tr A-Z a-z)
+	if [ -n "${DISTS}" ]; then
+	    # in case the advisory applies to several dists, we only look for an
+	    # extra cve file in the first one
+	    DIST="`echo ${DISTS} | sed 's/,.*//'`"
+	    extracvefile=`jq -r ".distributions.${DIST}.maincvefile // empty" data/config.json`
+	fi
+	if [ -d .git ]; then
+	    echo "Made the following changes:"
+	    git diff -- data/$IDMODE/list data/CVE/list $extracvefile $needed_file
+	    if ! git diff-index --name-only HEAD -- $needed_file | grep -qs . && [ $TYPE = security ]; then
+		warn "did not make any changes to $needed_file - this may indicate duplicate work or misspelled package name"
+	    fi
+	fi
+	warn "you need to commit and push the changes to data/$IDMODE/list etc. to actually reserve the $IDMODE-$DAID number and avoid conflicts with others."
+	if [ -d .git ]; then
+	    echo -n "Do you want to commit and push them now ? [Yn] "
+	    read reply
+	    if [ "$reply" = "Y" ] || [ "$reply" = "" ] || [ "$reply" = "y" ]; then
+		git add data/$IDMODE/list data/CVE/list $extracvefile $needed_file
+		git commit -m "Reserve $IDMODE-$DAID for $PACKAGE"
+		git push origin master
+	    fi
+	fi
+    fi
+fi

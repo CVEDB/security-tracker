@@ -1,0 +1,44 @@
+# In this file we keep the debtags for packages in "main"
+# where special conditions apply
+
+[wheezy] sql-ledger <limited-support> (Only supported behind an authenticated HTTP zone)
+[squeeze] sql-ledger <limited-support> (Only supported behind an authenticated HTTP zone)
+
+[wheezy] php5 <limited-support> (See README.Debian.security for the PHP security policy)
+[squeeze] php5 <limited-support> (See README.Debian.security for the PHP security policy)
+
+[wheezy] adns <limited-support> (Stub resolver that should only be used with trusted recursors)
+[squeeze] adns <limited-support> (Stub resolver that should only be used with trusted recursors)
+
+[wheezy] ltp <limited-support> (Testsuite, only supported on non-production non-multiuser systems)
+[squeeze] ltp <limited-support> (Testsuite, only supported on non-production non-multiuser systems)
+
+[sid] kompozer <unsupported> (vulnerable to all xulrunner issues, but intended use is not for untrusted or networked sources)
+[squeeze] kompozer <unsupported> (vulnerable to all xulrunner issues, but intended use is not for untrusted or networked sources)
+[wheezy] kompozer <unsupported> (vulnerable to all xulrunner issues, but intended use is not for untrusted or networked sources)
+
+[wheezy] ocsinventory-server <limited-support> (Only supported behind an authenticated HTTP zone)
+[squeeze] ocsinventory-server <limited-support> (Only supported behind an authenticated HTTP zone)
+
+[wheezy] wireshark <limited-support> (Not suitable for network monitoring / intrusion detection, DoS issues fixed with low priority through point updates)
+[squeeze] wireshark <limited-support> (Not suitable for network monitoring / intrusion detection, DoS issues fixed with low priority through point updates)
+
+[wheezy] acidbase <limited-support> (Only supported behind an authenticated HTTP zone for trusted users)
+[squeeze] acidbase <limited-support> (Only supported behind an authenticated HTTP zone for trusted users)
+
+[wheezy] glpi <limited-support> (Only supported behind an authenticated HTTP zone for trusted users)
+[squeeze] glpi <limited-support> (Only supported behind an authenticated HTTP zone for trusted users)
+
+[wheezy] memcached <limited-support> (Attacks that require an attacker to be able to access the memcached port/sock are not supported, it's running as nobody and in a typical setup attackers don't have access to this)
+[squeeze] memcached <limited-support> (Attacks that require an attacker to be able to access the memcached port/sock are not supported, it's running as nobody and in a typical setup attackers don't have access to this)
+
+[wheezy] webkit <unsupported> (not properly supported upstream, only for use on trusted content)
+
+[squeeze] libkhtml5 <unsupported> (not properly supported upstream, only for use on trusted content)
+[wheezy] libkhtml5 <unsupported> (not properly supported upstream, only for use on trusted content)
+
+[wheezy] libqtwebkit4 <unsupported> (not properly supported upstream, only for use on trusted content)
+
+[wheezy] ganglia <limited-support> (See README.Debian.security, only supported behind an authenticated HTTP zone, #702775)
+
+[wheezy] ganglia-web <limited-support> (See README.Debian.security, only supported behind an authenticated HTTP zone, #702776)

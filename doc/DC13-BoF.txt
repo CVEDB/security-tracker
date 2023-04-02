@@ -1,0 +1,81 @@
+During DebConf13, a spontaneous BoF came up from new security team contributors about flaws in the current documentation in the team.
+Here are the gobby notes.
+
+Principles
+----------
+ - avoid repetition, more centralized.
+ - make it easy to update
+ - heavily inter-linked
+ - a reference
+ - lesson learnt collection
+ - review and revalidation (eg, in new-member-time)
+ - openness (all documentation should be readable by everyone - does any documentation have to be private?)
+
+How to interact with the security team
+------
+ - As a vulnerability reporter
+   - public issues
+   - private issues (embargo)
+ - As a maintainer
+   - DSA vulnerability
+   - SPU vulnerability
+   - Just unstable
+ - As an upstream
+   - document how to contact when embargoed issues arise
+
+Organization
+------
+ - Communications channel
+   - Specify public/private ; internal/external
+   - What each list is for:
+     debian-security@lists.debian.org
+     debian-security@debian.org seems to be redirected to debian-private@lists.debian.org
+     debian-security-tracker@lists.debian.org
+     team@security.debian.org
+     (and more)
+     - consolidate lists? (which are needed?; explicit names, e.g. -public/-private)
+   - RT? (incoming queue for non encrypted mails)
+ - Contributors: Members of the security-testing alioth project, the "tracker"
+ - Assistants: Members of the private list, no access to private key
+ - Members: "core" members
+ - How to become a member.
+ - What kind of work you can do with each grant
+ - Who is on which internal upstream security list? (e.g. kernel,
+   mozilla)
+
+Workflow Overview
+-------
+ - Terminlogy: DSA, SPU, embargo, etc...
+ - The Security Tracker
+ - General high level view of "narrative introduction"
+ - What happens after an upload of a package to chopin: DSA, buildds, proposed-updates ... (where to find logs, how to remove bad uploads, ...)
+
+How to interact with the Security Tracker
+-------
+ - A more structured version of "Narrative Introduction"
+ - How to contribute to the security tracker code (Florian)
+   (including how to install a test instance)
+   
+Release a DSA
+-------
+ - A more structured version of the current wiki pages
+
+Internal (?) processes
+-------
+ - Front desk: what needs to be done
+ - Private queue in RT
+ - "Special" packages
+ - CVE ids pool: when to use, how to ask more ids
+ - "Resolutions", "Announces"? like the Amazon CDN for security.debian.org (bits from the security team)
+ - Access to private key
+ - Access to upstream bug trackers
+
+What do we have
+--------
+- narrative introduction
+- some wiki pages
+- teams page
+- some (hidden) documentation in repo
+- section about security in developer's reference
+- Securing Debian Manual (harden-doc) -> linked in the main page?
+  - update it

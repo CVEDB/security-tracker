@@ -1,0 +1,782 @@
+[TOC]
+
+# Debian Security Tracker
+
+About
+-----
+
+Everything in the [Debian Security Tracker](https://security-tracker.debian.org/) is publicly available, as in
+"[Debian doesn't hide problems](https://www.debian.org/social_contract)" available.
+
+The best thing about our tracking *system* is that it is very basic.
+There is no overhead of web-based ticket/issue trackers, it's just a Git
+repository and some text files that we collaboratively edit and then
+some scripts to parse these files and generate useful reports available
+online. Everything is designed to be very simple to use, transparent and
+easy to see what other people are working on so you can work on other
+things.
+
+The Debian Security Tracker is only concerned with how specific vulnerabilities affect
+Debian. Many vulnerabilities are triaged as NFU (`NOT-FOR-US`) simply because the
+vulnerable software is not (yet) packaged for Debian. Triage comments on any specific
+vulnerability only reflect the possible impact on a system running Debian.
+
+For example, systems with some additional or modified packages compared to Debian need
+a separate triage process for every NFU to find ones which are relevant to what has
+been added as well as a triage on packages which differ from Debian.
+
+Entries in the Debian Security Tracker do not imply anything about how a vulnerability
+may affect systems other than Debian.
+
+Gentle Introduction
+-------------------
+
+The following will give you a basic walkthrough of how the files are
+structured, and how we do our work while tracking issues.
+
+The best way to understand is to check out our repository from
+Git so you have the files on your computer and can follow along
+at home. To do this you just need to do the following:
+
+    git clone git@salsa.debian.org:security-tracker-team/security-tracker.git
+
+This will check out the working repository (given that you already have
+an [Salsa
+account](https://wiki.debian.org/Salsa/Doc#Users:_Login_and_Registration).
+After successful downloading, you will have a new directory called
+`security-tracker`.  Inside this directory are a number of
+subdirectories.  The `data` directory is where we do most of our work.
+
+After the initial clone please run
+
+    bin/setup-repo
+
+to activate the pre-commit syntax-check hook.
+
+If you don't need write access, you can of course check out our files
+without a Salsa account as well:
+
+    git clone https://salsa.debian.org/security-tracker-team/security-tracker.git
+
+The CVE list (`CVE/list`)
+-------------------------
+
+### Automatic Issue Updates
+
+Twice a day a cron job runs that pulls down the latest full [CVE](glossary.html#CVE) lists
+from [MITRE](glossary.html#mitre), automatically checks that in into `data/CVE/list`, and
+also syncs that file with other lists like `data/DSA/list` and
+`data/DTSA/list`.
+
+These automatic commits as well as all git commits are notified via
+either the [debian-security-tracker-commits mailing
+list](https://alioth-lists.debian.net/cgi-bin/mailman/listinfo/debian-security-tracker-commits),
+or via the KGB bot in the #debian-security channel on the [OFTC IRC
+network](https://www.oftc.net/). For example, the bot could say in the
+channel:
+
+    17:14 < KGB-0> sectracker tracker role master 3a44c78 security-tracker data/CVE/list * automatic update
+
+Most of our work consists of taking new issues that MITRE releases and
+processing them so that the tracking data is correct. Read on for an
+explanation of how we do this.
+
+### Processing `TODO` entries
+
+The MITRE update typically manifests in new CVE entries. So what we do
+is update our Git repository and then edit `data/CVE/list` and look
+for new `TODO` entries. These will often be in blocks of 10-50 or so,
+depending on how many new issues have been assigned by MITRE.
+
+Processing `TODO` entries means checking if the problem affects Debian and
+if so which packages, as well as evaluate their severity. This information
+is based on *research* and not just in the CVE description in order to
+prevent integrating false positives or incorrect data in the security
+tracker. For example, if the CVE id says that something is
+vulnerable prior to version X, you need to check if that is
+the case as well as for the information given on
+distribution specific issues. Always make sure you understand the
+issue and are able to verify that the information is correct.
+
+Thus, a proper research should include reading the code, finding
+fixes/commits in the upstream repository, or even writing
+patches yourself if you have the time and skills to do that. If you
+can't assure that, please add a `TODO` entry reflecting what is
+missing from your research. Check the section [`NOTE` and `TODO`
+entries](#note-and-todo-entries) for more details.
+
+If you are aware of an error in some CVE description, please
+write to the [oss-security mailing list](glossary.html#oss-sec),
+with a carbon copy (cc) to team@security.debian.org.
+
+### Issues `NOT-FOR-US` (NFU)
+
+Processing entries is done by first seeing if the issue is related to any
+software packaged in Debian. If it isn't a package in Debian and has no
+[ITP/RFP](https://www.debian.org/devel/wnpp/#l2) then you make a note of that
+in the file using a `NOT-FOR-US:` tag. Third-party
+modules not yet packaged for Debian are also tagged as NFU; even if their
+parent software is packaged for Debian. The module names should be
+mentioned in the NFU note in order to make issues apparent if that module
+should ever receive a proper package.  Another case are meta packages
+that only provide a downloader (e.g., flashplugin-nonfree). There is no
+way to mark such packages as we have no influence on the version and
+technically the code is not present in Debian.
+
+Example:
+
+    CVE-2005-3018 (Apple Safari allows remote attackers to cause a denial of service ...)
+            NOT-FOR-US: Safari
+
+Before marking a package NFU, the following should be done:
+
+   - Read the full CVE description to determine the product name
+   - Search for the product using `apt-cache search <name>`
+   - If a file was referenced, search for the file using
+      `apt-file search <name>`
+   - Search the [WNPP list](https://www.debian.org/devel/wnpp/) to see
+      if the product has an ITP or RFP (see [ITP/RFP packages](#issues-in-itp-andor-rfp-packages) below)
+   - Search the [ftp-master removal list](https://ftp-master.debian.org/removals-full.txt)
+      or the [Package Tracking System](https://packages.qa.debian.org/) to see if the
+      package was present in the past but was removed (see [Removed
+      packages](#removed-packages) below)
+
+If there is any doubt, add a `NOTE` with your findings and/or ask others to
+double check using `TODO` (see [`NOTE` and `TODO` entries](#note-and-todo-entries) below).
+
+There is a tool that helps with sorting out all the NOT-FOR-US issues:
+`bin/check-new-issues -h`. For the search functions in
+check-new-issues to work, you need to have unstable in your
+sources.list and have done `apt-get update` and `apt-file update`.
+Having libterm-readline-gnu-perl installed helps, too. If you are not
+running unstable, you can search at [https://packages.debian.org](https://packages.debian.org) or
+set up an [unstable chroot](https://www.debian.org/doc/manuals/reference/ch09#_chroot_system).
+
+### Packages in the archive
+
+If the vulnerability refers to a package in the Debian archive (except for experimental,
+[see later](#packages-in-experimental-only)), look
+to see if the package is affected or not (sometimes newer versions that
+have the fixes have already been uploaded).
+
+If the version has been fixed already, note the package name and the
+Debian version that fixes it and assign a severity level to it, for
+example:
+
+    CVE-2005-2596 (User.php in Gallery, as used in Postnuke, allows users with any Admin ...)
+            - gallery 1.5-2 (medium)
+
+Even if the CVE description mentions it is fixed as of a particular
+version, double-check the Debian package yourself (because sometimes
+the CVE descriptions or information from databases like Secunia is
+incorrect).
+
+If it hasn't been fixed, we determine if there has been a bug filed
+about the issue, and if not, file one and then note it in the list
+(again with a severity level):
+
+    CVE-2005-3054 (fopen_wrappers.c in PHP 4.4.0, and possibly other versions, does not ...)
+            - php4 <unfixed> (bug #353585; medium)
+            - php5 <unfixed> (bug #353585; medium)
+
+Bug numbers can be added as in the example above. To avoid duplicate bugs,
+`bug filed` can be added instead of `bug #123456` when the bug report has
+been sent but the bug number is not yet known (however, it is more
+desirable to file the bug, wait for the BTS to assign a number, then update
+the entry in the CVE list so that complete information is always available
+in the tracker).  The bug number is important because it makes it clear
+that the maintainer has been contacted about the problem, and that they are
+aware of their responsibility to work swiftly toward a fix.
+
+Since CVEs often drop in bulk, submission of multiple CVEs in a single bug
+report is permissible and encouraged. However, some maintainers have
+indicated a preference for only one issue per bug report.  The following
+is a list of packages for which each CVE should be reported separately:
+
+ - php5
+ - libav
+ - pwgen
+
+A special exception is made for kernel related issues. The kernel-sec group
+will take care of them. It is not necessary to file bugs in the BTS for kernel
+security issues, it only causes overhead.
+
+If you want to report a bug, bin/report-vuln might be helpful in creating
+the bug report.
+
+If a vulnerability does not affect Debian, e.g., because the vulnerable
+code is not contained, it is marked as `<not-affected>`:
+
+    CVE-2004-2628 (Multiple directory traversal vulnerabilities in thttpd 2.07 beta 0.4, ...)
+            - thttpd <not-affected> (Windows-specific vulnerabilities)
+
+`<not-affected>` is also used if a vulnerability was fixed before a
+package was uploaded into the Debian archive.
+
+
+### Undetermined Tags
+
+If you don't have time to fully research an issue, but it is abundantly
+clear (via CVE text or other announcement) that the issue affects a
+particular package or set of packages, the `<undetermined>` tag can be
+used.  This has the advantage of entering the issue earlier in the
+output of debsecan and on the PTS pages, which is useful for the small
+set of proactive maintainers paying attention to these information
+sources.  Getting the maintainer involved hopefully prompts faster
+fixes.  This also allows enables tracking of multiple packages, some
+of which may already be fixed.
+
+`<undetermined>` can also be used when there simply is not enough
+information disclosed in the existing known references about the
+issue.  Essentially, `<undetermined>` indicates that someone needs
+to come back and revisit the issue.  An example undetermined
+entry is:
+
+    CVE-2011-2351 (Use-after-free vulnerability in Google Chrome before 12.0.742.112 ...)
+            - chromium-browser 12.0.742.112~r90304-1
+            - webkit <undetermined>
+            NOTE: webkit commit #123456
+
+The list of all of currently undetermined issues is aggregated
+[by the tracker](https://security-tracker.debian.org/tracker/status/undetermined).
+This is a good place for new contributors to get started since these
+are issues that can be pruned quickly for new information that may
+not have been known during the initial disclosure, and thus marked
+`<unfixed>` for further work or closed with a version number.  Please
+add notes if you do change an undetermined issue to unfixed (unless
+you're also fixing the issue in the process, which is of course the
+ideal way to help/contribute).
+
+### Packages in Experimental only
+There are some packages that only exists in experimental. In that
+case, place the distribution tag `experimental`. For example:
+
+    CVE-2013-1067 (Apport 2.12.5 and earlier uses weak permissions for core dump files ...)
+            [experimental] - apport 2.12.6-1 (bug #727661)
+
+If the package is in unstable *and* in experimental, focus on unstable (we are
+not tracking fixes in experimental). A note about the situation in experimental
+is appreciated though. For example:
+
+    CVE-2014-8564 (The _gnutls_ecc_ansi_x963_export function in gnutls_ecc.c in GnuTLS ...)
+            - gnutls28 <unfixed> (bug #769154)
+            NOTE: in experimental fixed in 3.3.10-1
+
+### Issues in ITP and/or RFP packages
+
+If an issue is discovered in a package that has an RFP or ITP already filed,
+then that is also noted in order to track the problem, and made sure it is
+resolved before the package enters the archive.  These issues are marked with
+the `<itp>` tag.  Note this includes both ITPs and RFPs since (from a security
+tracking standpoint) there is no advantage in tracking them in separate ways.
+An example entry for an ITP/RFP package is:
+
+    CVE-2004-2525 (Cross-site scripting (XSS) vulnerability in compat.php in Serendipity ...)
+            - serendipity <itp> (bug #312413)
+
+### Reserved entries
+
+Several security problems have coordinated dates of public disclosure,
+i.e., a CVE identifier has been assigned to a problem, but it's not
+public yet. Also, several vendors have a pool of CVE ids they can
+assign to problems that are detected in their products. Such entries
+are marked as `RESERVED` in the tracker:
+
+    CVE-2005-1432
+            RESERVED
+
+### Rejected entries
+
+Sometimes there are CVE assignments that later turn out to be duplicates,
+mistakes or non-issues. These items are reverted and turned into `REJECTED`
+entries:
+
+    CVE-2005-4129
+            REJECTED
+
+### Removed packages
+
+Sometimes there are cases, where a vulnerability hasn't been fixed with
+a code change, but simply by deciding that a package is broken so severely that
+it needs to be removed from the archive entirely. This is tracked with
+the `<removed>` tag:
+
+    CVE-2005-1435 (Open WebMail (OWM) before 2.51 20050430 allows remote authenticated ...)
+            - openwebmail <removed>
+
+Also note that it is sufficient to mark a package as removed in unstable.
+The tracker is aware of which package is present in which distribution
+and marks other distributions that still contain the package automatically
+as unfixed.  For example, if libxml is in oldstable, but not stable or
+unstable, then:
+
+        - libxml <removed>
+
+will track oldstable as affected, but stable and unstable as `not-affected`.
+
+Once a package has been completely removed from all currently supported
+Debian releases, it should be tracked in the `data/packages/removed-packages`
+file.  This file lists all packages (one source package per line) that were
+at one time in a Debian release, but no longer exist in any supported
+version.  Additions to this file can be used to address failing consistency
+checks after a new release.
+
+### end-of-life packages
+
+In rare cases (i.e., webbrowsers) security support for packages
+needs to be stopped before the end of the regular security maintenance
+life cycle.
+
+Packages which are not anymore supported by the security team in a
+(old-)stable release are marked with the end-of-life tag:
+
+    CVE-2011-3973 (cavsdec.c in libavcodec in FFmpeg before 0.7.4 and 0.8.x before 0.8.3 ...)
+            {DSA-2336-1}
+            - libav 4:0.7.1-7 (bug #641478)
+            - ffmpeg <removed>
+            - ffmpeg-debian <end-of-life>
+
+### Issues not warranting a security advisory
+
+These states are reserved for use by the LTS and Security Team.
+
+Sometimes an issue might not warrant an (immediate) security advisory,
+for example if its severity is minor. When that's the case, they are
+marked with a distribution tag, the `<no-dsa>` state and an
+explanation.
+
+Furthermore, two sub-states exist: `<ignored>` and `<postponed>`.
+
+  - if an issue is to be totally ignored, and no updates will be
+    provided for it, then the `<ignored>` state is used.
+
+  - if an issue deserves an update via a security advisory, but it is
+    not needed to release an advisory just because of this issue, the
+    `<postponed>` state can be used instead of a plain `<no-dsa>`.
+    This state can also be used if a fix is already queued up for
+    a future security advisory, to be included later.
+
+### `NOTE` and `TODO` entries
+
+There are many instances where more work has to be done to determine
+if something is affected, and you might not be able to do this at the
+time. These entries can have their TODO line changed to something
+descriptive so that it is clear what remains to be done. For example:
+
+    CVE-2005-3990 (Directory traversal vulnerability in FastJar 0.93 allows remote ...)
+            TODO: check, whether fastjar from the gcc source packages is affected
+
+If you are not sure about some decision (e.g., which package is affected) or
+triaging (e.g., bug severity) you can leave a TODO note for reviewing,
+explaining which aspect have to be reviewed. For example:
+
+    CVE-2013-7295 (Tor before 0.2.4.20, when OpenSSL 1.x is used in ...)
+            - tor 0.2.4.20-1 (low)
+            [wheezy] - tor <no-dsa> (Minor issue)
+            TODO: review, severity. The exploitation scenario is too complicated.
+
+It is also useful to add information to issues as you find it, so that
+when others go to look at an issue and want to know why you marked it
+as you did, or need a reference, it will be there. The more
+information left, the better. For example, the following entry lets
+you know that CVE-2005-3258 doesn't affect the squid that we have
+because the issue was introduced in a patch that was never applied to
+the Debian package:
+
+    CVE-2005-3258 (The rfc1738_do_escape function in ftp.c for Squid 2.5 STABLE11 and ...)
+            - squid <not-affected> (bug #334882; medium)
+            NOTE: Bug was introduced in a patch to squid-2.5.STABLE10,
+            NOTE: this patch was never applied to the Debian package.
+
+Severity levels
+---------------
+
+These levels are mostly used to prioritize the order in which security
+problems are resolved. Anyway, we have a rough overview on how you should
+assess these levels.
+
+**unimportant**: This problem does not affect the Debian binary package, e.g.,
+             a vulnerable source file, which is not built, a vulnerable file
+             in `doc/foo/examples/`, PHP Safe mode bugs, path disclosure (doesn't
+             matter on Debian).
+             All "non-issues in practice" fall also into this category, like
+             issues only "exploitable" if the code in question is setuid root,
+             exploits which only work if someone already has administrative
+             privileges or similar.
+             This severity is also used for vulnerabilities in packages which
+             are not covered by security support.
+
+**low**    : A security problem, which has only mild security implications
+             (local DoS, `/tmp` file races and so on).
+
+**medium** : For anything which permits code execution after user interaction.
+             Local privilege escalation vulnerabilities are in this category as
+             well, or remote privilege escalation if it's constrained to the
+             application (i.e., no shell access to the underlying system, such
+             as simple cross-site scripting). Most remote DoS vulnerabilities
+             fall into this category, too.
+
+**high**   : A typical, exploitable security problem, which you'll really
+             like to fix or at least implement a workaround. This could
+             be because the vulnerable code is very broadly used, because
+             an exploit is in the wild or because the attack vector is
+             very wide.
+             Should be put into that category anything that permits an attacker
+             to execute arbitrary code on the vulnerable system (with or
+             without root privileges) and high-impact denial-of-service bugs
+             (for instance, an IPv4 forwarding path vulnerability which
+             requires only very few packets to exploit).
+             Significant defects in security software can be rated "high" as
+             well (for instance, a vulnerability in a piece of cryptographic
+             software which flags forged digital signatures as genuine).
+
+Certain packages may get higher or lower rating than usual, based on
+their importance.
+
+Assessments of severity are made against the binaries as provided by Debian. For each
+vulnerability, the severity assigned within the Debian Security Tracker only relates to
+how Debian views that vulnerability and how quickly the fix may need to be applied to
+the specified package(s) within Debian.
+
+### Vulnerabilities without an assigned CVE id
+
+If you learn of a vulnerability to which no CVE id has been assigned yet, you can
+[request one](https://github.com/RedHatProductSecurity/CVE-HOWTO).
+In the meantime, you can add an entry of the form
+
+    CVE-2009-XXXX [optipng array overflow]
+            - optipng 0.6.2.1-1 (low)
+            NOTE: https://secunia.com/advisories/34035/
+
+It is desirable to include references
+which uniquely identify the issue, such as a permanent link to an
+entry in the upstream bug tracker, or a bug in the Debian BTS.  If the
+issue is likely present in unstable, a bug should be filed to help the
+maintainer to track it.
+
+Lack of CVE entries should not block advisory publication which are
+otherwise ready, but we should strive to release fully
+cross-referenced advisories nevertheless.
+
+CVE pool from Debian
+--------------------
+
+Debian can only assign CVE numbers from its own pool for issues which
+are not public.  To request a CVE from the Debian pool, write to
+<team@security.debian.org> and include a description which follows CVE
+conventions.
+
+The vulnerabilities must be announced at a later point.  This is a
+requirement by MITRE and can be fulfilled by, for instance, sending an
+announcement to the [oss-security mailing list](glossary.html#oss-sec).
+
+Distribution tags
+-----------------
+
+Our data is primarily targeted at sid, as we track the version that
+a certain issue was fixed in sid. The Security Tracker web site (see
+below) derives information about the applicability of a vulnerability
+to stable and oldstable from the list of DSAs issued by the security
+team and the fact that a source package is part of a release.
+Distribution tags can be used to denote information about a vulnerability
+for the version of a package in a specific release. An example:
+
+    CVE-2005-3974 (Drupal 4.5.0 through 4.5.5 and 4.6.0 through 4.6.3, when running on ...)
+            - drupal 4.5.6-1 (low)
+            [sarge] - drupal <not-affected> (Only vulnerable if running PHP 5)
+
+Drupal has been fixed since 4.5.6, however Drupal from Sarge still isn't
+vulnerable as the vulnerability is only effective when run under PHP 5,
+which isn't part of Sarge.
+
+When a vulnerability is fixed in (oldstable-)proposed-updates, it is added
+to `next-(oldstable-)point-update.txt` and only added to `CVE/list` after the
+point release (during which the `no-dsa` entry is removed).
+
+Generated Reports
+-----------------
+
+All of this tracking information gets automatically parsed and
+compared against madison (a program which inspects a local Debian package archive and
+displays the versions of the given packages found in each suite) to determine what has been fixed and what is
+still waiting, this results in this website:
+
+[https://security-tracker.debian.org/](https://security-tracker.debian.org/)
+
+It incorporates package lists and parses distribution lists and can
+thus be used to:
+
+- Present the security history of a package
+- Provide overviews of vulnerable packages in stable, testing, sid and
+  oldstable (it still has some false positives; with respect to packages in
+  stable that are present in stable, but not vulnerable, these need to
+  be triaged individually).
+- Generate a list of packages that are subject to security problems, but
+  stuck in testing migration due to problems with the dependency chain
+  and thus candidates for a DTSA
+- Generate a list of TODO issues that need to be addressed
+- Generate a list of packages that will enter Debian soon and need to
+  be checked for security problems
+- Generate a list of provisional IDs that need to be turned into proper
+  CVE entries
+- Show some potential problems in the data pool (e.g., misspelled package
+  names not found in the packages list, or potentially missing epochs)
+
+For every security problem it displays:
+
+- The CVE information
+- A severity assessment by NVD
+- Cross references to DTSAs, DSAs and bugs in the BTS
+- The status of a security problem in stable, oldstable, testing and sid
+- Additional notes from our tracker
+
+The DSA list (`DSA/list`)
+-------------------------
+
+We maintain a list of all DSA advisories issued by the stable security
+team. This information is used to derive information about the state
+of security problems for the stable and oldstable distribution. An
+entry for a DSA looks like this:
+
+    [21 Nov 2005] DSA-903-1 unzip - race condition
+            {CVE-2005-2475}
+            [woody] - unzip 5.50-1woody4
+            [sarge] - unzip 5.52-1sarge2
+            NOTE: fixed in testing at time of DSA
+
+The first line tracks the date when a DSA was issued, the DSA
+identifier, the affected source package, and the type of vulnerability.
+The second line performs a cross-reference to the entry in `CVE/list`
+that maintains the state of the vulnerability in sid. Every entry that
+is added like this to `DSA/list` is parsed by a script and automatically
+added to `CVE/list`.  The next lines contain the fixes for stable and
+optionally oldstable, addressed with distribution tags.  You may add
+`NOTE:` entries freely.
+
+There is no need to add anything to `CVE/list` for a DSA, the DSA
+cross-reference will be added automatically by the cron job. However,
+you do need to add `[lenny]` or `[squeeze]` entries to `CVE/list` when there
+is a `no-dsa` or `not-affected` condition.
+
+Summary of tracker syntax
+-------------------------
+
+For a vulnerability in a package in Debian or proposed for introduction into Debian,
+the syntax should contain at least the `PKG_NAME` tabbed line and a `NOTE:` providing a
+URL to useful references, like commit references, bug tracker entries and advisories.
+Other lines are added, where relevant, within the general syntax.
+
+    CVE-YYYY-NNNNNN [(description)]
+     \t RESERVED
+     \t - PKG_NAME [PKG_TAG | PKG_FIX_VERSION] SEVERITY_LEVEL (free text comment)
+     \t [codename] - PKG_NAME [PKG_TAG | PKG_FIX_VERSION] (free text comment)
+     \t NOTE:
+     \t TODO:
+
+- Each tabbed line, except `RESERVED`, can be repeated, e.g. for code embedded in
+  multiple packages and/or to cover multiple suites. Codenames are listed in order of
+  the release date.
+- PKG_NAME is the source package name in the archive.
+- PKG_TAG : `<no-dsa>` | `<unfixed>` | `<undetermined>` | `<not-affected>` | `<itp>`
+- SEVERITY_LEVEL : `(unimportant)` | `(low)` | `(medium)` | `(high)`
+- The pre-commit hook will check the syntax of each entry.
+
+The description of the CVE is not edited in the security tracker but it will be
+shortened in the tracker page for the vulnerability. A temporary description can be
+added with the `[description]` syntax, for example for clarification. This will not be
+overridden by an automatic update unless there is a change in the description of the
+CVE in the MITRE feed.
+
+For `<itp>`, the comment needs to include the bug number as `(bug #NNNNNNNNNN)`. (The
+`<itp>` package tag is used for both ITP and RFP bugs -
+see [ITP/RFP packages](#issues-in-itp-andor-rfp-packages))
+
+`NOTE:` annotations are often used for URLs for more information but can also be
+used for descriptive comments.
+
+Checking in your changes
+------------------------
+
+After thoroughly researching each issue (as described above) and editing
+the relevant files, commit your changes. Peer review is (hopefully) done via the
+mailing list and IRC notifications (see [Automatic issue updates](#automatic-issue-updates) above).
+However, changes to the tracker website itself (e.g., the files in `lib/*`
+and `bin/tracker_service.py`) should be vetted and approved before being
+committed. The preferred way to do this is to send a patch to the
+`debian-security-tracker@lists.debian.org` mailing list or a merge request in Salsa.
+
+- [Salsa](https://salsa.debian.org/security-tracker-team/security-tracker/)
+- [https://lists.debian.org/debian-security-tracker/](https://lists.debian.org/debian-security-tracker/)
+
+Commits are checked for syntax errors before they are actually committed,
+and you'll receive an error and your commit is aborted if it is in error.
+To check your changes yourself beforehand, use `make check-syntax` from
+the root of the Git directory.
+
+Note: It can be useful to use `git worktree` support for merging changes to master and
+ease issues that can occur when someone else has committed in between. See [git
+worktree (1)](https://manpages.debian.org/unstable/git-man/git-worktree.1.en.html).
+
+Following up on security issues
+-------------------------------
+
+By simply loading this page and doing a little gardening of the
+different issues, many things can be done. One thing is that you can
+read all the bug reports of each issue and see if new information has
+been added to the end that might provide updated or changed
+information (such as if an issue has been closed, or a version of the
+package has been uploaded that contains the fix). It is also useful to
+follow-up on the issues to prod the maintainer to deal with the issue,
+which they may have forgotten about.
+
+Tracking of security bugs in the BTS and linking them to a user tag by CVE
+--------------------------------------------------------------------------
+
+There's an automated tagging of security-related bugs to CVE IDs through
+the user tag security for the user `debian-security@lists.debian.org`.
+
+All bugs added to the tracker are automatically tagged. You can use
+the search
+[here](https://bugs.debian.org/cgi-bin/pkgreport.cgi?tag=security;users=debian-security@lists.debian.org;exclude=tracked)
+to find all bugs not yet present in the tracker.
+
+All bug numbers added to the tracker are automatically associated
+with the relevant user tag.
+
+If you checked an issue which doesn't need to be added to the tracker
+(e.g., because it's not security-relevant or otherwise bogus) you can either
+remove the security tag from the bugs or send a mail to control@bugs.debian.org
+with the following content:
+
+    user debian-security@lists.debian.org
+    usertag $BUGNUM + tracked
+
+Contributing with the security tracker code
+-------------------------------------------
+
+Either file a bug against the `security-tracker` pseudo-package attaching the patch
+to be reviewed or create a merge request for the security-tracker project in Salsa.
+
+### Helper scripts for one-off updates
+
+On success, scripts output a snippet of the main CVE list showing the new CVE
+information. Make sure to check for warnings and errors reported by the script. The
+output file needs to be manually reviewed and can then be merged using
+`./bin/merge-cve-files` or sent for review by the security team by email.
+
+##### Updating a vulnerability
+
+* Mark a given released suite as not affected for a specific CVE and source package:
+
+    `./bin/update-vuln --cve CVE --src SRC --suite SUITE`
+
+* Add a bug number to an existing CVE entry
+
+    `./bin/update-vuln --cve CVE --number 1000000`
+
+* Add a note to a specific CVE entry
+
+    `./bin/update-vuln --cve CVE --note "quoted note string"`
+
+Example workflow:
+
+    ./bin/update-vuln --cve CVE-YYYY-NNNNN ...
+
+check for error and warning messages & merge into the main CVE list:
+
+    ./bin/merge-cve-files ./CVE-YYYY-NNNNN.list
+
+review change to data/CVE/list
+
+    git diff data/CVE/list
+    rm ./CVE-YYYY-NNNNN.list
+
+.. repeat for additional entries to this or other CVEs.
+
+    git add data/CVE/list
+    git commit
+
+#### Retrieve fixes in uploads to unstable
+
+`./bin/grab-cve-in-fix` supports different ways to retrieve one or more CVEs as fixed in unstable:
+
+- Using information directly from the upload into unstable:
+
+    `cat changes | ./bin/grab-cve-in-fix --input`
+
+- Using information in the lists.debian.org archive:
+
+    `./bin/grab-cve-in-fix --archive https://lists.debian.org/debian-devel-changes/2021/12/msg01280.html`
+
+- Using information in the package tracker:
+
+    `./bin/grab-cve-in-fix --tracker https://tracker.debian.org/news/1285227/accepted-freerdp2-241dfsg1-1-source-into-unstable/`
+
+- Using local caches in the security-tracker:
+
+    `./bin/grab-cve-in-fix --src SRC --cves [CVES...]`
+
+Note: to use `STDIN` with the --input option, the changes content must be signed - i.e.
+as it would appear in notifications after the upload. This can be used to double-check
+your CVE list before uploading to ftp-master. `./bin/grab-cve-in-fix` will report if a
+CVE does not exist or if the CVE is attributed to a different package.
+
+**TODO** (further details)
+
+### Contributing ongoing triage work
+
+Some familiarity with the tooling and syntax will be needed for this, as with any development
+project.
+
+* `./bin/check-new-issues` - use the -h option to see the help output.
+
+* `./bin/report-vuln` - generate the correct email body to report a bug against a source package
+  relating to an unfixed CVE(s).
+
+### Useful search support for checking new CVEs
+
+- [https://www.debian.org/distrib/packages#search_packages](https://www.debian.org/distrib/packages#search_packages)
+- [https://wnpp.debian.net/](https://wnpp.debian.net/) (Be aware, forwarded ITPs might
+  not be found, so check the [WNPP bug list](https://bugs.debian.org/cgi-bin/pkgreport.cgi?pkg=wnpp;dist=unstable) also)
+- [https://tracker.debian.org/](https://tracker.debian.org/)
+- [https://codesearch.debian.net/](https://codesearch.debian.net/)
+
+Setting up a local testing instance
+-----------------------------------
+
+It is possible to set up an instance of the security tracker in your own machine for testing purposes.
+The following packages are needed:
+
+    jq
+    make
+    python3
+    python3-apt
+    python3-apsw
+
+The following commands build the databases for stable and run a python local server in port 10605:
+
+    make update-packages
+    make
+    make serve
+
+The website is now available as `http://127.0.0.1:10605/tracker/`.
+
+Setting up an extended instance
+-------------------------------
+
+The security tracker supports extra sources of data, which can be used
+to override or extend the information in CVE/list, and to support your
+own announce lists. To do that, add a CVEExtendFile source to
+`data/config.json`. Entries in that file can add information to an
+existing CVE, e.g. to mark it as fixed or ignored, or to mark it as
+affecting additional source packages. For example:
+
+    CVE-2018-11646
+            - webkitgtk <unfixed>
+    CVE-2016-1000340
+            [wheezy] - bouncycastle <not-affected> (Vulnerable code introduced later)
+
+You can also add an announce list of type DSAFile to `data/config.json`,
+and then symlink `bin/gen-DSA` to e.g. `bin/gen-MYSA` and use that to
+create new advisories under your namespace. For that you will need to
+add a `data/mysa-needed.txt` file and `doc/MYSA.template`.

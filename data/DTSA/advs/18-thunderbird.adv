@@ -1,0 +1,49 @@
+source: xxx
+date: Bloptember 99th, 1990
+author: xxx
+vuln-type: multiple
+problem-scope: remote/local
+debian-specifc: yes/no
+cve: CVE-2005-2968, CVE-2005-2266, CVE-2005-2265, CVE-2005-2261, CVE-2005-1532, CVE-2005-1160, CVE-2005-1159, CVE-2005-0989
+vendor-advisory: 
+testing-fix: xxx
+sid-fix: xxx
+upgrade: apt-get install xxx
+
+xxx multiline description here
+
+CVE-2005-2968
+  Thunderbird incorrectly escapes commands in input, fed to it through
+  the --compose option, which could lead to execution of arbitrary
+  shell commands.
+
+CVE-2005-2266
+  Child frames may access parental frames, even if these are in
+  different access domains and may lead to information leakage of
+  cookies or pass words.
+
+CVE-2005-2265
+  Incorrect type checks in InstallVersion.compareTo may lead to a
+  denial-of-service attack or possibly execution of arbitrary code.
+
+CVE-2005-2261
+  XBL scripts are even run, if Javascript has been disabled.
+
+CVE-2005-1532
+  Javascript is inproperly limits its privileges to the calling
+  context, which could lead to "non-DOM privilege override".
+
+CVE-2005-1160
+  Overriding properties/methods of DOM nodes could lead to execution
+  of code with extended "chrome" privileges.
+
+CVE-2005-1159
+  Native function implementations are not verified, causing Javascript 
+  execution at improper memory addresses allowing denial of service and 
+  potentially arbitrary code execution
+
+CVE-2005-0989
+  The find_replen function in the Javascript engine allows remote
+  attackers to read portions of heap memory in a Javascript string via
+  the lambda replace method.
+

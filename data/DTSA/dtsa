@@ -1,0 +1,291 @@
+#!/usr/bin/python2
+
+import sys, getopt, os, glob
+
+# TODO:
+# Add code for updating a DTSA
+# Include SHA-1 checksums in advisories
+
+# Note: This has to be run inside secure-testing/data/DTSA/
+
+# Prerequisites:
+# subdirectories advs/plain-text, advs/html and templates
+# Templates must include header.html and footer.html, but can be blank
+# mailx package installed
+
+announce_mail_address = "secure-testing-announce@lists.alioth.debian.org"
+testing_name = "lenny"
+stable_name = "etch"
+oldstable_name = "sarge"
+
+def print_usage():
+	print "dtsa [-p | -u] dtsa-id major number"
+	print " -p	 Process a new DTSA from a template"
+	print " -u	 Update an existing DTSA from a template"
+	sys.exit(-1)
+
+
+def process_dtsa(id, sid):
+	filename=glob.glob("advs/" + id + "-*.adv")
+
+	src = ""
+	date = ""
+	vuln_type = ""
+	cve = ""
+	testing_fix = ""
+	sid_fix = ""
+	vendor_advisory = ""
+	d = False
+	descr = []
+	author = ""
+	scope = ""
+	upgrade = "apt-get upgrade"
+	debian_specific = False
+
+	dtsa_id = "DTSA-" + id + "-" + str(sid)
+	
+	t_f = open(filename[0], "r")
+	t_l = t_f.readlines()
+
+	for i in t_l:
+		if i.startswith("source:"):
+			src = i[7:].strip()
+		elif i.startswith("date:"):
+			date = i[5:].strip()
+		elif i.startswith("author:"):
+			author = i[7:].strip()
+		elif i.startswith("vendor-advisory:"):
+			vendor_advisory = i[16:].strip()
+		elif i.startswith("vuln-type:"):
+			vuln_type = i[10:].strip()
+		elif i.startswith("problem-scope:"):
+			scope = i[14:].strip()
+		elif i.startswith("debian-specific:"):
+			if i[16:].strip() == "yes":
+				debian_specific = True
+		elif i.startswith("cve:"):
+			cve = i[4:].strip().split(" ")
+		elif i.startswith("testing-fix:"):
+			testing_fix = i[12:].strip()
+		elif i.startswith("sid-fix:"):
+			sid_fix = i[8:].strip()
+		elif i.startswith("upgrade:"):
+			upgrade = i[8:].strip()
+		elif d:
+			if i[-1] == '\n': i = i[:-1]
+			descr.append(i)
+		elif i == "\n" and d == False:
+			d = True
+
+	if len(cve) == 0:
+		print "No CVE assignments seem to have been made for this issue"
+
+	export_html(src, date, vuln_type, cve, testing_fix, sid_fix, descr, vendor_advisory, dtsa_id, 1, author, scope, debian_specific, upgrade)
+	
+	print "A html representation has been generated as",dtsa_id + ".html"
+	
+	export_ascii(src, date, vuln_type, cve, testing_fix, sid_fix, descr, vendor_advisory, dtsa_id, 1, author, scope, debian_specific, upgrade)
+
+	print "A textual representation has been generated as", dtsa_id
+	print "You can publish it with the sndadvisory script"
+	print
+	
+	construct_dtsa_list(date, dtsa_id, cve, src, vuln_type, testing_fix)
+
+	print "Added new DTSA to the list of DTSAs"
+	print
+
+# This adds a published DTSA to the list, so that it can be cross-referenced with DSAs and CVE IDs
+def construct_dtsa_list(date, dtsa_id, cve, src, vuln_type, testing_fix):
+	l_f = open(os.getcwd() + "/list", "a")
+	# What do we need the date for? 
+	l_f.write("[" + date + "] " + dtsa_id + " " + src + " - " + vuln_type + "\n")
+	cves = ""
+	if len(cve) > 0:
+		for i in cve:
+			cves += i
+			cves += " "
+	l_f.write("\t{" + cves + "}\n")
+	l_f.write("\t[" + testing_name + "] - " + src + " " + testing_fix + "\n")
+	l_f.write("\tTODO: unreleased\n")
+	l_f.close()
+
+def export_html(src, date, vuln_type, cve, testing_fix, sid_fix, descr, vendor_advisory, id, rev, author, scope, debian_specific, upgrade):
+	html = open(os.getcwd() + "/" + id + ".html", "w")
+	
+	# Open, read, write and close the header
+	header = open(os.getcwd() + "/templates/header.html","r")
+	for line in header.readlines():
+		html.write(line);
+	header.close
+
+	# Write the actual html
+
+	html.write("<h2>"+ id + "</h2>\n")
+	html.write("<dl>\n")
+	html.write("<dt>Date Reported:</dt>\n<dd>" + date + "</dd>\n")
+	html.write("<dt>Affected Package:</dt>\n<dd><a href='http://packages.debian.org/src:" + src + "'>" + src + "</a></dd>\n")
+	html.write("<dt>Vulnerability:</dt>\n<dd>" + vuln_type + "</dd>\n")
+	html.write("<dt>Problem-Scope:</dt>\n<dd>" + scope + "</dd>\n")
+	html.write("<dt>Debian-specific:</dt>\n<dd>" + yn(debian_specific) + "<br></dd>\n")
+
+#	if len(vendor_advisory) > 0:
+#		html.write("Vendor advisory: " + vendor_advisory + "\n")
+#	else:
+#		html.write("Vendor advisory: Not available\n")
+	cves = "<dt>CVE:</dt>\n<dd>\n"
+	if len(cve) > 0:
+		for i in cve:
+			cves += "<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=" + i +"'>"
+			cves += i
+			cves += "</a> \n"
+	else:
+		cves += "None so far\n"
+	html.write(cves + "<br></dd>\n")
+	
+	html.write("<br>")
+	html.write("<dt>More information:</dt>\n")
+	html.write("<dd>");
+	for i in descr:
+		html.write(i + "&nbsp;<br>\n")
+	html.write("</dd>\n")
+
+	html.write("<br>")
+	html.write("<dt>For the testing distribution (" + testing_name + ") this is fixed in version " + testing_fix + "</dt>\n")
+
+	if len(sid_fix) > 0:
+		html.write("<dt>For the unstable distribution (sid) this is fixed in version " + sid_fix + "</dt>\n")
+	else:
+		html.write("<dt>For the unstable distribution this problem will be fixed soon</dt>\n")
+
+	html.write("<br>")
+	html.write("<dt>This upgrade is recommended if you use " + src + ".<dt>\n")
+	html.write("<br>")
+
+	html.write("<dt>If you have the secure testing lines in your sources.list, you can update by running this command as root:</dt>\n")
+	html.write("\n")
+
+	html.write("<dd>apt-get update && "+ upgrade + "</dd>\n")
+	html.write("<br>\n")
+	html.write("\n")
+	# FIXME, use python-crypto for inclusion of SHA-1 checksums
+
+	print "HTML representation has been exported"
+	# Open, read, write and close the footer
+	footer = open(os.getcwd() + "/templates/footer.html","r")
+	for line in footer.readlines():
+		html.write(line);
+	footer.close
+
+	# Be nice and close the html file
+	html.close;
+	pass
+
+
+def export_ascii(src, date, vuln_type, cve, testing_fix, sid_fix, descr, vendor_advisory, id, rev, author, scope, debian_specific, upgrade):
+	ascii = open(os.getcwd() + "/" + id, "w")
+
+	# FIXME: use a nice external template with alignment specifiers
+	# like it used it.
+	ascii.write("--------------------------------------------------------------------------\n")
+	ascii.write("Debian Testing Security Advisory "+ id + ((41-len(id)-len(date))*" ") + date + "\n")
+	ascii.write("secure-testing-team@lists.alioth.debian.org " + ((30-len(author))*" ") + author + "\n") 
+	ascii.write("http://testing-security.debian.net/\n")
+	ascii.write("--------------------------------------------------------------------------\n")
+	ascii.write("\n")
+	ascii.write("Package        : " + src + "\n")
+	ascii.write("Vulnerability  : " + vuln_type + "\n")
+	ascii.write("Problem-Scope  : " + scope + "\n")
+	ascii.write("Debian-specific: " + yn(debian_specific) + "\n")
+#	if len(vendor_advisory) > 0:
+#		ascii.write("Vendor advisory: " + vendor_advisory + "\n")
+#	else:
+#		ascii.write("Vendor advisory: Not available\n")
+	cves =      "CVE ID         : "
+	if len(cve) > 0:
+		for i in cve:
+			cves += i
+			cves += " "
+		ascii.write(cves + "\n")
+	else:
+		ascii.write(cves + "None so far\n")
+	ascii.write("\n")
+	for i in descr:
+		ascii.write(i + "\n")
+	ascii.write("\n")
+
+	ascii.write("For the testing distribution (" + testing_name + ") this is fixed in version\n")
+	ascii.write(testing_fix + "\n")
+	ascii.write("\n")
+
+	if len(sid_fix) > 0:
+		ascii.write("For the unstable distribution (sid) this is fixed in version\n")
+		ascii.write(sid_fix + "\n")
+	else:
+		ascii.write("For the unstable distribution this problem will be fixed soon\n")
+	ascii.write("\n")
+
+	ascii.write("This upgrade is recommended if you use " + src + ".\n")
+	ascii.write("\n")
+
+	ascii.write("The Debian testing security team does not track security issues for the\n")
+	ascii.write("stable (" + stable_name + ") and oldstable (" + oldstable_name + ") distributions. If stable is vulnerable,\n")
+	ascii.write("the Debian security team will make an announcement once a fix is ready.\n")
+	ascii.write("\n")
+
+	ascii.write("Upgrade Instructions\n")
+	ascii.write("--------------------\n")
+	ascii.write("\n")
+
+	ascii.write("To use the Debian testing security archive, add the following lines to\n")
+	ascii.write("your /etc/apt/sources.list:\n")
+	ascii.write("\n")
+	ascii.write("deb http://security.debian.org/ testing-security main contrib non-free\n")
+	ascii.write("deb-src http://security.debian.org/ testing-security main contrib non-free\n")
+	ascii.write("\n")
+
+	ascii.write("To install the update, run this command as root:\n")
+	ascii.write("\n")
+
+	ascii.write("apt-get update && "+ upgrade + "\n")
+	ascii.write("\n")
+  
+	ascii.write("For further information about the Debian testing security team, please refer\n")
+	ascii.write("to http://testing-security.debian.net/\n")
+
+	# FIXME, use python-crypto for inclusion of SHA-1 checksums
+
+	print "ASCII representation has been exported"
+
+def yn(v):
+	if v:
+		return "Yes"
+	else:
+		return "No"
+
+
+def update_dtsa(id):
+	filename=glob.glob("DTSA-" + id + "*")
+        for i in filename: # prune HTML reports
+                if i.endswith(".html"):
+                        filename.remove(i)
+        sub_id = int(filename[-1].split("-")[-1])
+        sub_id += 1
+        process_dtsa(id, sub_id)
+
+opts, pargs = getopt.getopt(sys.argv[1:], "up")
+
+# FIXME, better cmdline error handling
+
+if len(opts) < 1:
+	print_usage()
+
+if len(opts) != 1:
+	print_usage()
+
+if opts[0][0] == "-u":
+	update_dtsa(pargs[0].strip())
+
+if opts[0][0] == "-p":
+	process_dtsa(pargs[0].strip(), 1)
+

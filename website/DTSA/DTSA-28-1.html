@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+    <html><head><meta http-equiv="Content-Type" content="text/html; charset=iso8859-1">
+    <title>Debian testing security team - Advisory</title>
+    <link type="text/css" rel="stylesheet" href="../style.css">
+    <link rel="shortcut icon" href="http://www.debian.org/favicon.ico">
+    </head>
+    <body>
+    <div align="center">
+    <a href="http://www.debian.org/">
+
+     <img src="http://www.debian.org/logos/openlogo-nd-50.png" border="0" hspace="0" vspace="0" alt=""></a>
+    <a href="http://www.debian.org/">
+     <img src="http://www.debian.org/Pics/debian.png" border="0" hspace="0" vspace="0" alt="Debian Project"></a>
+    </div>
+    <br />
+    <table class="reddy" width="100%">
+    <tr>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+
+    <td rowspan="2" class="reddy">Debian testing security team - Advisory</td>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+    </tr>
+    <tr>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-lowerleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+    <td class="reddy">
+
+    <img src="http://www.debian.org/Pics/red-lowerright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+    </tr>
+    </table>
+
+<!-- header -->
+<h2>DTSA-28-1</h2>
+<dl>
+<dt>Date Reported:</dt>
+<dd>January 25th, 2005</dd>
+<dt>Affected Package:</dt>
+<dd><a href='http://packages.debian.org/src:gpdf'>gpdf</a></dd>
+<dt>Vulnerability:</dt>
+<dd>multiple vulnerabilities</dd>
+<dt>Problem-Scope:</dt>
+<dd>local/user-initiated</dd>
+<dt>Debian-specific:</dt>
+<dd>No<br></dd>
+<dt>CVE:</dt>
+<dd>
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2097'>CVE-2005-2097</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-3193'>CVE-2005-3193</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-3624'>CVE-2005-3624</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-3625'>CVE-2005-3625</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-3626'>CVE-2005-3626</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-3627'>CVE-2005-3627</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-3628'>CVE-2005-3628</a> 
+<br></dd>
+<br><dt>More information:</dt>
+<dd>&nbsp;<br>
+Multiple security holes have been found in the xpdf library which gpdf embbeds:&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2097&nbsp;<br>
+  xpdf does not properly validate the "loca" table in PDF files, which allows&nbsp;<br>
+  local users to cause a denial of service (disk consumption and hang) via a&nbsp;<br>
+  PDF file with a "broken" loca table, which causes a large temporary file to&nbsp;<br>
+  be created when xpdf attempts to reconstruct the information. &nbsp;<br>
+  &nbsp;<br>
+CVE-2005-3193&nbsp;<br>
+  Heap-based buffer overflow in the JPXStream::readCodestream function in the&nbsp;<br>
+  JPX stream parsing code (JPXStream.c) for xpdf 3.01 and earlier allows&nbsp;<br>
+  user-complicit attackers to cause a denial of service (heap corruption) and&nbsp;<br>
+  possibly execute arbitrary code via a crafted PDF file with large size values&nbsp;<br>
+  that cause insufficient memory to be allocated.&nbsp;<br>
+  &nbsp;<br>
+CVE-2005-3624&nbsp;<br>
+  The CCITTFaxStream::CCITTFaxStream function in Stream.cc for gpdf allows&nbsp;<br>
+  attackers to corrupt the heap via negative or large integers in a&nbsp;<br>
+  CCITTFaxDecode stream, which lead to integer overflows and integer&nbsp;<br>
+  underflows.&nbsp;<br>
+  &nbsp;<br>
+CVE-2005-3625&nbsp;<br>
+  Xpdf allows attackers to cause a denial of service (infinite loop) via&nbsp;<br>
+  streams that end prematurely, as demonstrated using the (1) CCITTFaxDecode&nbsp;<br>
+  and (2) DCTDecode streams, aka "Infinite CPU spins."&nbsp;<br>
+  &nbsp;<br>
+CVE-2005-3626&nbsp;<br>
+  Xpdf allows attackers to cause a denial of service (crash) via a crafted&nbsp;<br>
+  FlateDecode stream that triggers a null dereference.&nbsp;<br>
+  &nbsp;<br>
+CVE-2005-3627&nbsp;<br>
+  Stream.cc in Xpdf allows attackers to modify memory and possibly execute&nbsp;<br>
+  arbitrary code via a DCTDecode stream with (1) a large "number of components"&nbsp;<br>
+  value that is not checked by DCTStream::readBaselineSOF or&nbsp;<br>
+  DCTStream::readProgressiveSOF, (2) a large "Huffman table index" value that&nbsp;<br>
+  is not checked by DCTStream::readHuffmanTables, and (3) certain uses of the&nbsp;<br>
+  scanInfo.numComps value by DCTStream::readScanInfo.&nbsp;<br>
+  &nbsp;<br>
+CVE-2005-3628&nbsp;<br>
+  Buffer overflow in the JBIG2Bitmap::JBIG2Bitmap function in JBIG2Stream.cc in&nbsp;<br>
+  Xpdf allows attackers to modify memory and possibly execute arbitrary code&nbsp;<br>
+  via unknown attack vectors.&nbsp;<br>
+&nbsp;<br>
+Please note, these issues have already been fixed in stable from the following&nbsp;<br>
+security announcements:&nbsp;<br>
+DSA-780-1, DSA-931-1, DSA-932-1, DSA-936-1, DSA-937-1, DSA-938-1, DSA-940-1,&nbsp;<br>
+DSA-950-1&nbsp;<br>
+</dd>
+<br><dt>For the testing distribution (etch) this is fixed in version 2.10.0-1+etch1</dt>
+<dt>For the unstable distribution (sid) this is fixed in version 2.10.0-2</dt>
+<br><dt>This upgrade is recommended if you use gpdf.<dt>
+<br><dt>If you have the secure testing lines in your sources.list, you can update by running this command as root:</dt>
+
+<dd>apt-get update && apt-get install gpdf</dd>
+<br>
+
+<br>
+<dt>To use the Debian testing security archive, add the following lines to your /etc/apt/sources.list:<dt>
+<br>
+<dd>deb http://secure-testing-mirrors.debian.net/debian-secure-testing etch-proposed-updates/security-updates main contrib non-free</dd>
+<dd>deb-src http://secure-testing-mirrors.debian.net/debian-secure-testing etch-proposed-updates/security-updates main contrib non-free</dd>
+<br>
+<dt>The archive signing key can be downloaded from<dt>
+<dd><a href='http://secure-testing.debian.net/ziyi-2005-7.asc'>http://secure-testing.debian.net/ziyi-2005-7.asc</a><dd>
+
+<br>
+
+<!-- footer -->
+<hr>
+<a href="http://validator.w3.org/check?uri=referer">
+    <img border="0" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01!" height="31" width="88"></a>
+    <a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img border="0" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!"
+     height="31" width="88"></a>
+
+
+</body></html>
+

@@ -1,0 +1,91 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+
+my $user="debian-security\@lists.debian.org";
+my $list=shift;
+my $oldlist="$list.old";
+
+if (! -e $list) {
+	die "$list does not exist\n";
+}
+if (! -e $oldlist) {
+	die "$oldlist does not exist (touch it if running for first time)\n";
+}
+
+my %old = processlist($oldlist);
+my %new = processlist($list);
+
+# Build up a list of changes between the two lists.
+my @changes;
+
+# Remove anything that is on both lists from both,
+# so the lists only contain changes.
+foreach my $bug (keys %old) {
+	foreach my $cve (keys %{$old{$bug}}) {
+		if (exists $new{$bug} && exists $new{$bug}{$cve}) {
+			delete $new{$bug}{$cve};
+			delete $old{$bug}{$cve};
+		}
+	}
+}
+
+# Remove tags for all old stuff. Hs to come before adding tags for new
+# stuff, to deal with edge cases where bugs move between CVE ids.
+foreach my $bug (keys %old) {
+	foreach my $cve (keys %{$old{$bug}}) {
+		push @changes, "usertag $bug - $cve"
+			unless $cve =~ /CVE-\d+-XXXX/;
+		push @changes, "usertag $bug - tracked";
+	}
+}
+
+# Add tags for all new stuff.
+foreach my $bug (keys %new) {
+	foreach my $cve (keys %{$new{$bug}}) {
+		push @changes, "usertag $bug + $cve"
+			unless $cve =~ /CVE-\d+-XXXX/;
+		push @changes, "usertag $bug + tracked";
+	}
+}
+
+if (system("cp", $list, $oldlist) != 0) {
+	die "failed to copy $list to $oldlist, didn't send any mail";
+}
+
+if (@changes) {
+	open(MAIL, "| mail -s \"CVE usertag update\" control\@bugs.debian.org");
+	#open(MAIL, ">&STDOUT");
+	print MAIL "user $user\n";
+	print MAIL "$_\n" foreach @changes;
+	close MAIL;
+}
+
+sub processlist {
+	my $list=shift;
+	my %ret;
+	
+	open (IN, $list) || die "read $list: $!\n";
+	my $cve;
+	while (<IN>) {
+		chomp;
+		if (/^(CVE-(?:[0-9]+|[A-Z]+)-(?:[0-9]+|[A-Z]+))\s*(.*)/) {
+			$cve=$1;
+		}
+		elsif (/\s+-\s+.*\((.*)\)/) {
+			my @notes=split(/\s*;\s+/, $1);
+			foreach my $note (@notes) {
+				if ($note =~ /bug #(\d+)/) {
+					if (! defined $cve) {
+						print STDERR "no cve for bug at line $.!\n";
+						next;
+					}
+					$ret{$1}{$cve}=1;
+				}
+			}
+		}
+	}
+	close IN;
+
+	return %ret;
+}

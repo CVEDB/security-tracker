@@ -1,0 +1,59 @@
+source: gpdf
+date: January 25th, 2005
+author: Neil McGovern
+vuln-type: multiple vulnerabilities
+problem-scope: local/user-initiated
+debian-specific: no
+cve: CVE-2005-2097 CVE-2005-3193 CVE-2005-3624 CVE-2005-3625 CVE-2005-3626 CVE-2005-3627 CVE-2005-3628
+testing-fix: 2.10.0-1+etch1
+sid-fix: 2.10.0-2
+upgrade: apt-get install gpdf
+
+
+Multiple security holes have been found in the xpdf library which gpdf embbeds:
+
+CVE-2005-2097
+  xpdf does not properly validate the "loca" table in PDF files, which allows
+  local users to cause a denial of service (disk consumption and hang) via a
+  PDF file with a "broken" loca table, which causes a large temporary file to
+  be created when xpdf attempts to reconstruct the information. 
+  
+CVE-2005-3193
+  Heap-based buffer overflow in the JPXStream::readCodestream function in the
+  JPX stream parsing code (JPXStream.c) for xpdf 3.01 and earlier allows
+  user-complicit attackers to cause a denial of service (heap corruption) and
+  possibly execute arbitrary code via a crafted PDF file with large size values
+  that cause insufficient memory to be allocated.
+  
+CVE-2005-3624
+  The CCITTFaxStream::CCITTFaxStream function in Stream.cc for gpdf allows
+  attackers to corrupt the heap via negative or large integers in a
+  CCITTFaxDecode stream, which lead to integer overflows and integer
+  underflows.
+  
+CVE-2005-3625
+  Xpdf allows attackers to cause a denial of service (infinite loop) via
+  streams that end prematurely, as demonstrated using the (1) CCITTFaxDecode
+  and (2) DCTDecode streams, aka "Infinite CPU spins."
+  
+CVE-2005-3626
+  Xpdf allows attackers to cause a denial of service (crash) via a crafted
+  FlateDecode stream that triggers a null dereference.
+  
+CVE-2005-3627
+  Stream.cc in Xpdf allows attackers to modify memory and possibly execute
+  arbitrary code via a DCTDecode stream with (1) a large "number of components"
+  value that is not checked by DCTStream::readBaselineSOF or
+  DCTStream::readProgressiveSOF, (2) a large "Huffman table index" value that
+  is not checked by DCTStream::readHuffmanTables, and (3) certain uses of the
+  scanInfo.numComps value by DCTStream::readScanInfo.
+  
+CVE-2005-3628
+  Buffer overflow in the JBIG2Bitmap::JBIG2Bitmap function in JBIG2Stream.cc in
+  Xpdf allows attackers to modify memory and possibly execute arbitrary code
+  via unknown attack vectors.
+
+Please note, these issues have already been fixed in stable from the following
+security announcements:
+DSA-780-1, DSA-931-1, DSA-932-1, DSA-936-1, DSA-937-1, DSA-938-1, DSA-940-1,
+DSA-950-1

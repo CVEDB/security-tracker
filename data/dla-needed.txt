@@ -1,0 +1,300 @@
+An LTS security update is needed for the following source packages.
+When you add a new entry, please keep the list alphabetically sorted.
+
+The specific CVE IDs do not need to be listed, they can be gathered in an up-to-date manner from
+https://security-tracker.debian.org/tracker/source-package/SOURCEPACKAGE
+when working on an update.
+
+To work on a package, simply add your name behind it. To learn more about how
+this list is updated have a look at
+https://wiki.debian.org/LTS/Development#Triage_new_security_issues
+
+To make it easier to see the entire history of an update, please append notes
+rather than remove/replace existing ones.
+
+--
+389-ds-base (gladk)
+  NOTE: 20221231: Programming language: C.
+  NOTE: 20221231: Few users. Low prio. (opal).
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/389-ds-base.git
+  NOTE: 20230227: test new CI
+--
+apache2 (rouca)
+  NOTE: 20230312: Programming language: C.
+  NOTE: 20230312: VCS: https://salsa.debian.org/lts-team/packages/apache2.git
+  NOTE: 20230312: Special attention: Double check an update! Package is used by many customers and users!.
+  NOTE: 20230326: VCS: https://salsa.debian.org/apache-team/apache2. Yadd is ok for using apache2 salsa tree
+--
+cairosvg (Chris Lamb)
+  NOTE: 20230323: Programming language: Python.
+--
+ceph
+  NOTE: 20221031: Programming language: C++.
+  NOTE: 20221031: To be checked further. Not clear whether the vulnerability can be exploited in a Debian system.
+  NOTE: 20221031: What should be checked is whether any user with ceph permission can do the actions described in the exploit. (ola/front-desk)
+  NOTE: 20221130: CVE-2022-3650: The patch is kind of trivial Python stuff backporting work.
+  NOTE: 20221130:   Can someone take care of it in Buster? I'm currently building the Bullseye backport of the fix...
+  NOTE: 20221130:   https://lists.debian.org/debian-lts/2022/11/msg00025.html  (zigo/maintainer)
+  NOTE: 20230102:   [buster] - ceph <not-affected> (ceph-crash service added in Ceph 14) (stefanor)
+  NOTE: 20230111: VCS: https://salsa.debian.org/lts-team/packages/ceph.git
+--
+consul (Abhijith PA)
+  NOTE: 20221031: Programming language: Go.
+  NOTE: 20221031: Concluded that the package should be fixed by the CVE description. Source code not analyzed in detail.
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/consul.git
+--
+curl (holger)
+  NOTE: 20230321: Programming language: C.
+  NOTE: 20230321: VCS: https://salsa.debian.org/lts-team/packages/curl.git
+  NOTE: 20230321: Testsuite: https://lts-team.pages.debian.net/wiki/TestSuites/curl.html
+  NOTE: 20230321: Special attention: High popcon! Roberto has some experience with the package..
+--
+docker.io (gladk)
+  NOTE: 20230303: Programming language: Go.
+  NOTE: 20230303: Follow fixes from bullseye 11.2 (Beuc/front-desk)
+  NOTE: 20230320: VCS: https://salsa.debian.org/lts-team/packages/docker.io.git
+--
+emacs (Adrian Bunk)
+  NOTE: 20230223: Programming language: Lisp.
+  NOTE: 20230223: VCS: https://salsa.debian.org/lts-team/packages/emacs.git
+  NOTE: 20230228: Waiting for confirmation that CVE-2022-48337 regression
+  NOTE: 20230228: is fixed. (bunk)
+--
+erlang
+  NOTE: 20221119: Programming language: Erlang.
+  NOTE: 20221119: at least CVE-2022-37026 needs to be fixed (original request has been for Stretch)
+  NOTE: 20230111: VCS: https://salsa.debian.org/erlang-team/packages/erlang
+  NOTE: 20230111: Maintainer notes: Coordinate with maintainer, whether their VCS can be used. Mail send to mailing list.
+--
+fusiondirectory
+  NOTE: 20221203: Programming language: PHP.
+  NOTE: 20221203: Please evaluate, whether the package can be fixed (gladk).
+  NOTE: 20221203: Two CVEs have only mitigation, fix in a new version (gladk).
+  NOTE: 20221203: Also the package was removed from sid recently (gladk).
+  NOTE: 20221203: Feel free to marke both CVEs as <ignored>, if they are not too serious (gladk).
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/fusiondirectory.git
+--
+ghostscript (Chris Lamb)
+--
+golang-1.11
+  NOTE: 20220916: Programming language: Go.
+  NOTE: 20220916: Special attention: limited support; requires rebuilding reverse build dependencies (though recent bullseye updates didn't)
+  NOTE: 20220916: Harmonize with bullseye and stretch: 9 CVEs fixed in Debian 11.2 & 11.3 + 2 CVEs fixed in stretch-lts (Beuc/front-desk)
+  NOTE: 20220916: CVE-2020-28367 CVE-2021-33196 CVE-2021-36221 CVE-2021-39293 CVE-2021-41771 CVE-2021-44716 CVE-2021-44717 CVE-2022-23772 CVE-2022-23773 CVE-2022-23806 CVE-2022-24921
+  NOTE: 20230111: Testsuite: https://lts-team.pages.debian.net/wiki/TestSuites/golang.html
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/golang-1.11.git
+--
+golang-go.crypto
+  NOTE: 20220915: Programming language: Go.
+  NOTE: 20220915: 3 CVEs fixed in stretch and bullseye (Beuc/front-desk)
+  NOTE: 20220915: Special attention: limited support, cf. buster release notes
+  NOTE: 20220915: Special attention: rebuild reverse-dependencies if needed, e.g. DLA-2402-1 -> DLA-2453-1/DLA-2454-1/DLA-2455-1
+  NOTE: 20220915: Special attention: also check bullseye status
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/golang-go.crypto.git
+--
+golang-websocket
+  NOTE: 20220915: Programming language: Go.
+  NOTE: 20220915: 1 CVE fixed in stretch and bullseye (golang-github-gorilla-websocket) (Beuc/front-desk)
+  NOTE: 20220915: Special attention: limited support; requires rebuilding reverse dependencies
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/golang-websocket.git
+--
+golang-yaml.v2
+  NOTE: 20230125: Programming language: Go.
+  NOTE: 20230125: VCS: https://salsa.debian.org/lts-team/packages/golang-yaml.v2.git
+  NOTE: 20230125: Special attention: limited support; requires rebuilding reverse build dependencies (though recent bullseye updates didn't).
+--
+hdf5
+  NOTE: 20230318: Programming language: C.
+  NOTE: 20230318: VCS: https://salsa.debian.org/lts-team/packages/hdf5.git
+  NOTE: 20230318: Consider fixing all the no-dsa and postponed issues as well. (utkarsh)
+  NOTE: 20230318: Enrico did some work around hdf5* packaging in the past, probably
+  NOTE: 20230318: sync w/ him. (utkarsh)
+--
+linux (Ben Hutchings)
+  NOTE: 20230111: Programming language: C
+--
+man2html
+  NOTE: 20221004: Programming language: C.
+  NOTE: 20221004: It looks like not patch is available.
+  NOTE: 20221004: Please evalulate, whether the issue can be marked as <ignored>.
+  NOTE: 20230213: VCS: https://salsa.debian.org/debian/man2html.git
+  NOTE: 20230226: I would prefer to fix it instead of ignoring. (gladk)
+  NOTE: 20230226: It looks like upstream is dead. Patch needs to be written. (gladk)
+--
+mariadb-10.3
+  NOTE: 20230225: Programming language: C.
+  NOTE: 20230225: VCS: https://salsa.debian.org/mariadb-team/mariadb-10.3/-/commits/buster
+  NOTE: 20230225: Testsuite: https://lists.debian.org/debian-lts/2019/07/msg00049.html
+  NOTE: 20230225: Maintainer notes: Contact original maintainer, Otto.
+--
+netatalk
+  NOTE: 20220816: Programming language: C.
+  NOTE: 20220912: We get errors in the log, not present on bookworm. Needs more investigation. (stefanor)
+  NOTE: 20221212: VCS: https://salsa.debian.org/lts-team/packages/netatalk
+  NOTE: 20221212: Work is ongoing. CVE-2022-0194 is probably too intrusive. (gladk)
+--
+node-got
+  NOTE: 20221111: Programming language: JavaScript.
+  NOTE: 20221111: Follow fixes from bullseye 11.4 (Beuc/front-desk)
+  NOTE: 20221223: Module has been rewritten in Typescript since Buster released (lamby).
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/node-got.git
+--
+node-nth-check
+  NOTE: 20221111: Programming language: JavaScript.
+  NOTE: 20221111: Follow fixes from bullseye 11.3 (Beuc/front-desk)
+  NOTE: 20221223: Module has been rewritten in Typescript since Buster released (lamby).
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/node-nth-check.git
+--
+nova
+  NOTE: 20230302: Programming language: Python.
+  NOTE: 20230302: VCS: https://salsa.debian.org/openstack-team/services/nova
+  NOTE: 20230302: Testsuite: https://lts-team.pages.debian.net/wiki/TestSuites/OpenStack.html
+  NOTE: 20230302: Maintainer notes: Contact original maintainer: zigo.
+  NOTE: 20230302: zigo says that DLA 3302-1 ships a buster-specific CVE-2022-47951 backport that introduces regression
+  NOTE: 20230302: (it's meant to check whether a VMDK image has the "monoliticFlat" subtype, but in practice it breaks compute nodes);
+  NOTE: 20230302: cf. debian/patches/cve-2022-47951-nova-stable-rocky.patch, which depends on images_*.patch.
+  NOTE: 20230302: "The upstream patch introduces a whitelist of allowed subtype (with monoliticFlat disabled by default).
+  NOTE: 20230302:  Though in the Buster codebase, there was no infrastructure to check for this subtype ..." (zigo)
+  NOTE: 20230302: Later suites (e.g. bullseye) ship a direct upstream patch and are not affected.
+  NOTE: 20230302: We can either rework the patch, or disable .vmdk support entirely.
+  NOTE: 20230302: zigo currently has no time and requests the LTS team to do it (IRC #debian-lts 2023-03-02). (Beuc/front-desk)
+--
+nvidia-graphics-drivers
+  NOTE: 20221225: Programming language: binary blob.
+  NOTE: 20230103: Cf. on-going discussion on nvidia support (Beuc/front-desk)
+  NOTE: 20230103: https://lists.debian.org/debian-lts/2023/01/msg00005.html
+--
+nvidia-graphics-drivers-legacy-390xx
+  NOTE: 20221225: Programming language: binary blob.
+  NOTE: 20230103: Cf. on-going discussion on nvidia support (Beuc/front-desk)
+  NOTE: 20230103: https://lists.debian.org/debian-lts/2023/01/msg00005.html
+  NOTE: 20230111: VCS: https://salsa.debian.org/lts-team/packages/nvidia-graphics-drivers-legacy-390xx.git
+--
+openimageio (Markus Koschany)
+  NOTE: 20221225: Programming language: C.
+  NOTE: 20221225: VCS: https://salsa.debian.org/lts-team/packages/openimageio.git
+  NOTE: 20220313: will be released today (apo)
+--
+php-cas
+  NOTE: 20221105: Programming language: PHP.
+  NOTE: 20221105: The fix is not backwards compatible. Should be investigated further whether this issue should be solved or ignored.. (ola)
+  NOTE: 20221107: php-cas only has 2 reverse-deps in buster (fusiondirectory, ocsinventory-reports),
+  NOTE: 20221107: consider fixing all 3 packages; also check situation in ELTS for reference (Beuc/front-desk)
+  NOTE: 20221110: upcoming DSA (Beuc/front-desk)
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/php-cas.git
+--
+pluxml
+  NOTE: 20220913: Programming language: PHP.
+  NOTE: 20220913: Special attention: orphaned package.
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/pluxml.git
+--
+protobuf
+  NOTE: 20221031: Programming language: Several.
+  NOTE: 20221031: Note the 'Note' that one of the CVEs affects the generated code and must therefore get special attention from the application developer using protobuf.
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/protobuf.git
+--
+puppet-module-puppetlabs-mysql
+  NOTE: 20221107: Programming language: Puppet, Ruby.
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/puppet-module-puppetlabs-mysql.git
+--
+python-oslo.privsep
+  NOTE: 20221231: Programming language: Python.
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/python-oslo.privsep.git
+--
+python3.7 (Adrian Bunk)
+  NOTE: 20230220: Programming language: Python.
+  NOTE: 20230220: VCS: https://salsa.debian.org/lts-team/packages/python3.7.git
+  NOTE: 20230220: Testsuite: https://lts-team.pages.debian.net/wiki/TestSuites/python.html
+  NOTE: 20230228: Waiting for actual upstream fix for CVE-2023-24329. (bunk)
+--
+r-cran-commonmark
+  NOTE: 20221009: Programming language: R.
+  NOTE: 20221009: Please synchronize with ghostwriter.
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/r-cran-commonmark.git
+--
+rails
+  NOTE: 20220909: Regression on 2:5.2.2.1+dfsg-1+deb10u4 (abhijith)
+  NOTE: 20220909: Two issues https://lists.debian.org/debian-lts/2022/09/msg00014.html (abhijith)
+  NOTE: 20220909: https://lists.debian.org/debian-lts/2022/09/msg00004.html (abhijith)
+  NOTE: 20220909: upstream report https://github.com/rails/rails/issues/45590 (abhijith)
+  NOTE: 20220915: 2:5.2.2.1+dfsg-1+deb10u5 uploaded without the regression causing patch (abhijith)
+  NOTE: 20220915: Utkarsh prepared a patch and is on testing (abhijith)
+  NOTE: 20221003: https://github.com/rails/rails/issues/45590#issuecomment-1249123907 (abhijith)
+  NOTE: 20221024: Delay upload, see above comment, users have done workaround. Not a good idea
+  NOTE: 20221024: to break thrice in less than 2 month.
+  NOTE: 20221209: Programming language: Ruby.
+  NOTE: 20221209: Testsuite: https://lts-team.pages.debian.net/wiki/TestSuites/rails.html
+  NOTE: 20230131: Utkarsh to start a thread with sec+ruby team with the possible path forward. (utkarsh)
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/rails.git
+--
+rainloop
+  NOTE: 20220913: Programming language: PHP, JavaScript.
+  NOTE: 20220913: Special attention: orphaned as of 2022-09.
+  NOTE: 20220913: Upstream appeared dead but there was activity 2 weeks ago,
+  NOTE: 20220913: a "SnappyMail" fork exists and may have patches we can use,
+  NOTE: 20220913: also there's an unofficial one for CVE-2022-29360;
+  NOTE: 20220913: Evaluate the situation and decide whether we should support or EOL this package (Beuc/front-desk)
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/rainloop.git
+--
+ring
+  NOTE: 20221120: Programming language: C.
+  NOTE: 20230111: VCS: https://salsa.debian.org/lts-team/packages/ring.git
+--
+ruby-loofah (Daniel Leidert)
+  NOTE: 20221231: Programming language: Ruby.
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/ruby-loofah.git
+  NOTE: 20230313: Pinged Daniel re. patches in repo ^. (lamby)
+--
+ruby-rack
+  NOTE: 20230313: Programming language: Ruby.
+  NOTE: 20230313: VCS: https://salsa.debian.org/lts-team/packages/ruby-rack.git
+--
+ruby-rails-html-sanitizer
+  NOTE: 20221231: Programming language: Ruby.
+  NOTE: 20221231: VCS: https://salsa.debian.org/lts-team/packages/ruby-rails-html-sanitizer.git
+  NOTE: 20230303: this cannot be fixed unless ruby-loofah is fixed with appropriate methods. (utkarsh)
+--
+salt
+  NOTE: 20220814: Programming language: Python.
+  NOTE: 20220814: Packages is not in the supported packages by us.
+  NOTE: 20220814: Also, I am not sure, whether it is possible to fix issues
+  NOTE: 20220814: without backporting a newer verion. (Anton)
+  NOTE: 20221209: Testsuite: https://lts-team.pages.debian.net/wiki/TestSuites/salt.html
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/salt.git
+--
+samba (Lee Garrett)
+  NOTE: 20220904: Programming language: C.
+  NOTE: 20220904: VCS: https://salsa.debian.org/lts-team/packages/samba.git
+  NOTE: 20220904: Special attention: High popcon! Used in many servers.
+  NOTE: 20220904: Many postponed or open CVE in general. (apo)
+  NOTE: 20230323: Still working on the long list of CVEs, will likely release an intermittent package first (lee)
+--
+sssd
+  NOTE: 20230131: Programming language: C.
+  NOTE: 20230205: VCS: https://salsa.debian.org/lts-team/packages/sssd.git
+--
+tinymce
+  NOTE: 20221227: Programming language: PHP.
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/tinymce.git
+--
+trafficserver
+   NOTE: 20230202: Programming language: C.
+   NOTE: 20230202: Note recent DLA-3279-1 update. Removed notes (2d9f50586010) suggest CVE-2022-31779 may have already been investigated. (lamby)
+   NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/trafficserver.git
+   NOTE: 20230209: <tobi> very difficult to identify exact patches and on top significant refactoring, especially CVE-2022-31778
+   NOTE: 20230209; CVE-2022-32749 is possibly https://github.com/apache/trafficserver/pull/9243, (see security tracker)
+   NOTE: 20230209: CVE-2022-37392 mihgt be https://github.com/apache/trafficserver/commit/3b9cbf873a77bb7f9297f2b16496a290e0cf7de1
+   NOTE: 20230209: could find informatin for CVE-2022-31779, might be the same fix as CVE-2022-31778 (marked as to be ignored), but no proof on that…
+   NOTE: 20230209: not sure, maybe the safest way would be to update to 8.1.6. </tobi>
+--
+wordpress (guilhem)
+  NOTE: 20230302: Programming language: PHP.
+  NOTE: 20230302: Testsuite: https://lts-team.pages.debian.net/wiki/TestSuites/wordpress.html
+  NOTE: 20230302: buster is 6 CVEs behind bullseye (Beuc/front-desk)
+--
+zabbix
+  NOTE: 20220911: At least CVE-2022-23134 was fixed in stretch so it should be fixed in buster too.
+  NOTE: 20221209: Programming language: C.
+  NOTE: 20221209: Testsuite: https://lts-team.pages.debian.net/wiki/TestSuites/zabbix.html
+  NOTE: 20230206: VCS: https://salsa.debian.org/lts-team/packages/zabbix.git
+--

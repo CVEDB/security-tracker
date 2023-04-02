@@ -1,0 +1,14 @@
+source: vim
+date: September 8th, 2005
+author: Joey Hess
+vuln-type: modeline exploits
+problem-scope: local
+debian-specifc: no
+cve: CVE-2005-2368
+testing-fix: 1:6.3-085+0.0etch1
+sid-fix: 1:6.3-085+1
+upgrade: apt-get install vim
+
+vim modelines allow files to execute arbitrary commands via shell
+metacharacters in the glob or expand commands of a foldexpr expression
+for calculating fold levels.

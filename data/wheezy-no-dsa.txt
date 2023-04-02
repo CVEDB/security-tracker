@@ -1,0 +1,6 @@
+This file keeps track of things that we can mark savely no-dsa in Wheezy due to
+the functionality not being available:
+
+- qemu,kvm:
+  - 9pfs backend handle: not supported since Wheezy's glibc lacks open_by_handle_at
+  - 9pfs backend proxy: not supported since Wheezy doesn't ship virtfs-proxy-helper

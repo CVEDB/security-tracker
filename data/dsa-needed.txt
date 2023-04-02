@@ -1,0 +1,69 @@
+A DSA is needed for the following source packages in old/stable. The specific
+CVE IDs do not need to be listed, they can be gathered in an up-to-date manner from
+https://security-tracker.debian.org/tracker/source-package/SOURCEPACKAGE
+when working on an update.
+
+Some packages are not tracked here:
+- Linux kernel (tracking in kernel-sec repo)
+- Embargoed issues continue to be tracked in separate file.
+
+To pick an issue, simply add your uid behind it.
+
+If needed, specify the release by adding a slash after the name of the source package.
+
+--
+apache2
+  Regressions: #1033408, maybe #1033284
+--
+cairosvg (carnil)
+--
+ghostscript (carnil)
+--
+gpac (aron)
+--
+jupyter-core
+  Maintainer asked for availability to prepare updates
+--
+linux (carnil)
+  Wait until more issues have piled up, though try to regulary rebase for point
+  releases to more recent v5.10.y versions
+--
+netatalk
+  open regression with MacOS, tentative patch not yet merged upstream
+--
+nodejs (aron)
+--
+openimageio
+  some issues allow for RCE, the other ones can also be ignored for stable
+--
+php-cas
+--
+php-horde-mime-viewer
+--
+php-horde-turba
+--
+py7zr
+--
+ring
+  might make sense to rebase to current version
+--
+ruby-nokogiri
+--
+ruby-rack
+--
+ruby-sinatra
+  Maintainer posted packaging repository link with proposed changes for review
+--
+ruby-tzinfo
+--
+salt
+--
+samba
+--
+sofia-sip
+  Maintainer proposed debdiff for review with additional question and sent a followup
+--
+xrdp
+  needs some additional clarification, tentatively DSA worthy
+  maybe upgrade to 0.9.21 within bullseye?
+--

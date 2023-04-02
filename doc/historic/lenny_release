@@ -1,0 +1,35 @@
+Subject: Temporary suspension of testing security support after release of 5.0 (lenny)
+
+Due to the experiences we made after the last stable Debian release, the
+Testing Security Team believes that it will be impossible to provide proper
+security support for the new testing (Debian "squeeze") in the weeks following
+the release of Debian 5.0 (lenny).  Therefore we will temporarily suspend
+security support for Debian testing after the release.
+
+If you need security support, we strongly recommend that you now change your apt
+sources.list entries to point to "lenny" instead of "testing".  This way you
+will automatically stay with "lenny" after its release as stable and will
+receive the normal security support for Debian stable.  After the begin of
+security support for Debian "squeeze" is announced, you may safely upgrade to
+testing again.
+
+
+There are two reasons for this suspension:
+
+After a stable release it will take some time to get the security related buildd
+infrastructure for the new testing in place.  Since many people will be busy
+celebrating the release, we don't know how long this will take ;-)
+
+In addition to that, we expect that shortly after the release a new libc
+version will be uploaded to unstable, which will block most packages from
+migrating from unstable to testing.  This means that no security fixes will
+reach testing from unstable.  Since the Testing Security Team does not have
+enough members to backport all security fixes to testing, it will be impossible
+to provide proper security support.  After the last stable release (etch) it
+took nearly two months until the new glibc reached testing.
+
+On the other hand, libc blocking most packages from migrating to testing also
+means that the difference between stable and testing will not grow quickly in
+the weeks after lenny release.  Therefore staying with stable should be an
+acceptable solution for most users during that time.  If you absolutely need
+newer packages, you may also consider using unstable instead of testing.

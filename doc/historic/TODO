@@ -1,0 +1,50 @@
+* Set up for DTSAs
+
+  - Auto moderation of developer signed mails to -announce.
+
+  - sndadvisory should remove TODO lines from the list file since the
+    advisory is complete
+
+  - merge sndadvisory into dtsa script?
+
+  - web DTSA pages should be built on the fly using the metadata in DTSA/
+    so we don't have to update things in two places when making a change,
+    and so releasing a DTSA does not involve copying html files around
+
+  - The dtsa script should have support for updating the list file
+    when running it on an advisory that it's already been run on before.
+    This would facilitate issuing asvisories, which often takes a few runs
+    before the final one is sent. Alternatively, get rid of the DTSA/list
+    file (do we need it for anything really?)
+
+* Merge stuff into security.debian.org. Long term, but we need to keep in
+  mind that the current archive setup is just to get bootstrapped.
+
+* Web overview
+  - checklist setup for unstable needs to be fixed to ignore Hurd
+
+* Florian's overview should be moved to secure-testing.debian.net, but
+  Florian wants to resolve some issues before.
+
+* Write the script that digs through the security bugs
+
+* Write the script that handles the transfer between secure-testing and testing
+  wrt incomplete archs (aba)
+
+* Improve the developer's reference wrt security bugs (micah)
+
+* Document that finalized syntax
+
+* Review open security bugs and tag the wrt versioned bug tracking
+
+* Create a repo of security patches
+
+* Retroactive updating of the list for not-affected and others
+
+* Document all our stuff and work
+
+* Implement the HELP tag and add it to some outstanding issues
+
+* Link source package specific overview into the PTS
+
+

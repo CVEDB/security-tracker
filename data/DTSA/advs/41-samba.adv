@@ -1,0 +1,33 @@
+source: samba
+date: May 31th, 2007
+author: Stefan Fritsch
+vuln-type: several vulnerabilities
+problem-scope: remote
+debian-specifc: no
+cve:  CVE-2007-2444 CVE-2007-2446 CVE-2007-2447
+vendor-advisory: 
+testing-fix: 3.0.24-6+lenny3
+sid-fix: 3.0.25-1
+upgrade: apt-get upgrade
+
+Several issues have been identified in Samba, the SMB/CIFS file- and
+print-server implementation for GNU/Linux.
+
+CVE-2007-2444 
+
+When translating SIDs to/from names using Samba local list of user and group
+accounts, a logic error in the smbd daemon's internal security stack may result
+in a transition to the root user id rather than the non-root user. The user is
+then able to temporarily issue SMB/CIFS protocol operations as the root user.
+This window of opportunity may allow the attacker to establish addition means
+of gaining root access to the server.
+
+CVE-2007-2446 
+
+Various bugs in Samba's NDR parsing can allow a user to send specially crafted
+MS-RPC requests that will overwrite the heap space with user defined data.
+
+CVE-2007-2447 
+
+Unescaped user input parameters are passed as arguments to /bin/sh allowing for
+remote command execution.

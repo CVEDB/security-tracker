@@ -1,0 +1,72 @@
+#!/usr/bin/python3
+from __future__ import print_function
+
+import os
+import sys
+
+import setup_paths
+import bugs
+import debian_support
+import security_db
+
+db_file = sys.argv[1]
+try:
+    db = security_db.DB(db_file)
+    new_file = False
+except security_db.SchemaMismatch:
+    os.unlink(db_file)
+    db = security_db.DB(db_file, verbose=True)
+    new_file = True
+    
+db.cursor().execute("PRAGMA synchronous = OFF")
+cursor = db.writeTxn()
+
+# Bug lists (CAN/CVE/DSA/DTSA)
+
+try:
+    warnings = db.readBugs(cursor, 'data')
+except SyntaxError as e:
+    if e.filename is None or e.lineno is None:
+        print("error:", e)
+    else:
+        print("%s:%d: %s" % (e.filename, e.lineno, e.msg))
+    sys.exit(1)
+except debian_support.ParseError as e:
+    e.printOut(sys.stderr)
+    sys.exit(1)
+except security_db.InsertError as e:
+    for err in e.errors:
+        print(err)
+    sys.exit(1)
+if warnings:
+    for x in warnings:
+        print(x)
+    sys.exit(1)
+
+# Packages
+
+try:
+    db.readPackages(cursor, 'data/packages')
+except debian_support.ParseError as e:
+    e.printOut(sys.stderr)
+    sys.exit(1)
+
+if new_file:
+    db.commit(cursor)
+    cursor = db.writeTxn()
+
+# Calculate vulnerability information.
+
+warnings = db.calculateVulnerabilities(cursor)
+if warnings:
+    for x in warnings:
+        print(x)
+    sys.exit(1)
+
+# debsecan data
+
+db.calculateDebsecan()
+
+# Everything worked well.
+
+db.commit(cursor)

@@ -1,0 +1,2 @@
+Build logs for security.debian.org are stored on master.debian.org
+in /srv/mail-archives/archive/debian-security-logs

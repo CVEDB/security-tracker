@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+	<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso8859-1">
+	<title>Uploading to testing-security</title>
+	<link type="text/css" rel="stylesheet" href="style.css">
+	<link rel="shortcut icon" href="http://www.debian.org/favicon.ico">
+	</head>
+	<body>
+	<div align="center">
+	<a href="http://www.debian.org/">
+
+     <img src="http://www.debian.org/logos/openlogo-nd-50.png" border="0" hspace="0" vspace="0" alt=""></a>
+	<a href="http://www.debian.org/">
+     <img src="http://www.debian.org/Pics/debian.png" border="0" hspace="0" vspace="0" alt="Debian Project"></a>
+	</div>
+	<br />
+	<table class="reddy" width="100%">
+	<tr>
+	<td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+
+	<td rowspan="2" class="reddy">Debian testing security team</td>
+	<td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+	</tr>
+	<tr>
+	<td class="reddy">
+    <img src="http://www.debian.org/Pics/red-lowerleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+	<td class="reddy">
+
+    <img src="http://www.debian.org/Pics/red-lowerright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+	</tr>
+	</table>
+
+	<p>
+	To upload a package to the secure-testing repository, any Debian
+	developer may follow this checklist:
+	<ol>
+		<h2>Preparing the package</h2>
+		<li><a href="index.html#contact">Contact</a> the team first to avoid duplicate work.</li>
+		
+		<li>Only upload changes that have already been made in
+		unstable and are blocked by reaching testing by some other
+		issues. This is both to keep things in sync once the
+		new version from unstable reaches testing, and to avoid
+		breaking secure-testing too badly with fixes that have not
+		been tested first in unstable.</li>
+		
+		<li>If the orig.tar.gz is already on security.debian.org
+		(either in stable-security or in testing-security) 
+		don't include it in the upload. If in doubt, ask the team.</li>
+		
+		<li>Use a version number that is less than the version
+		number of the fix in unstable, but greater than the version
+		number of the fix in testing (including a possible +b1 for binNMUs).
+		For example, if the fix is in a new upstream version 1.0-1 in unstable,
+		upload version 1.0-1~wheezy1 to testing-security. If the current version
+		in testing is 1.2-3 and the fix is backported to this version, upload
+		version 1.2-3+wheezy1 to testing-security. Make sure
+		that the version you used has <strong>never</strong>
+		been used before in any release.</li>
+		
+		<li>Use <em>CODENAME-security</em> as the distribution in the
+		changelog (e.g. wheezy-security).</li>
+		
+		<li>Build the package in a testing chroot using pbuilder
+		so that all the dependencies are ok. <strong>Be sure to build with
+		the -sa switch to include source, unless the source is
+		already in the testing-security archive.</strong></li>
+		
+		<li>Test the package. Diff the package against the version
+		in testing (if backporting fixes). Use debdiff on both
+		source and binary packages.</li>
+		
+		<li>Sign the package. Any Debian developer in the keyring
+		can do so.</li>
+		
+		<li>Upload to <tt>security-master.debian.org</tt>.
+		<h2>Public security issues</h2>
+		For security issues that are already <strong>public</strong>
+		use the <em>security-master-unembargoed</em> dput target.
+		<h2>Embargoed security issues</h2>
+		To upload fixed packages for embargoed (non-public) security
+		issues use the <em>security-master</em> dput target.
+		</li>
+	</ol>
+
+
+	<p>Information about releasing the packages can be found in the
+	<a href="http://anonscm.debian.org/viewvc/secure-testing/doc/how-to-DTSA?view=co">howto-DTSA
+	file</a> in the SVN repository.
+	
+
+<hr><p>$Id: uploading.html 6493 2007-09-04 11:06:04Z nion $</p>
+<a href="http://validator.w3.org/check?uri=referer">
+    <img border="0" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01!" height="31" width="88"></a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img border="0" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!"
+     height="31" width="88"></a>
+
+    
+</body></html>	

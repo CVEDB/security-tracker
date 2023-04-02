@@ -1,0 +1,20 @@
+#!/usr/bin/python3
+
+# This script is mainly used to demo the updateFile function.
+from __future__ import print_function
+import sys
+
+import setup_paths
+import debian_support
+
+if len(sys.argv) != 3:
+    sys.stderr.write("usage: apt-update-file REMOTE LOCAL\n")
+    sys.exit(1)
+
+try:
+    debian_support.updateFile(sys.argv[1], sys.argv[2])
+except:
+    print("error: in download of %s to %s:" % (repr(sys.argv[1]),
+                                             repr(sys.argv[2])),
+          file=sys.stderr)
+    raise

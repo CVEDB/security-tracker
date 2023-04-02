@@ -1,0 +1,42 @@
+-----------------------------------------------------------------------------
+Debian Testing Security Advisory __ADVISORYX__http://secure-testing.debian.net
+secure-testing-team@lists.alioth.debian.org  __XXXXXXXXXXXXXXXXXXXXXXXWHOAMI__
+__DATE__
+-----------------------------------------------------------------------------
+
+Package        : __PACKAGE__
+Vulnerability  : __SHORTDESC__
+Problem-Type   : __TYPE__
+Debian-specific: __DEBIAN_SPECIFIC__
+CVE ID         : __CVE__
+
+__DESCRIPTION__
+
+For the testing distribution (etch) this is fixed in version
+__TESTINGVER__.
+
+For the unstable distribution (sid) this is fixed in version
+__UNSTABLEVER__.
+
+This upgrade is __UPGRADE_RECOMMENDATION__ if you use __PACKAGE__.
+
+The Debian testing security team does not track security issues for the
+stable distribution (etch). If stable is vulnerable, the Debian security
+team will make an announcement once a fix is ready.
+
+Upgrade Instructions
+--------------------
+
+To use the Debian testing security archive, add the following lines to
+your /etc/apt/sources.list:
+
+  deb http://security.debian.org/ testing-security main contrib non-free
+  deb-src http://security.debian.org/ testing-security main contrib non-free
+
+To install the update, run this command as root:
+
+  apt-get update && apt-get install __PACKAGE__
+
+For further information about the Debian testing security team, please refer
+to http://secure-testing.debian.net/
+

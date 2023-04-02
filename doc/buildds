@@ -1,0 +1,34 @@
+The testing-secure buildd arches are run by the following people:
+
+Arch    Run by
+----    ------
+alpha   ?
+amd64   ?
+arm     Sledge 
+mipsel  ?
+ia64    lamont
+ppc     neuro
+sparc   ?
+s390    ?
+hppa    lamont
+mips    neuro
+mipel	neuro
+m68k    ?
+
+Old info:
+Arch	Run by
+----    ------
+alpha   formorer
+arm     kmuto
+mipsel  aba
+ia64    aba
+ppc     aba 
+sparc   djpig
+s390    zobel
+hppa    zobel 
+mips    tbm
+m68k    yoe
+
+it seems the above list is outdated since we moved to security.debian.org.
+A more current list is at
+klecker:/org/security.debian.org/doc/buildd-admins.txt

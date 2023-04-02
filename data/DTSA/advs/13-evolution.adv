@@ -1,0 +1,26 @@
+source: evolution
+date: September 8th, 2005
+author: Joey Hess
+vuln-type: format string vulnerabilities
+problem-scope: remote
+debian-specifc: no
+cve: CVE-2005-2549 CVE-2005-2550
+testing-fix: 2.2.3-2etch1
+sid-fix: 2.2.3-3
+upgrade: apt-get install evolution
+
+Multiple vulnerabilities were discovered in evolution:
+
+CVE-2005-2549
+
+Multiple format string vulnerabilities in Evolution allow remote attackers
+to cause a denial of service (crash) and possibly execute arbitrary code via
+(1) full vCard data, (2) contact data from remote LDAP servers, or (3) task 
+list data from remote servers.
+
+CVE-2005-2550
+
+Format string vulnerability in Evolution allows remote attackers to cause a
+denial of service (crash) and possibly execute arbitrary code via the
+calendar entries such as task lists, which are not properly handled when
+the user selects the Calendars tab.

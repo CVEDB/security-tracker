@@ -1,0 +1,73 @@
+#!/usr/bin/python3
+
+import sys
+
+import setup_paths
+import bugs
+import debian_support
+
+def do_parse(f):
+    names = {}
+    errors = False
+    try:
+        for r in f:
+            n = r.name
+            if n[0:4] in ('CAN', 'CVE'):
+                n = n[4:]
+            if n in names:
+                if names[n] != r.name:
+                    sys.stderr.write("error: duplicate CVE entry: %s and %s\n"
+                                     % (names[n], r.name))
+                else:
+                    sys.stderr.write("error: duplicate CVE entry: %s\n"
+                                     % r.name)
+                errors = True
+            names[n] = r.name
+    except debian_support.ParseError as e:
+        e.printOut(sys.stderr)
+        errors = True
+    if errors:
+        sys.exit(1)
+
+def construct(c, name):
+    if name == '-':
+        f = sys.stdin
+        name = '<stdin>'
+    else:
+        f  = open(name)
+    return c(name, f)
+
+sources = debian_support.getconfig()["sources"]
+
+def find_source(name):
+    for source in sources:
+        if source["name"] == name:
+            return source
+
+    return None
+
+def parse_file(name, filename):
+    source = find_source(name)
+    cls = source["class"]
+    cls = getattr(bugs, cls)
+    f = construct(cls, filename)
+
+    if cls == bugs.CVEFile:
+        # Relax syntax checking a bit.
+        f.no_version_needs_note = False
+
+    do_parse(f)
+
+if len(sys.argv) == 2 and sys.argv[1] == "--get":
+    l = [src["name"] for src in sources]
+    print(' '.join(l))
+    sys.exit(0)
+
+if len(sys.argv) != 3 or find_source(sys.argv[1]) == None:
+    l = [src["name"] for src in sources]
+    l.sort()
+    sys.stderr.write("usage: check-syntax {%s} file-name\n"
+                     % '|'.join(l))
+    sys.exit(1)
+
+parse_file(sys.argv[1], sys.argv[2])

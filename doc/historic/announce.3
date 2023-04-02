@@ -1,0 +1,46 @@
+X-pseudo-subject: For those who care about testing security
+Subject: Testing security archive move
+
+---------------------------------------------------------------------------
+Debian Testing Security Team                                 May 12th, 2006
+secure-testing-team@lists.alioth.debian.org
+http://testing-security.debian.net/
+---------------------------------------------------------------------------
+
+Testing security archive move
+
+The Debian testing security team is pleased to announce the integration of
+the secure testing archive to http://security.debian.org
+
+We invite Debian users who are currently running testing, or who would like
+to switch to testing, to subscribe to the secure-testing-announce mailing 
+list, which will be used to announce security updates.
+<http://lists.alioth.debian.org/mailman/listinfo/secure-testing-announce>
+
+We also invite you to add the following lines to your apt sources.list file,
+and run "apt-get update && apt-get upgrade" to make the security updates
+available.
+
+deb http://security.debian.org etch/updates main contrib non-free
+deb-src http://security.debian.org etch/updates main contrib non-free
+
+This replaces the previous http://secure-testing.debian.net/ lines which should
+no longer be used. There will be a transition period where packages are
+uploaded to both, but you should now use the http://security.debian.org lines.
+
+Note that while all of Debian's architectures are supported, we may release
+an advisory before fixed packages have built for all supported
+architectures. If so, the missing builds will become available as they
+complete.
+
+Debian developers who would like to upload fixes for security holes in
+testing to the repository can do so, following the instructions on our web
+site. 
+
+Finally, we are still in the process of working out how best to serve users
+of testing and keep your systems secure, and we welcome comments and
+feedback about ways to do better. You can reach the testing security team
+at secure-testing-team@lists.alioth.debian.org.
+
+For more information about the testing security team, see our web site.
+<http://testing-security.debian.net/>.

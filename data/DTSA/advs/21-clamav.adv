@@ -1,0 +1,39 @@
+source: clamav
+date: November 3rd, 2005
+author: Micah Anderson
+vuln-type: Denial of service vulnerabilities and buffer overflow
+problem-scope: remote
+debian-specific: no
+cve: CVE-2005-3239 CVE-2005-3500 CVE-2005-3501 CVE-2005-3303
+testing-fix: 0.87.1-0etch.1
+sid-fix: 0.87.1
+upgrade: apt-get upgrade
+
+
+Multiple security holes were found in clamav:
+
+CVE-2005-3239
+
+  The OLE2 unpacker allows remote attackers to cause a denial of service 
+  by sending a DOC file with an invalid property tree, triggering 
+  an infinite recursion.
+
+CVE-2005-3500
+
+  The tnef_attachment function in Clam AntiVirus before 0.87.1
+  allows remote attackers to cause a denial of service, through
+  an infinate loop and memory exhaustion, by crafting a CAB file
+  with a value that causes ClamAV to repeatedly scan the same block
+
+CVE-2005-3501
+
+  The cabd_find function in of the libmspack library in Clam AntiVirus
+  before 0.87.1 allows remote attackers to cause a denial of service
+  via a crafted CAB file that causes cabd_find to be called with a zero
+  length.
+
+CVE-2005-3303
+
+  The FSB unpacker in Clam AntiVirus 0.80 through 0.87 allows
+  remote attackers to cause memory corruption and execute arbitrary
+  code via a crafted FSG 1.33 file.

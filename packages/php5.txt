@@ -1,0 +1,15 @@
+LTS-specific instructions
+-------------------------
+
+php5 tends to have a regular flow of security updates, so when you add
+it to dla-needed.txt, you should define a target release date and
+fixes for the various CVE published should be added progressively
+to the git repository in collab-maint (branch debian/wheezy):
+https://anonscm.debian.org/cgit/collab-maint/debian-lts/php5.git
+git clone git.debian.org:/git/collab-maint/debian-lts/php5.git
+
+Please leave a comment in dla-needed.txt which explains the above
+instructions.
+
+Obviously a severe vulnerability can lead to an early publication
+of the update (i.e. before the planned release date).

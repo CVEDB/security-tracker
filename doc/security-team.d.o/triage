@@ -1,0 +1,30 @@
+Security updates affecting a released Debian suite can fall under three types:
+
+- The security issue(s) are important enough to warrant an out-of-band update released via [security.debian.org](https://www.debian.org/security/) which gets announced as a DSA.
+  These are getting announced via [debian-security-announce](https://www.debian.org/security/) and also redistributed via other sources (news feeds etc).
+
+- Low severity updates can be included in [point releases](https://wiki.debian.org/DebianReleases/PointReleases), which are getting released every 2-3 months (any user using the [proposed-updates  mechanism](https://www.debian.org/releases/proposed-updates) can also use them before they get released). This provides a good balance between fixing low impact issues before the next stable
+  release, which can simply be installed in one go when a point release happens.
+
+- Some issues are simply not worth fixing in a stable release (for multiple reasons, e.g. because they are mostly a PR hype, or because they
+  are mitigated in Debian via a different config or toolchain hardening or because the impact is so marginal that it doesn't warrant an update).
+
+Every incoming security issue gets triaged. Security issues which are being flagged for the second category are being displayed in the [Debian Package Tracker](https://tracker.debian.org), in fact you might have been redirected from the PTS to this page.
+
+For every CVE listed there, there are three possible options:
+
+- Prepare an update for the next point release following the developers reference [instructions](https://www.debian.org/doc/manuals/developers-reference/pkgs.en.html#special-case-uploads-to-the-stable-and-oldstable-distributions)
+If you CC team@security.debian.org for the release.debian.org bug, the fixed version will get recorded in the [Debian Security Tracker](https://security-tracker.debian.org).
+
+- Some packages have a steady flow of security issues and there's also the option to postpone an update to a later time, in other words
+to get piggybacked onto a future DSA dedicated to a more severe security issue, or held back until a few more low severity issues are known. In the
+Security Tracker these are tracked with the `<postponed>` state, often this means that a fix has been committed to e.g. a buster branch
+in salsa, but no upload has been made yet. You can either send a mail to team@security.debian.org and we'll update the state, or
+you can also make the change yourself if you're familiar with the [Security Tracker](https://security-team.debian.org/security_tracker.html).
+
+- Some packages should rather not be fixed at all, e.g. because the possible benefit does not outweigh the risk/costs of an update,
+or because an update is not possible (e.g. as it would introduce behavioural changes not appropriate for a stable release). In the
+Security Tracker these are tracked with the `<ignored>` state. You can either send a mail to team@security.debian.org and we'll update
+the state, or you can also make the change yourself if you're familiar with the Security Tracker.
+
+Any of the three actions above will make the CVE ID disappear from the "low severity" entry in the PTS.

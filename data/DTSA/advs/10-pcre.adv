@@ -1,0 +1,14 @@
+source: pcre3
+date: August 29th, 2005
+author: Joey Hess
+vuln-type: buffer overflow
+problem-scope: remote
+debian-specific: no
+cve: CVE-2005-2491
+testing-fix: 6.3-0.1etch1
+sid-fix: 6.3-1
+upgrade: apt-get install libpcre3
+
+An integer overflow in pcre_compile.c in Perl Compatible Regular Expressions
+(PCRE) allows attackers to execute arbitrary code via quantifier values in
+regular expressions, which leads to a heap-based buffer overflow.

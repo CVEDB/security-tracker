@@ -1,0 +1,42 @@
+# List of packages whose maintainers want to handle the upload and/or want
+# to review any changes in their packages
+#
+# Each line should contain the source package name and a link to the
+# last communication attempt with the maintainers or a comment.
+
+# All packages by Christoph Biedl
+file        DebConf19 conversation with apo
+busybox     DebConf19 conversation with apo
+
+# Christoph Berg (credativ)
+postgresql* (Christoph will always take care of updates, no need to contact him)
+# However Christoph won't update EOL'd 9.6 for stretch
+# https://lists.debian.org/debian-lts/2022/05/msg00054.html
+
+# Peter Palfrader
+tor
+
+# Henrique de Moraes Holschuh
+intel-microcode         Sometimes we did the update sometimes the maintainer
+
+# Julian Andres Klode
+apt
+
+# All packages by William Blough <bblough@debian.org>
+xerces-c https://lists.debian.org/debian-lts/2019/07/msg00050.html
+
+# Ryan Tandy
+openldap
+
+# all packages maintained by Thorsten Alteholz/Debian Printing Team
+cups
+
+# all packages maintained by Samuel Henrique <samueloph@debian.org>
+# The main reason is to avoid duplication of work, so if I don't
+# reply back in a couple of days, feel free to go ahead.
+# If it's something urgent/critical, I also don't mind the LTS team
+# going ahead with the upload at the same time as letting me know.
+# Some of the packages are listed here
+curl
+rsync
+nmap

@@ -1,0 +1,109 @@
+Tracker setup on soriano.debian.org
+===================================
+
+(This is internal documentation, in case things need to be fixed.
+It is not relevant to day-to-day editing tasks.)
+
+The code and data is organized via
+https://salsa.debian.org/security-tracker-team/
+
+Required packages for running the security-tracker are pulled in via the
+debian.org-security-tracker.debian.org . A mirror for to the packaging
+repository is at https://salsa.debian.org/dsa-team/mirror/debian.org,
+which creates the debian.org-security-tracker.debian.org binary package.
+
+Relevant files and directories
+------------------------------
+
+The tracker runs under the user ID "sectracker".  Most of its files
+are stored in the directory /srv/security-tracker.debian.org/website:
+
+  bin/cron                  invoked by cron once every minute
+  bin/cron-hourly           invoked by cron once every hour
+  bin/cron-daily            invoked by cron once every day
+  bin/read-and-touch        invoked by ~/.procmailrc
+  bin/start-daemon          invoked by cron at reboot
+
+  security-tracker          Git checkout
+  security-tracker/bin/*    main entry points, called bin bin/cron
+  security-tracker/stamps/* files which trigger processing by bin/cron
+
+~sectracker/.procmailrc invokes bin/read-and-touch to create stamp
+files, which are then picked up by bin/cron.  This is done to serialize
+change events in batches (e.g., commits originated from git).
+<sectracker@soriano.debian.org> is subscribed to these mailing lists to
+be notified of changes:
+
+  <debian-security-announce@lists.debian.org>
+  <debian-lts-announce@lists.debian.org>
+  <debian-security-tracker-commits.alioth-lists.debian.net>
+
+The crontab of the "sectracker" user is set up such that the scripts
+are invoked as specified above.
+
+~sectracker/.wgetrc contains the path to the bundle of certificate
+authorities to verify peers for the data fetched via wget:
+
+ca-certificate=/etc/ssl/ca-global/ca-certificates.crt
+
+~sectracker/.curlrc contains a similar setting:
+
+capath=/etc/ssl/ca-global
+
+Web server
+----------
+
+80/TCP is handled by Apache.  The Apache configuration is here:
+
+  /srv/security-tracker.debian.org/etc/apache.conf
+
+mod_proxy is used to forward requests to the actual server which
+listens on 127.0.0.1:25648 and is started by a user systemd unit
+/srv/security-tracker.debian.org/website/systemd/tracker_service.service
+
+The user systemd unit needs to be activated and started once at initial
+setup of the host (including requesting DSA to activate lingering for
+the sectracker user):
+
+As the sectracker running user:
+
+systemctl --user enable --now /srv/security-tracker.debian.org/website/systemd/tracker_service.service
+
+To restart the security tracker service, restart the user systemd unit.
+
+Logging
+-------
+
+Apache logs are stored in:
+
+  /var/log/apache2/security-tracker.debian.org.access.log
+  /var/log/apache2/security-tracker.debian.org.error.log
+
+The Python daemon writes logs to a separate file, too:
+
+  /srv/security-tracker.debian.org/website/log/daemon.log
+
+This also contains the exception traces.
+
+debsecan metadata
+-----------------
+
+/srv/security-tracker.debian.org/website/bin/cron contains code which
+pushes updates to secure-testing-master, using rsync.
+
+PTS interface
+-------------
+
+The PTS fetches bug counts from this URL:
+
+  https://security-tracker.debian.org/tracker/data/pts/1
+
+Code updates
+------------
+
+Updates to the Git checkout only affect the directory
+/srv/security-tracker.debian.org/website/security-tracker/data.  Code
+changes need to be applied manually by inspecting the changes done in
+the security-tracker.git.
+
+After that a service restart is needed (see above)

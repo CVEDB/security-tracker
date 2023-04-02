@@ -1,0 +1,21 @@
+source: poppler
+date:  August 22nd , 2007
+author: Steffen Joeris
+vuln-type: integer overflow
+problem-scope: local (remote)
+debian-specifc: no
+cve: CVE-2007-3387
+vendor-advisory: 
+testing-fix: 0.5.4-6lenny1
+sid-fix: 0.5.4-6.1
+upgrade: apt-get upgrade
+
+It was discovered that an integer overflow in the xpdf PDF viewer may lead
+to the execution of arbitrary code if a malformed PDF file is opened.
+
+CVE-2007-3387
+
+Integer overflow in the StreamPredictor::StreamPredictor function in gpdf 
+before 2.8.2, as used in (1) poppler, (2) xpdf, (3) kpdf, (4) kdegraphics,
+(5) CUPS, and other products, might allow remote attackers to execute 
+arbitrary code via a crafted PDF file.

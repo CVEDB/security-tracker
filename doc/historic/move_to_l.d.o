@@ -1,0 +1,39 @@
+Hi,
+
+as the effort to offer security support for Debian Testing has become more
+official than it was when it started in 2005, and to make it easier to find
+this announcement list, we have decided to move this list from alioth to
+lists.debian.org. The planned date for the switch is June 25th.
+
+For you this means:
+
+1. Subscribers of the old list will be migrated to the new list automatically.
+
+2. This list, secure-testing-announce@lists.alioth.debian.org will be renamed
+to debian-testing-security-announce@lists.debian.org. Mails to you will come
+from the new address.
+
+3. The mailinglist headers will change. If you filter for headers, please
+adjust your setup accordingly. The new header will be:
+
+List-Id: <debian-testing-security-announce.lists.debian.org>
+
+4. The subject will no longer contain the prefix [SECURITY].
+
+5. Mails will originate from a different server. If you had any special
+configuration (like an exception from grey-listing) for the old server, change
+this to:
+
+	lists.debian.org a.k.a. liszt.debian.org
+	82.195.75.100
+
+6. For unsubscribe instructions, look at the footer of announcements mails sent
+from the new list.
+
+7. The list archive will move to
+
+	http://lists.debian.org/debian-testing-security-announce/
+
+
+If you experience any problems, don't hesitate to contact us.
+

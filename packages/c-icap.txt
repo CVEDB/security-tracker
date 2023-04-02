@@ -1,0 +1,37 @@
+Testing
+-------
+Install package: c-icap libc-icap-mod-clamav clamav 
+
+Add
+	Include srv_clamav.conf
+
+to /etc/c-icap/c-icap.conf .
+
+Basic functionality testing: The package c-icap contains a c-icap-client
+command line tool which can be used for the first test:
+
+icap-client
+
+c-icap-client -f /bin/ls -s "srv_clamav?allow204=on&force=on&sizelimit=off&mode=simple"
+
+should report "No modification needed (Allow 204 response)".
+
+c-icap-client -f eicar.com.txt -s "srv_clamav?allow204=on&force=on&sizelimit=off&mode=simple"
+
+should report that virus is found (Eicar-Test-Signature).
+
+Test c-icap with squid3:
+
+squid.conf:
+
+	icap_enable on
+	icap_preview_size 1024
+	icap_send_client_ip  on
+	icap_client_username_header X-Authenticated-User
+	icap_service service_req reqmod_precache bypass=0 icap://127.0.0.1:1344/antivirus_module
+	icap_service service_resp respmod_precache bypass=0 icap://127.0.0.1:1344/antivirus_module
+	adaptation_access service_req allow all
+	adaptation_access service_resp allow all
+
+Set http(s)_proxy for squid, and check downloading e.g
+http://www.eicar.org/download/eicar.com.txt .

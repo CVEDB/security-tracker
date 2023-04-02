@@ -1,0 +1,104 @@
+5 intro
+10 how it works
+5 how to help
+10 how well it works
+?? next steps
+15 questions/discussion
+--
+45 minutes
+
+intro:
+	What is the testing distribution:
+	- Query audience: Who doesn't know how testing works.
+		- Automatically stabelised version of unstable.
+		- Dependency, testing delay and RC bug metrics used to
+		  decide when to update packages.
+		- Unique amoung linux distributions.
+		- Unique challenges, including security.
+	
+	Why testing cannot be secured: <next slide>
+	All of these are real challenges the team faces.
+
+	- Query audience: raise hands if you use testing
+		(Don't worry, the camera isn't pointing at you -- noone
+		will know!)
+	
+	Using testing is still attractive:
+		- desktop users
+		- custom Debian distributions
+	
+
+how it works:
+
+	Team:
+	- Formed last fall (5 years after testing)
+	- Open team of DDs and non-DDs
+	- Members participate because:
+	
+		- Hired by custom Debian distro that is based on testing.
+		  (Skolelinux, Univention Corporate Server)
+		- University deploying sarge on a large scale
+			
+			(Above is 1/2 of team; which explains why it took
+			this long to start the team)
+		
+		  which needs to keep track of security issues anyway.
+		- Want testing to be usable by our users and for faster
+		  releases.
+		- Want to make unstable more secure.
+		- Like the transparency of the team.
+		- "It's fun"
+	- Team is designed to scale well and be easy to grow.
+	- Low barriers for entry to team.
+	- No team members currently have priviliged info (vendor-sec).
+		- And we don't care! Much.
+
+	Data:
+	- [ Maybe do a quick demo of running through CAN list ]
+	- Track data from DSAs, CVE ids, debbugs, full-discolsure, bugtraq.
+	  Mostly CVE.
+	- Not vendor-sec -- open team
+	- Use simple database to track holes
+	- Just keeping up with this data is a large portion of our work.
+	- And it's parallizable.
+	- And its very helpful if all debian changelogs mention CVE ids.
+
+	Getting things fixed:
+	- Team members work on finding/writing patches and bug filing.
+	- Some (DD) members work on NMUs to unstable.
+	- In the future, we hope to do advisories and NMUs via
+	  testing-security direct to testing.
+
+how to help:
+
+	DDs: <next slide>
+
+	anyone:
+	- grab an unfixed bug from the page, fix it, file a bug
+	  with a patch, NMU as necessary, communicate to the team the
+	  fixed package version and bug number.
+	- join the team, help check CANs, develop policy, etc
+	- ideas/patches to improve the interface, website and translations
+	- adapt the changelog autochecker from ubuntu (the python script
+	  that scans ubuntu changelogs and generates
+	  http://people.ubuntu.com/~pitti/ubuntu-cve.html)
+
+how well it works: "Lies, damn lies, and .."
+
+	- Stats arn't my thing.
+	- Too busy working to try to gather much data.
+	- Most time-to-fix comparisons are innately flawed in one way or
+	  another.
+	- Show the tracking page and explain how to read.
+	- One comparison: <next slide>
+	- Better comparisons would involve looking at kernel security holes
+	- Or putting up honeypots
+
+next steps
+
+	- making DTSA announcements
+	- getting fix delay down to 4 days
+	- i386 support to start with
+	- autobuilders, etc..
+
+<last slide>

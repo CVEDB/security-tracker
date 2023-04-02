@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+    <html><head><meta http-equiv="Content-Type" content="text/html; charset=iso8859-1">
+    <title>Debian testing security team - Advisory</title>
+    <link type="text/css" rel="stylesheet" href="../style.css">
+    <link rel="shortcut icon" href="http://www.debian.org/favicon.ico">
+    </head>
+    <body>
+    <div align="center">
+    <a href="http://www.debian.org/">
+
+     <img src="http://www.debian.org/logos/openlogo-nd-50.png" border="0" hspace="0" vspace="0" alt=""></a>
+    <a href="http://www.debian.org/">
+     <img src="http://www.debian.org/Pics/debian.png" border="0" hspace="0" vspace="0" alt="Debian Project"></a>
+    </div>
+    <br />
+    <table class="reddy" width="100%">
+    <tr>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+
+    <td rowspan="2" class="reddy">Debian testing security team - Advisory</td>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+    </tr>
+    <tr>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-lowerleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+    <td class="reddy">
+
+    <img src="http://www.debian.org/Pics/red-lowerright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+    </tr>
+    </table>
+
+<!-- header -->
+<h2>DTSA-2-1</h2>
+<dl>
+<dt>Date Reported:</dt>
+<dd>August 28th, 2005</dd>
+<dt>Affected Package:</dt>
+<dd><a href='http://packages.debian.org/src:centericq'>centericq</a></dd>
+<dt>Vulnerability:</dt>
+<dd>multiple vulnerabilities</dd>
+<dt>Problem-Scope:</dt>
+<dd>local and remote</dd>
+<dt>Debian-specific:</dt>
+<dd>No<br></dd>
+<dt>CVE:</dt>
+<dd>
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2448'>CVE-2005-2448</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2370'>CVE-2005-2370</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2369'>CVE-2005-2369</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-1914'>CVE-2005-1914</a> 
+<br></dd>
+<br><dt>More information:</dt>
+<dd>centericq in testing is vulnerable to multiple security holes:&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2448&nbsp;<br>
+&nbsp;<br>
+Multiple endianness errors in libgadu, which is embedded in centericq,&nbsp;<br>
+allow remote attackers to cause a denial of service (invalid behaviour in&nbsp;<br>
+applications) on big-endian systems.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2370&nbsp;<br>
+&nbsp;<br>
+Multiple memory alignment errors in libgadu, which is embedded in&nbsp;<br>
+centericq, allows remote attackers to cause a denial of service (bus error)&nbsp;<br>
+on certain architectures such as SPARC via an incoming message.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2369&nbsp;<br>
+&nbsp;<br>
+Multiple integer signedness errors in libgadu, which is embedded in&nbsp;<br>
+centericq, may allow remote attackers to cause a denial of service&nbsp;<br>
+or execute arbitrary code.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-1914&nbsp;<br>
+&nbsp;<br>
+centericq creates temporary files with predictable file names, which&nbsp;<br>
+allows local users to overwrite arbitrary files via a symlink attack.&nbsp;<br>
+</dd>
+<br><dt>For the testing distribution (etch) this is fixed in version 4.20.0-8etch1</dt>
+<dt>For the unstable distribution (sid) this is fixed in version 4.20.0-9</dt>
+<br><dt>This upgrade is recommended if you use centericq.<dt>
+<br><dt>If you have the secure testing lines in your sources.list, you can update by running this command as root:</dt>
+
+<dd>apt-get update && apt-get install centericq</dd>
+<br>
+
+<dt>The Debian testing security team does not track security issues for then stable (sarge) and oldstable (woody) distributions. If stable is vulnerable, the Debian security team will make an announcement once a fix is ready.</dt>
+
+<br>
+<dt>To use the Debian testing security archive, add the following lines to your /etc/apt/sources.list:<dt>
+<br>
+<dd>deb http://secure-testing.debian.net/debian-secure-testing etch/security-updates main contrib non-free</dd>
+<dd>deb-src http://secure-testing.debian.net/debian-secure-testing etch/security-updates main contrib non-free</dd>
+<br>
+<dt>The archive signing key can be downloaded from<dt>
+<dd><a href='http://testing-security.debian.net/ziyi-2005-7.asc'>http://testing-security.debian.net/ziyi-2005-7.asc</a><dd>
+
+<br>
+  
+<dt>For further information about the Debian testing security team, please refer to <a href='http://testing-security.debian.net/'>http://testing-security.debian.net/</a></dt>
+
+<!-- footer -->
+<hr>
+<a href="http://validator.w3.org/check?uri=referer">
+    <img border="0" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01!" height="31" width="88"></a>
+    <a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img border="0" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!"
+     height="31" width="88"></a>
+
+
+</body></html>
+

@@ -1,0 +1,35 @@
+source: centericq
+date: August 28th, 2005
+author: Joey Hess
+vuln-type: multiple vulnerabilities
+problem-scope: local and remote
+debian-specific: no
+cve: CVE-2005-2448 CVE-2005-2370 CVE-2005-2369 CVE-2005-1914
+testing-fix: 4.20.0-8etch1
+sid-fix: 4.20.0-9
+upgrade: apt-get install centericq
+
+centericq in testing is vulnerable to multiple security holes:
+
+CVE-2005-2448
+
+  Multiple endianness errors in libgadu, which is embedded in centericq,
+  allow remote attackers to cause a denial of service (invalid behaviour in
+  applications) on big-endian systems.
+
+CVE-2005-2370
+
+  Multiple memory alignment errors in libgadu, which is embedded in
+  centericq, allows remote attackers to cause a denial of service (bus error)
+  on certain architectures such as SPARC via an incoming message.
+
+CVE-2005-2369
+
+  Multiple integer signedness errors in libgadu, which is embedded in
+  centericq, may allow remote attackers to cause a denial of service
+  or execute arbitrary code.
+
+CVE-2005-1914
+
+  centericq creates temporary files with predictable file names, which
+  allows local users to overwrite arbitrary files via a symlink attack.

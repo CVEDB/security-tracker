@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -e
+
+server_port=10605
+ip_address="127.0.0.1"
+service=./tracker_service.py
+url="http://$ip_address:$server_port/tracker"
+
+bindir="`dirname $0`"
+if ! test -r "$bindir/$service" ; then
+    echo "error: failed to locate bin directory (tried $bindir)"
+    exit 1
+fi
+
+cd "$bindir"
+echo "URL: $url"
+"$service" "$url" "$ip_address" "$server_port" ../data/security.db || true

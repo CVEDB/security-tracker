@@ -1,0 +1,6 @@
+This directory contains hint files that are used by the dtsasync program
+on testing-security to control use of the archive there.
+
+sync package/version
+	Causes all available builds of that package and version to be
+	synced from etch-proposed-updates to etch.

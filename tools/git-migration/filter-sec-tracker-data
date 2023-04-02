@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# Separate security tracker data form the "binaries"
+#
+# With no option the data repo will be built, with
+# "--binary" the binary repo will be built
+#
+# This will be run only once when migrating from svn to git
+
+FILTER='^(conf|data|doc|org|packages|stamps)/|^TODO.gitmigration|^Makefile|^.gitignore'
+BRANCH=master
+
+OUT=v
+if [ "$1" == "--binary" ]; then
+    OUT=
+fi
+
+git filter-branch \
+    --prune-empty \
+    --index-filter "
+        git ls-tree -z -r --name-only --full-tree \$GIT_COMMIT \
+        | grep -zZE'${OUT}' '"${FILTER}"' \
+        | xargs -0 -r git rm --cached -r
+    " \
+    -- \
+"${BRANCH}"

@@ -1,0 +1,27 @@
+source: clamav
+date: May 22th, 2007
+author: Stefan Fritsch
+vuln-type: several vulnerabilities
+problem-scope: remote
+debian-specifc: no
+cve: CVE-2007-1745 CVE-2007-1997 CVE-2007-2029
+vendor-advisory: 
+testing-fix: 0.90.1-3lenny2
+sid-fix: 0.90.2-1
+upgrade: apt-get upgrade
+
+Several remote vulnerabilities have been discovered in the Clam anti-virus 
+toolkit. The Common Vulnerabilities and Exposures project identifies the
+following problems:
+
+CVE-2007-1745 
+It was discovered that a file descriptor leak in the CHM handler may lead to 
+denial of service.
+
+CVE-2007-1997 
+It was discovered that a buffer overflow in the CAB handler may lead to the 
+execution of arbitrary code.
+
+CVE-2007-2029 
+It was discovered that a file descriptor leak in the PDF handler may lead to 
+denial of service.

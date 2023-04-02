@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+    <html><head><meta http-equiv="Content-Type" content="text/html; charset=iso8859-1">
+    <title>Debian testing security team - Advisory</title>
+    <link type="text/css" rel="stylesheet" href="../style.css">
+    <link rel="shortcut icon" href="http://www.debian.org/favicon.ico">
+    </head>
+    <body>
+    <div align="center">
+    <a href="http://www.debian.org/">
+
+     <img src="http://www.debian.org/logos/openlogo-nd-50.png" border="0" hspace="0" vspace="0" alt=""></a>
+    <a href="http://www.debian.org/">
+     <img src="http://www.debian.org/Pics/debian.png" border="0" hspace="0" vspace="0" alt="Debian Project"></a>
+    </div>
+    <br />
+    <table class="reddy" width="100%">
+    <tr>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+
+    <td rowspan="2" class="reddy">Debian testing security team - Advisory</td>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+    </tr>
+    <tr>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-lowerleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+    <td class="reddy">
+
+    <img src="http://www.debian.org/Pics/red-lowerright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+    </tr>
+    </table>
+
+<!-- header -->
+<h2>DTSA-40-1</h2>
+<dl>
+<dt>Date Reported:</dt>
+<dd>May 28th, 2007</dd>
+<dt>Affected Package:</dt>
+<dd><a href='http://packages.debian.org/src:php4'>php4</a></dd>
+<dt>Vulnerability:</dt>
+<dd>several vulnerabilities</dd>
+<dt>Problem-Scope:</dt>
+<dd>remote</dd>
+<dt>Debian-specific:</dt>
+<dd>No<br></dd>
+<dt>CVE:</dt>
+<dd>
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-1286'>CVE-2007-1286</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-1380'>CVE-2007-1380</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-1521'>CVE-2007-1521</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-1583'>CVE-2007-1583</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-1718'>CVE-2007-1718</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-1777'>CVE-2007-1777</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-2509'>CVE-2007-2509</a> 
+<br></dd>
+<br><dt>More information:</dt>
+<dd>IMPORTANT NOTE: &nbsp;<br>
+    php4 will be removed from testing (lenny); thus you are strongly&nbsp;<br>
+    advised to migrate to php5. If you cannot upgrade, you should&nbsp;<br>
+    consider using the stable distribution (etch) instead.&nbsp;<br>
+&nbsp;<br>
+Several remote vulnerabilities have been discovered in PHP, a&nbsp;<br>
+server-side, HTML-embedded scripting language, which may lead to the&nbsp;<br>
+execution of arbitrary code. The Common Vulnerabilities and Exposures&nbsp;<br>
+project identifies the following problems:&nbsp;<br>
+&nbsp;<br>
+CVE-2007-1286&nbsp;<br>
+    Stefan Esser discovered an overflow in the object reference handling&nbsp;<br>
+    code of the unserialize() function, which allows the execution of&nbsp;<br>
+    arbitrary code if malformed input is passed from an application.&nbsp;<br>
+&nbsp;<br>
+CVE-2007-1380&nbsp;<br>
+    Stefan Esser discovered that the session handler performs&nbsp;<br>
+    insufficient validation of variable name length values, which allows&nbsp;<br>
+    information disclosure through a heap information leak.&nbsp;<br>
+&nbsp;<br>
+CVE-2007-1521&nbsp;<br>
+    Stefan Esser discovered a double free vulnerability in the&nbsp;<br>
+    session_regenerate_id() function, which allows the execution of&nbsp;<br>
+    arbitrary code. &nbsp;<br>
+&nbsp;<br>
+CVE-2007-1538&nbsp;<br>
+    Stefan Esser discovered that the mb_parse_str function sets the internal&nbsp;<br>
+    register_globals flag and does not disable it in certain cases when a script&nbsp;<br>
+    terminates, which allows remote attackers to invoke available PHP scripts with&nbsp;<br>
+    register_globals functionality that is not detectable by these scripts&nbsp;<br>
+&nbsp;<br>
+CVE-2007-1718&nbsp;<br>
+    Stefan Esser discovered that the mail() function performs&nbsp;<br>
+    insufficient validation of folded mail headers, which allows mail&nbsp;<br>
+    header injection.&nbsp;<br>
+&nbsp;<br>
+CVE-2007-1777&nbsp;<br>
+    Stefan Esser discovered that the extension to handle ZIP archives&nbsp;<br>
+    performs insufficient length checks, which allows the execution of&nbsp;<br>
+    arbitrary code.&nbsp;<br>
+&nbsp;<br>
+CVE-2007-2509&nbsp;<br>
+    It was discovered that the ftp extension of PHP, a server-side,&nbsp;<br>
+    HTML-embedded scripting language performs insufficient input sanitising,&nbsp;<br>
+    which permits an attacker to execute arbitrary FTP commands. This&nbsp;<br>
+    requires the attacker to already have access to the FTP server.&nbsp;<br>
+</dd>
+<br><dt>For the testing distribution (lenny) this is fixed in version 6:4.4.4-9+lenny1</dt>
+<dt>For the unstable distribution (sid) this is fixed in version 6:4.4.6-2</dt>
+<br><dt>This upgrade is recommended if you use php4.<dt>
+<br><dt>If you have the secure testing lines in your sources.list, you can update by running this command as root:</dt>
+
+<dd>apt-get update && apt-get upgrade</dd>
+<br>
+
+<br>
+<dt>To use the Debian testing security archive, add the following lines to your /etc/apt/sources.list:<dt>
+<br>
+<dd>deb http://security.debian.org/ testing/updates main contrib non-free</dd>
+<dd>deb-src http://security.debian.org/ testing/updates main contrib non-free</dd>
+<br>
+
+<!-- footer -->
+<hr>
+<a href="http://validator.w3.org/check?uri=referer">
+    <img border="0" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01!" height="31" width="88"></a>
+    <a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img border="0" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!"
+     height="31" width="88"></a>
+
+
+</body></html>
+

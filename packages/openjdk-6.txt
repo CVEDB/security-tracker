@@ -1,0 +1,21 @@
+Build
+-----
+
+We follow the upstream releases in oldstable and stable, i.e. the version in sid
+is recompiled. The package scripts automatically create the control and rules
+with the appropriate dependencies. 
+
+- You need to download the fixed package from unstable
+- Modify the version number to something like 6b31-1.13.3-1~deb7u1
+- Regenerate the control/rules file: (squeeze is also supported)
+  touch debian/control.in; debian/rules debian/control distrel=wheezy
+- Build with "-sa" (since each security update usually updates to a new release)
+
+Testing
+-------
+
+OpenJDK has an extensive test suite, the result should be compared with previous
+build logs.
+
+Other than that some functionality tests of Java packages in the archive or with
+openjdk-6-demos.

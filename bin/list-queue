@@ -1,0 +1,228 @@
+#!/usr/bin/python2
+# list-queue -- list security-master queue contents
+# Copyright (C) 2011 Florian Weimer <fw@deneb.enyo.de>
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+
+# This script is intended to be run on security-master to get an
+# unprocessed dump of the contents of the embargoed and unembargoed
+# queues.
+#
+# The script reads .deb and .changes files.  A caching database is
+# written to ~/.cache.
+
+
+######################################################################
+# Configuration
+
+DIRECTORIES = ('/org/security-master.debian.org/queue/embargoed',
+               '/org/security-master.debian.org/queue/unembargoed')
+
+# End Configuration
+######################################################################
+
+import json
+import os.path
+import re
+import sqlite3
+import sys
+
+from debian.deb822 import Changes
+from debian.debfile import DebFile
+
+def createdb():
+    cache = os.path.expanduser("~/.cache")
+    if not os.path.isdir(cache):
+        os.mkdir(cache)
+    dbfile = os.path.join(cache, "secure-testing_list-queue.sqlite")
+    db = sqlite3.connect(dbfile, isolation_level="IMMEDIATE")
+    db.execute("PRAGMA page_size = 4096")
+    db.execute("PRAGMA journal_mode = WAL")
+    db.execute("""CREATE TABLE IF NOT EXISTS package (
+  path TEXT NOT NULL PRIMARY KEY,
+  size INTEGER NOT NULL CHECK (size >= 0),
+  mtime INTEGER NOT NULL CHECK (size >= 0),
+  name TEXT NOT NULL,
+  version TEXT NOT NULL,
+  arch TEXT NOT NULL,
+  source TEXT NOT NULL,
+  source_version TEXT NOT NULL
+)""")
+    db.execute("""CREATE TABLE IF NOT EXISTS changes (
+  path TEXT NOT NULL PRIMARY KEY,
+  size INTEGER NOT NULL CHECK (size >= 0),
+  mtime INTEGER NOT NULL CHECK (size >= 0),
+  dist TEXT NOT NULL,
+  debs TEXT NOT NULL
+)""")
+    return db
+
+def readdirs():
+    """Returns two dicts, mapping paths to pairs (SIZE, MTIME).
+
+    First dict is for .deb files, second is for .changes files."""
+    debs = {}
+    changes = {}
+    for path in DIRECTORIES:
+        for entry in os.listdir(path):
+            if entry.startswith("."):
+                continue
+            name = os.path.join(path, entry)
+            stat = os.stat(name)
+            where = None
+            if entry.endswith(".deb"):
+                where = debs
+            elif entry.endswith(".changes"):
+                where = changes
+            if where is not None:
+                where[name] = (stat.st_size, stat.st_mtime)                
+    return (debs, changes)
+
+def readpackages(db):
+    result = {}
+    for row in db.execute("SELECT * FROM package"):
+        name, size, mtime = row[0:3]
+        pkg = tuple(row[3:])
+        result[name] = (size, mtime, pkg)
+    return result
+
+def readchanges(db):
+    result = {}
+    for name, size, mtime, dist, debs in db.execute("SELECT * FROM changes"):
+        result[name] = (size, mtime, dist, set(debs.split()))
+    return result
+
+def deletepaths(db, table, paths):
+    db.executemany("DELETE FROM " + table + " WHERE path = ?", paths)
+
+def prepareupdate(db, ondisk, indb, table):
+    need_update = [(path, stat) for (path, stat) in ondisk.items()
+                   if path not in indb or stat != tuple(indb[path][0:2])]
+    db.executemany("DELETE FROM " + table + " WHERE path = ?",
+                   ((path,) for path, _ in need_update))
+    return need_update
+
+def expire(db, ondisk, indb, table):
+    need_delete = [(path,) for path in indb if path not in ondisk]
+    db.executemany("DELETE FROM " + table + " WHERE path = ?", need_delete)
+    for (path,) in need_delete:
+        del indb[path]
+
+def stripstat(data):
+    "Removes the stat pair from the values in data."
+    for (key, value) in data.items():
+        data[key] = value[2:]
+
+# See debian_support.BinaryPackage.loadtuple().
+def deb822totuple(data, re_source=re.compile(
+        r'^([a-zA-Z0-9.+-]+)(?:\s+\(([a-zA-Z0-9.+:~-]+)\))?$')):
+    """Turns an Deb822-like object into a 5-tuple.
+
+    Returns (PACKAGE-NAME, VERSION, ARCHITECTURE, SOURCE,
+    SOURCE-VERSION)."""
+
+    pkg = data["Package"]
+    version = data["Version"]
+    if "Source" in data:
+        source = data.get("Source", None)
+        match = re_source.match(source)
+        if match is None:
+            raise ValueError("invalid Source field: " + repr(source))
+        src, src_version = match.groups()
+        if src_version is None:
+            src_version = version
+    else:
+        src = pkg
+        src_version = version
+    return (pkg, version, data["Architecture"], src, src_version)
+
+def updatepackages(db, ondisk):
+    "Updates the package table from the file system."
+    indb = readpackages(db)
+    expire(db, ondisk, indb, "package")
+    
+    # Update the cache in indb and the database
+    need_update = prepareupdate(db, ondisk, indb, "package")
+    def do_update():
+        for (path, stat) in need_update:
+            deb = DebFile(path)
+            pkg = deb822totuple(deb.debcontrol())
+            indb[path] = stat + (pkg,)
+            yield (path,) + stat + pkg
+    db.executemany("INSERT INTO package VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                   do_update())
+
+    stripstat(indb)
+    return indb
+
+def updatechanges(db, ondisk):
+    "Updates the changes table from the file system."
+    indb = readchanges(db)
+    expire(db, ondisk, indb, "changes")
+
+    # Update the cache in indb and the database
+    need_update = prepareupdate(db, ondisk, indb, "changes")
+    def do_update():
+        for (path, stat) in need_update:
+            changes = Changes(open(path))
+            try:
+                dist = changes["Distribution"]
+                debs = set(pkg["name"] for pkg in changes["Checksums-Sha1"])
+            except KeyError as e:
+                raise IOError("missing key in " + repr(path) + ": "
+                              + repr(e.args[0]))
+            indb[path] = stat + (dist, debs)
+            yield (path,) + stat + (dist, " ".join(sorted(debs)),)
+    db.executemany("INSERT INTO changes VALUES (?, ?, ?, ?, ?)", do_update())
+
+    stripstat(indb)
+    return indb
+
+def distdict(changes):
+    "Computes a dict from .deb files to sets of distributions"
+    result = {}
+    for path, (dist, debs) in changes.items():
+        base = os.path.dirname(path)
+        distset = set((dist,))
+        for deb in debs:
+            name = os.path.join(base, deb)
+            if name in result:
+                result[name].add(dist)
+            else:
+                result[name] = set(distset)
+    return result
+
+def pkgwithdist(debs, dists):
+    """Merge packages and distribution information.
+
+    Returns a list of tuples (PACKAGE-NAME, VERSION, ARCHITECTURE,
+    SOURCE-NAME, SOURCE-VERSION, TUPLE-OF-DISTRIBUTIONS).
+    """
+    return [pkg + (sorted(dists.get(path, ())),)
+            for (path, (pkg,)) in debs.items()]
+
+def main():
+    db = createdb()
+    debs, changes = readdirs()
+    debs = updatepackages(db, debs)
+    changes = updatechanges(db, changes)
+    dists = distdict(changes)
+    db.commit()
+    result = {
+        "version" : 1,
+        "binary" : pkgwithdist(debs, dists),
+        }
+    print(json.dumps(result))
+main()

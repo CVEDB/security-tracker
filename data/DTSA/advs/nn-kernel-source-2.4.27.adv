@@ -1,0 +1,19 @@
+source: kernel-source-2.4.27
+date: September 10, 2005
+author: Micah Anderson
+vuln-type: various
+problem-scope: remote
+debian-specifc: no
+cve: CVE-2005-2458, CVE-2005-2459, CVE-2005-1767, CVE-2005-2456,
+CVE-2005-1768, CVE-2005-0756 CVE-2005-0757, CVE-2005-1762, CVE-2005-1768
+vendor-advisory: 
+testing-fix: 2.4.27-11
+sid-fix: 2.4.27-11
+upgrade: apt-get install xxx
+
+xxx multiline description here
+
+TODO: 
+	upgrade instructions
+	descriptions
+	what about security fixes that don't have CANs?

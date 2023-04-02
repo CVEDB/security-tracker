@@ -1,0 +1,35 @@
+source: php4
+date: September 10th, 2005
+author: Neil McGovern
+vuln-type: several vulnerabilities
+problem-scope: remote/local
+debian-specifc: no
+cve: CVE-2005-1751 CVE-2005-1921 CVE-2005-2498
+vendor-advisory: 
+testing-fix: 4.3.10-16etch1
+sid-fix: 4.4.0-2
+upgrade: apt-get upgrade
+
+Several security related problems have been found in PHP4, the
+server-side, HTML-embedded scripting language.  The Common
+Vulnerabilities and Exposures project identifies the following
+problems:
+
+CVE-2005-1751
+
+    Eric Romang discovered insecure temporary files in the shtool
+    utility shipped with PHP that can exploited by a local attacker to
+    overwrite arbitrary files.  Only this vulnerability affects
+    packages in oldstable.
+
+CVE-2005-1921
+
+    GulfTech has discovered that PEAR XML_RPC is vulnerable to a
+    remote PHP code execution vulnerability that may allow an attacker
+    to compromise a vulnerable server.
+
+CVE-2005-2498
+
+    Stefan Esser discovered another vulnerability in the XML-RPC
+    libraries that allows injection of arbitrary PHP code into eval()
+    statements.

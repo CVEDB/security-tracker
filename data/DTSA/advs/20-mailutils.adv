@@ -1,0 +1,18 @@
+source: mailutils
+date: October 13th, 2005
+author: Neil McGovern
+vuln-type: Format string vulnerability
+problem-scope: remote
+debian-specifc: no
+cve: CVE-2005-2878
+vendor-advisory: http://savannah.gnu.org/patch/index.php?func=detailitem&item_id=4407
+testing-fix: 1:0.6.90-2.1etch1
+sid-fix: 1:0.6.90-3
+upgrade: apt-get upgrade
+
+A format string vulnerability has been discovered in Mailutils.
+
+CVE-2005-2878
+  A format string vulnerability in search.c in the imap4d server in GNU
+  Mailutils 0.6 allows remote authenticated users to execute arbitrary code via
+  format string specifiers in the SEARCH command.

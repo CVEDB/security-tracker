@@ -1,0 +1,732 @@
+#!/usr/bin/perl
+
+use strict;
+use File::Temp;
+use Getopt::Std;
+#use Smart::Comments;
+use Term::ReadLine;
+
+my %opts;
+getopts('ln:fhi:t:Tca:e:uUsDb', \%opts);
+
+sub print_commands {
+    print <<'EOF';
+  * blank line to skip to next issue
+  * .h to repeat this help output of the list of commands
+  * .fname to do "apt-file search name"
+  * .cname to do "apt-cache search name"
+  * .wname to look up name in wnpp
+  * .mpackage to search data/embedded-code-copies for "package"
+  * .rpackage to launch an editor with a report of the issue against "package"
+  * .gissue to go to the given issue, even if it's not a todo
+  * d to display the issue information again
+  * !command to execute a command with system() without any escaping
+  * v or e to launch an editor with the current item
+  * - package-entry to add an entry for "package" and launch an editor (e.g. - poppler <unfixed>)
+  * q to save and quit
+  * CTRL-C to quit without saving
+  * everything else is inserted as product name for a NOT-FOR-US
+EOF
+}
+
+if ($opts{h}) {
+    print <<'EOF';
+downloads allitems.txt from cve.mitre.org and shows full description for each
+"TODO: check" item (2003 and newer). Then
+
+- tries to guess product name and php filename and does 
+  apt-cache and apt-file search
+- waits for input:
+EOF
+    print_commands;
+    print <<'EOF';
+
+Use "git diff" and "git reset" as needed ;-)
+
+OPTIONS: [ -l [-n <n>] [-f] ]
+-l        : just list issues 
+-n <n>    : show max n lines of each description (default 2)
+-f        : show full CVE/list entry as well
+-i regexp : use regexp to select todos (default: 'CVE-20(?:0[3-9]|[1-9][0-9])' )
+-t regexp : use regexp to select todos (default: '^\s+TODO: check$' )
+-T	  : same as -t '^\s+TODO: check' (note the missing $)
+-u	  : also show unfixed issues without bug reference
+-U	  : only show unfixed issues without bug reference instead of TODO items
+-c        : only do syntax check of embedded-code-copies
+-e <file> : use <file> for embedded-code-copies, "-" for STDIN
+-a <n>    : If automatic apt-cache/apt-file search gives more than n results,
+            display only the count (default 10)
+-s        : skip automatic apt-cache/apt-file searches, suggest the
+            command to run instead
+-D        : skip the download operations
+-b        : auto process entries (e.g. NFUs)
+
+EOF
+
+    exit(0);
+}
+
+# TODO/BUGS:
+# - go back to previous issue / undo
+# - handle entries with several TODO lines
+# - handle claimed-by
+
+
+my $basedir;
+if (-e "security-tracker/data/CVE/list") {
+	$basedir="security-tracker";
+} elsif (-e "data/CVE/list") {
+	$basedir=".";
+} elsif (-e "../data/CVE/list") {
+	$basedir="..";
+}
+
+
+my $embed_code = {};
+my $embed_pkg = {};
+my $embed_errors;
+
+read_embedded_copies();
+
+if ($opts{c}) {
+	exit($embed_errors);
+}
+
+
+my $datafile="$basedir/data/CVE/list";
+my $allitemsfile="gunzip -c $basedir/../allitems.txt.gz|";
+my $allitemsurl="https://cve.mitre.org/data/downloads/allitems.txt.gz";
+my $removedfile="$basedir/data/packages/removed-packages";
+my $wnppurl="https://qa.debian.org/data/bts/wnpp_rm";
+my $wnppfile="../wnpp_rm";
+
+my $issue_regexp= $opts{i} || 'CVE-20(?:0[3-9]|[1-9][0-9])';
+my $todo_regexp= $opts{t} || ( $opts{T} ? '^\s+TODO: check' : '^\s+TODO: check$' );
+my $auto_display_limit = 10;
+$auto_display_limit = $opts{a} if defined $opts{a};
+
+my $editor= 'sensible-editor';
+
+unless ($opts{D}) {
+	system "cd $basedir/.. ; wget -N $allitemsurl";
+	system "cd $basedir/.. ; wget -N $wnppurl";
+}
+
+print "Reading data...\n";
+
+my $entries=read_file($datafile, qr/^CVE/ );
+my $CVEs=read_file($allitemsfile, qr/^=+$/ );
+my $data;
+my @todos;
+my %afcache;
+my $num_todo;
+my $num_missing_bug;
+
+foreach my $cve (@{$CVEs}) {
+	$cve =~ /^Name:\s*(CVE\S+)/m or next;
+	my $name = $1;
+
+	# cleanup the description
+	$cve =~ s/^Current Votes:.+candidate not yet[^\n]+\n{2,3}//ms;
+	$cve =~ s/^(?:Phase|Status|Category):[^\n]*\n//gms;
+
+	$data->{$name}->{CVE}=\$cve;
+}
+
+my %wnpp;
+open(WNPP, $wnppfile) or die "could not open $wnppfile";
+while (<WNPP>) {
+	next unless (m/^([\w.-]+): ((?:ITP|RFP) .+)$/);
+	$wnpp{lc $1} = $2;
+}
+close(WNPP);
+
+# packages that should be ignored by -u/-U
+my @ignore_missing_bug_list = qw/linux-2.6 linux-2.6.24
+	kfreebsd-source kfreebsd-5 kfreebsd-6 kfreebsd-7
+	mozilla mozilla-firefox mozilla-thunderbird firefox
+	php4
+	gnutls11
+	/;
+my %ignore_missing_bug;
+if ($opts{u} || $opts{U}) {
+	push @ignore_missing_bug_list, read_removed_packages_file($removedfile);
+	$ignore_missing_bug{$_} = 1 for @ignore_missing_bug_list;
+}
+
+my %seen_pkgs;
+
+foreach my $entry (@{$entries}) {
+	my $name;
+	if ( $entry =~ /^(CVE-....-\d{4,})/ ) {
+		$name=$1;
+	}
+	elsif ( $entry =~ /^(CVE-....-XXXX.*)\n/ ){
+		$name=$1;
+	}
+	else {
+		die "invalid entry:\n$entry";
+	}
+	if (!$opts{l} && $entry =~ /^\s+-\s+([^\s]+)/m ) {
+	    my $pkg = $1;
+	    my $fc = substr($pkg, 0, 1);
+
+	    $seen_pkgs{$fc} = {}
+		    unless (exists($seen_pkgs{$fc}));
+	    $seen_pkgs{$fc}{$pkg} = undef;
+	}
+	$data->{$name}->{entry}=\$entry;
+	if ($name =~ /$issue_regexp/) {
+		if (!$opts{U} && $entry =~ /$todo_regexp/m ) {
+			push @todos, $name;
+			$num_todo++;
+		}
+		elsif ( ($opts{u} || $opts{U})
+		    && $entry =~ /^\s+-\s+(\S+)\s+<unfixed>(.*)$/m
+		    && ! exists $ignore_missing_bug{$1}
+		    && $2 !~ /unimportant/
+		    && $entry !~ /-\s+$1\s.*?bug #/m
+		    ) {
+			push @todos, $name;
+			$num_missing_bug++;
+		}
+	}
+}
+
+print scalar(@{$CVEs}), " CVEs, ",
+      scalar(@{$entries}) - scalar(@{$CVEs}),  " temp issues";
+print ", $num_todo todos matching /$todo_regexp/" if $num_todo;
+print ", $num_missing_bug entries with missing bug reference" if $num_missing_bug;
+print "\n";
+
+if ((! $opts{l}) and (! $opts{b})) {
+    print "\nCommands:\n";
+    print_commands;
+    print "\n";
+}
+
+if ($opts{l}) {
+	#list only
+	foreach my $todo (sort {$b <=> $a} @todos) {
+		my $desc=description($todo);
+		if ($desc) {
+			my $lines=$opts{n} || 2;
+			if ($desc =~ /((?:.*\n){1,$lines})/) {
+				$desc = $1;
+				$desc =~ s/^/               /mg;
+				if ($opts{f}) {
+					print ${$data->{$todo}->{entry}}, $desc;
+				}
+				else {
+					print "$todo:\n$desc";
+				}
+			}
+		}
+		else {
+			print "${$data->{$todo}->{entry}}";
+		}
+	}
+	exit 0;
+}
+
+if ($opts{b}) {
+	# auto process
+	foreach my $todo (sort {$b <=> $a} @todos) {
+		if ($data->{$todo}->{CVE}) {
+			my $nfu_entry = auto_nfu($todo);
+			if ($nfu_entry) {
+				${$data->{$todo}->{entry}} =~
+					s/^\s*TODO: check/\tNOT-FOR-US: $nfu_entry/m ;
+				next;
+			}
+		}
+	}
+	save_datafile();
+	exit 0;
+}
+
+my $term = new Term::ReadLine 'check-new-issues';
+if ($term->ReadLine() eq 'Term::ReadLine::Stub') {
+	print "Install libterm-readline-gnu-perl to get readline support!\n";
+}
+
+my $attribs = $term->Attribs;
+
+my @completion_commands = qw(.f .c .w .m .r .g ! v e - .help q d);
+$attribs->{completer_word_break_characters} = ' ';
+
+sub initial_completion {
+    my ($text, $line, $start, $end) = @_;
+
+    $attribs->{attempted_completion_over} = 1;
+
+
+    # If first word then complete commands
+    if ($start == 0) {
+	$attribs->{completion_word} = \@completion_commands;
+
+	# do not add useless blank spaces on completion
+	$attribs->{completion_suppress_append} = 1
+		unless ($line eq '-');
+
+	return $term->completion_matches($text,
+					 $attribs->{list_completion_function});
+    } elsif ($line =~ /^-\s+(.)?(?:([^\s]+)\s+)?/) {
+	my ($fc, $pkg) = ($1, $2);
+
+	if (length($fc) == 0) {
+	    $attribs->{completion_suppress_append} = 1;
+	    $attribs->{completion_word} = [ keys %seen_pkgs ];
+	} elsif (length($pkg) != 0) {
+	    $attribs->{completion_word} = [ qw(<end-of-life> <unfixed> <removed> <not-affected> <ignored> <postponed> <unimportant> <itp>) ];
+	} elsif (exists($seen_pkgs{$fc})) {
+	    $attribs->{completion_word} = [ keys %{$seen_pkgs{$fc}} ];
+	} else {
+	    $attribs->{completion_word} = [];
+	}
+
+	return $term->completion_matches($text,
+					 $attribs->{list_completion_function});
+    } else {
+	return;
+    }
+}
+
+$attribs->{attempted_completion_function} = \&initial_completion;
+
+foreach my $todo (sort {$b <=> $a} @todos) {
+	last unless present_issue($todo);
+}
+save_datafile();
+
+sub save_datafile {
+	open(my $fh, ">", $datafile);
+	print $fh @{$entries};
+	close($fh);
+}
+
+sub present_issue {
+	my $name = shift;
+	my $quit = 0;
+
+	print_full_entry($name);
+
+	if ($data->{$name}->{CVE}) {
+		my $nfu_entry = auto_nfu($name);
+		if ($nfu_entry) {
+			${$data->{$name}->{entry}} =~
+				s/^\s*TODO: check/\tNOT-FOR-US: $nfu_entry/m ;
+				print "New entry auto set to set to:\n${$data->{$name}->{entry}}";
+				return 1;
+		}
+	}
+
+	auto_search($name);
+	
+    READ: while (my $r=$term->readline(">") ) {
+    		chomp $r;
+		if ($r =~ /^\s*$/) {
+			last READ;
+		}
+		elsif ($r=~ /^\.c(.*)$/ ) {
+			my $s = $1;
+			$s =~ tr{a-zA-Z0-9_@-}{ }cs;
+			print "=== apt-cache search $s :\n";
+			system("apt-cache search $s|less -FX");
+			print "===\n";
+			next READ;
+		}
+		elsif ($r=~ /^\.f(.*)$/ ) {
+			my $s = $1;
+			$s =~ s/^\s*(.*?)\s*$/$1/;
+			$s = quotemeta($s);
+			print "=== apt-file search $s:\n";
+			system("apt-file search $s|less -FX");
+			print "===\n";
+			next READ;
+		}
+		elsif ($r=~ /^\.w(.*)$/ ) {
+			my $s = $1;
+			$s =~ s/^\s*(.*?)\s*$/$1/;
+			print "=== wnpp lookup for '$s':\n";
+			search_wnpp($s);
+			print "===\n";
+			next READ;
+		}
+		elsif ($r=~ /^\.m(.*)$/ ) {
+			my $s = $1;
+			$s =~ s/^\s+//;
+			$s =~ s/\s+$//;
+			print "references to $s in embedded-code-copies:\n";
+			search_embed($s) or print "none\n";
+			next READ;
+		}
+		elsif ($r=~ /^\.g(.+)$/ ) {
+			my $n = $1;
+			$n =~ s/^\s*(.*?)\s*$/$1/;
+			if (!exists($data->{$n})) {
+				print "unknown issue '$n'\n";
+				next READ;
+			}
+			unless (present_issue($n)) {
+				$quit = 1;
+				last READ;
+			}
+			print "back at $name (you might want to type 'd')\n";
+			next READ;
+		}
+		elsif ($r=~ /^\.h/i ) {
+			print_commands;
+			next READ;
+		}
+		elsif ($r=~ /^!(.+)$/ ) {
+			system($1);
+			print "exit status: $?\n";
+			next READ;
+		}
+		elsif ($r=~ /^q\s?$/i ) {
+			$quit = 1;
+			last READ;
+		}
+		elsif ($r=~ /^[ve]\s?$/i ) {
+			my $newentry=edit_entry(${$data->{$name}->{entry}});
+			if ( $newentry eq ${$data->{$name}->{entry}} ) {
+				print "Not changed.\n";
+				next READ;
+			}
+			else {
+				${$data->{$name}->{entry}}=$newentry;
+				print "New entry set to:\n$newentry";
+				last READ;
+			}
+		}
+		elsif ($r=~ /^d\s?$/i ) {
+			print_full_entry($name);
+			next READ;
+		}
+		elsif ($r=~ /^(\-\s+.+)$/ ) {
+			my @comps=split /\s+/, $1;
+			push @comps, '<unfixed>'
+				unless (scalar(@comps)>2);
+			my $inputentry = join(' ', @comps);
+
+			my $preventry=${$data->{$name}->{entry}};
+			$preventry =~
+				s/^\s+/\t$inputentry\n$&/m ;
+
+			if ($comps[2] eq '<itp>') {
+				$preventry =~
+					s/^\s*TODO: check\n//m ;
+			}
+
+			my $newentry=edit_entry($preventry);
+			${$data->{$name}->{entry}}=$newentry;
+			print "New entry set to:\n$newentry";
+			last READ;
+		}
+		elsif ($r=~ /^\.r(.*)$/ ) {
+			my $tmp=new File::Temp();
+			my $tmpname=$tmp->filename;
+			system("$basedir/bin/report-vuln $1 $name > $tmpname");
+			system("$editor $tmpname");
+			close($tmp);
+			next READ;
+		}
+		else {
+			${$data->{$name}->{entry}} =~
+				s/^\s*TODO: check/\tNOT-FOR-US: $r/m ;
+				print "New entry set to:\n${$data->{$name}->{entry}}";
+			last READ;
+		}
+	}
+
+	return (!$quit);
+}
+
+sub print_full_entry {
+	my $name = shift;
+
+	print ${$data->{$name}->{CVE}} if $data->{$name}->{CVE};
+	print ${$data->{$name}->{entry}};
+}
+
+sub description {
+	my $name=shift;
+
+	defined $data->{$name}->{CVE} or return "";
+	
+	${$data->{$name}->{CVE}} =~ /\n\n(.*\n)\n/s;
+	my $desc = $1;
+	$desc =~ s/\n\n+/\n/;
+	
+	return $desc;
+}
+
+sub read_file
+{
+	my $file=shift;
+	my $re=shift;
+	
+	
+	open(my $fh, $file) or die "could not open $file";
+	
+	my @data;
+	my $cur="";
+	while (my $line=<$fh>) {
+		if ($line =~ $re and $cur) {
+			push @data, $cur;
+			$cur = "";
+		}
+		$cur.=$line;
+	}
+	push @data, $cur if $cur;
+	
+	close($fh);
+	
+	
+	return \@data;
+}
+
+
+sub edit_entry {
+	my $entry=shift;
+	my $tmp=new File::Temp();
+	my $tmpname=$tmp->filename;
+	print $tmp $entry;
+	close $tmp;
+	system "$editor $tmpname";
+	
+	local $/; #slurp
+	open($tmp, $tmpname);
+	return <$tmp>;
+	
+}
+
+sub wnpp_to_history {
+	my $pkg = shift;
+
+	# there might be more than one bug, so only take the first
+	my ($bugline) = (split /[|]/, $wnpp{$pkg}, 2);
+
+	my ($type, $bug) = split /\s+/, $bugline;
+	return unless ($type =~ /^(?:RFP|ITP)$/);
+
+	$term->addhistory("- $pkg <itp> (bug #$bug)");
+}
+
+sub auto_nfu {
+	my $name=shift;
+
+	my $desc=description($name);
+	$desc =~ s/[\s\n]+/ /g;
+
+	if ($desc =~ m/in\s+the\s+(.+)\s+(plugin|theme)\s+(?:[\w\d.]+\s+)?(?:(?:(?:before|through)\s+)?[\w\d.]+\s+)?for\s+[Ww]ord[Pp]ress/) {
+		my ($name, $type) = ($1, $2);
+		return "$name $type for WordPress";
+	}
+	if ($desc =~ m/\b(FS\s+.+?\s+Clone|Meinberg\s+LANTIME|Ecava\s+IntegraXor|Foxit\s+Reader|Cambium\s+Networks\s+.+?\s+firmware|Trend\s+Micro|(?:SAP|IBM|EMC|NetApp|Micro\sFocus).+?(?=tool|is|version|[\d(,]))/) {
+		my $name = $1;
+		$name =~ s/\s$//;
+		return $name;
+	}
+	return '';
+}
+
+sub auto_search {
+	my $name=shift;
+	
+	my $desc=description($name);
+	$desc =~ s/[\s\n]+/ /g;
+	
+	my $file;
+	my $prog;
+	if ( $desc =~ /^(\S+(?: [A-Z]\w*)*) \d/ ) {
+		$prog = $1;
+	}
+	elsif ( $desc =~ / in (\S+\.\S+) in (?:the )?(\S+) / ) {
+		$file = $1;
+		$prog = $2;
+	}
+	elsif ( $desc =~ / in (?:the )?(\S+) / ) {
+		$prog = $1;
+	}
+	if ($prog) {
+		unless ($opts{s}) {
+			my $prog_esc =$prog;
+			$prog_esc =~ tr{a-zA-Z0-9_@/-}{ }cs;
+			print "doing apt-cache search...";
+			my @ac=apt_cache($prog_esc);
+			if (scalar @ac > $auto_display_limit || scalar @ac == 0) {
+				print "\r", scalar @ac, " results from apt-cache search $prog_esc\n";
+			}
+			else {
+				print "\r=== apt-cache search $prog_esc:\n", @ac, "===\n";
+			}
+		} else {
+			print "You probably want to .c$prog\n";
+		}
+
+		foreach my $p (split /\s+/, $prog) {
+			search_embed($p);
+			my @wr = search_wnpp($p);
+			if (scalar @wr > $auto_display_limit) {
+				print scalar @wr, " results from searching '$prog' in WNPP\n";
+			}
+			else {
+				for my $we (@wr) {
+					print "$we: $wnpp{$we}\n";
+					wnpp_to_history($we);
+				}
+			}
+		}
+	}
+	if ( $file =~ /^(?:index|default|login|search|admin)\.(?:php3?|asp|cgi|pl)$/i ) {
+		return;
+	}
+	if ( $file =~ /(php3?|asp|cgi|pl)$/ ) {
+		unless ($opts{s}) {
+			if (! exists $afcache{$file}) {
+				my $file_esc = quotemeta($file);
+				print "doing apt-file search...";
+				$afcache{$file}=[`apt-file -i search $file_esc`];
+				if (scalar @{$afcache{$file}} > $auto_display_limit) {
+					# replace with empty array to save mem
+					my $num = scalar @{$afcache{$file}};
+					$afcache{$file} = [];
+					$afcache{$file}->[$num-1] = undef;
+				}
+			}
+			if (scalar @{$afcache{$file}} > $auto_display_limit ||
+			    scalar @{$afcache{$file}} == 0) {
+				print "\r", scalar @{$afcache{$file}},
+				      " results from apt-file -i search $file\n";
+			}
+			else {
+				print "\r=== apt-file -i search $file:\n", @{$afcache{$file}}, "===\n";
+			}
+		} else {
+			print "You probably want to .f$file\n";
+		}
+	}
+}
+
+{
+	my @apt_cache_cache;
+	my $apt_cache_cache_term;
+
+	sub apt_cache {
+		my $term = shift;
+
+		if ($term eq $apt_cache_cache_term) {
+			return @apt_cache_cache;
+		}
+
+		@apt_cache_cache = `apt-cache search $term`;
+		$apt_cache_cache_term = $term;
+		
+		return @apt_cache_cache;
+	}
+}
+
+sub read_embedded_copies {
+	my $emb_file = $opts{e} || "$basedir/data/embedded-code-copies";
+	open(my $fh, $emb_file);
+
+	# skip comments
+	while (<$fh>) {
+		last if /^---BEGIN/; 
+	}
+	
+	my ($code, $pkg);
+	while (my $line = <$fh>) {
+		if ($line =~ /^([\w][\w+-.]+)/) {
+			$code = lc($1);
+			$pkg  = undef;
+			if (exists $embed_code->{$code}) {
+				syntax_error("Duplicate embedded code $code")
+			}
+		}
+		elsif ($line =~ /^\s*$/) {
+			$code = undef;
+			$pkg = undef;
+		}
+		elsif ($line =~ /^\s+(?:\[\w+\]\s+)?-\s+(\w[\w.-]+)/) {
+			$pkg = $1;
+			$line =~ s/^\s+//;
+			if ($embed_code->{$code}->{$pkg}) {
+				$embed_code->{$code}->{$pkg} .= $line;
+			}
+			else {
+				$embed_code->{$code}->{$pkg} = $line;
+				push @{$embed_pkg->{$pkg}}, $code;
+			}
+		}
+		elsif ($line =~ /^\s+(?:NOTE|TODO)/) {
+			$line =~ s/^\s+//;
+			if ($pkg) {
+				$embed_code->{$code}->{$pkg} .= $line;
+			}
+		}
+		else {
+			syntax_error("Cannot parse $line");
+		}
+	}
+}
+
+sub syntax_error {
+	$embed_errors=1;
+	print STDERR "embedded-code-copies:$.: @_\n";
+}
+
+sub search_embed {
+	my $text = shift;
+	my $found = 0;
+	$text = lc($text);
+	if (exists $embed_code->{$text}) {
+		print "$text is embedded by: ",
+		      join(" ", sort keys %{$embed_code->{$text}}),
+		      "\n";
+		$found = 1;
+	}
+	if (exists $embed_pkg->{$text}) {
+		print "$text embeds: ",
+		      join(" ", sort @{$embed_pkg->{$text}}),
+		      "\n";
+		$found = 1;
+	}
+	return $found;
+}
+
+sub search_wnpp {
+	my $s = shift;
+	$s = lc $s;
+
+	my @matches;
+	@matches = grep(/$s/, sort keys %wnpp);
+
+	if (wantarray) {
+	    return @matches;
+	} else {
+	    foreach my $e (@matches) {
+		print "$e: $wnpp{$e}\n";
+	    }
+	    return (length(@matches) > 0);
+	}
+}
+
+sub read_removed_packages_file {
+	my $file = shift;
+
+	open(my $fh, "<", $file) or die "could not open $file";
+	my @packages;
+	my $line;
+	while (defined ($line = <$fh>)) {
+		chomp $line;
+		$line =~ s/^\s+//;
+		$line =~ s/\s+$//;
+		next if $line =~ /^$/;
+		next if $line =~ /^#/;
+		push @packages, $line;
+	}
+	return @packages;
+}

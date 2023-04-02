@@ -1,0 +1,16 @@
+source: uim
+date: December 5th, 2005
+author: Neil McGovern
+vuln-type: local privilege escalation
+problem-scope: local
+debian-specifc: no
+cve: CVE-2005-3149
+testing-fix:  1:0.4.7-2.0etch1
+sid-fix: 1:0.4.7-2
+upgrade: apt-get upgrade
+
+CVE-2005-3149
+
+	Masanari Yamamoto discovered that incorrect use of environment
+	variables in uim. This bug causes privilege escalation if setuid/setgid
+	applications was linked to libuim.

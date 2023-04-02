@@ -1,0 +1,17 @@
+Checklist to perform when a new stable release is announced
+===========================================================
+See https://bugs.debian.org/783491
+
+General
+-------
+
+[ ] Update doc/DSA.template
+[ ] bin/add-dsa-needed.sh
+[ ] data/config.json
+[ ] Update security-team.debian.org pages
+[ ] Update support information in static/distributions.json
+
+Security Tracker host
+---------------------
+[ ] Check /srv/security-tracker.debian.org/website/bin
+[ ] Remove obsolete architecture-specific files from data/packages/

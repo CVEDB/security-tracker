@@ -1,0 +1,171 @@
+#!/usr/bin/python3
+#
+# Similar to contact-maintainers ask for help in fixing the bug in
+# the LTS release but use the BTS instead of plain mail
+
+import argparse
+import os
+import pwd
+import subprocess
+import sys
+import tempfile
+import warnings
+
+from tracker_data import TrackerData
+
+import setup_paths
+import config
+
+from jinja2 import Template
+
+tmpl="""Content-Type: text/plain; charset=utf-8
+To: {{ to }}
+Cc: {{ cc }}
+Subject: Fixing {{ cve }} in {{ package }} in {{ dist }}?
+
+control: found -1 {{ found }}
+
+Dear maintainer(s),
+
+The Debian LTS team would like to fix this security issues
+in the {{ dist }} version of {{ package }}.
+
+Would you like to take care of this yourself?
+
+If yes, please follow the workflow we have defined here:
+https://wiki.debian.org/LTS/Development
+
+If that workflow is a burden to you, feel free to just prepare an
+updated source package and send it to debian-lts@lists.debian.org
+(via a debdiff, or with an URL pointing to the source package,
+or even with a pointer to your packaging repository), and the members
+of the LTS team will take care of the rest. Indicate clearly whether you
+have tested the updated package or not.
+
+If you don't want to take care of this update, it's not a problem, we
+will do our best with your package. Just let us know whether you would
+like to review and/or test the updated package before it gets released.
+
+You can also opt-out from receiving future similar emails in your
+answer and then the LTS Team will take care of {{ package }} updates
+for the LTS releases.
+{% if add_cves %}
+The following additional CVEs are open against this package:
+
+{% for entry in add_cves -%}
+https://security-tracker.debian.org/tracker/{{ entry }}
+{% endfor %}
+We intend to address them with the same upload.
+{% endif %}
+Thank you very much.
+
+{{ sender }},
+  on behalf of the Debian LTS team.
+
+PS: A member of the LTS team might start working on this update at
+any point in time. You can verify whether someone is registered
+on this update in this file:
+https://salsa.debian.org/security-tracker-team/security-tracker/raw/master/data/dla-needed.txt
+"""
+
+def get_full_name():
+    full_name = os.getenv('DEBFULLNAME')
+    if full_name:
+        return full_name
+    return pwd.getpwuid(os.getuid()).pw_gecos.split(',')[0]
+
+
+def find_issue(tracker, pkg, cve):
+    for issue in tracker.iterate_pkg_issues(pkg):
+        if issue.name == cve.upper():
+            return issue
+    else:
+        raise ValueError("%s is not an issue of %s" % (cve, pkg))
+
+
+def find_version(release, issue):
+    for repo in [release + ext for ext in ('-security', '')]:
+        if repo in issue.data['releases'][release]['repositories']:
+            return issue.data['releases'][release]['repositories'][repo]
+
+
+def main():
+    # Parse command line
+    parser = argparse.ArgumentParser(
+        description='Get in touch with package maintainers via bts')
+    parser.add_argument('--force', action='store_true',
+                        help='Ignore safety checks')
+    parser.add_argument('--mailer', action='store', default='mutt -H {}',
+                        help='Command executed. Must contain {} to be replaced '
+                        'by the filename of the draft contact mail')
+    parser.add_argument('--skip-cache-update', action='store_true',
+                    help='Skip updating the tracker data cache')
+    parser.add_argument('package')
+    parser.add_argument('cve', nargs='*')
+    args = parser.parse_args()
+
+    cc = 'debian-lts@lists.debian.org'
+    team = 'lts'
+    release = config.get_supported_releases()[0]
+
+    # Basic check
+    instructions = "packages/{}.txt".format(args.package)
+    if os.path.exists(instructions) and not args.force:
+        print("Have a look at {}".format(instructions))
+        print("If you still want to run this script, run it with --force.")
+        return 1
+
+    # Check if we should contact maintainers
+    dontcall = "data/packages/lts-do-not-call"
+    if not args.force:
+        with open(dontcall) as f:
+            for line in f:
+                if line[0] == '#':
+                    continue
+                if not line.strip():
+                    continue
+                if line.split()[0] == args.package:
+                    print("Maintainer(s) may not be contacted for LTS issues.")
+                    print("Please have a look at {}".format(line.split()[1]))
+                    print("If you still want to run this script, run it with --force.")
+                    return 1
+
+    tracker = TrackerData(update_cache=not args.skip_cache_update)
+    try:
+        issue = find_issue(tracker, args.package, args.cve[0])
+    except ValueError as e:
+        print(e, file=sys.stderr)
+        return 1
+    if 'debianbug' in issue.data:
+        bugnum = issue.data['debianbug']
+    else:
+        print("No Debian bug filed for {} against '{}' yet, "
+              "please do so first e.g. using bin/report-vuln.".format(
+                  args.cve[0], args.package), file=sys.stderr)
+        return 2
+
+    found = "{}/{}".format(args.package, find_version(release, issue))
+    if not found:
+        print("Failed to determin version of {} in {}".format(args.package, release))
+
+    # Generate the context
+    context = {
+        'package': args.package,
+        'sender': get_full_name(),
+        'cve': args.cve[0],
+        'add_cves': args.cve[1:],
+        'dist': release.capitalize(),
+        'to': '{}@bugs.debian.org'.format(bugnum),
+        'found': found,
+        'cc': cc,
+    }
+
+    template = Template(tmpl)
+    with tempfile.NamedTemporaryFile(prefix='contact-maintainers', suffix='.txt') as draft:
+        draft.write(template.render(context).encode('utf-8'))
+        draft.flush()
+        os.system(args.mailer.format(draft.name))
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

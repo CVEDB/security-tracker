@@ -1,0 +1,133 @@
+Subject: forming a security team for testing
+
+I've been talking to people about the idea of forming a security team for
+the testing distribution for several months, and there seems to be enough
+interest in improving testing's security to make such a team a reality.
+Most of the people in the CC list have indicated interest in the existence
+of a testing security team; we're interested in testing's security for
+diverse reasons including: use of testing at work, shipping products based
+on testing, hoping to base derived Deban distributions on testing rather
+than stable, wanting testing to be a viable choice for Debian users, and
+so on.
+
+The team will consist of Debian developers and possibly others. Unless a
+member of the Debian security team joins the Debian testing security team,
+none of us will have any privileged information about future security
+announcements. Anyone with interest and experience with security issues is
+welcome to join the team.
+
+To talk about how I think this team would work on testing's security, I
+need to talk about two distinct stages, before the sarge release, and
+after.
+
+Right now we're at a point in the sarge release cycle where most of the
+focus of a testing security team needs to be on identifying and fixing
+sarge's security problems and getting it ready for release. This means
+checking to make sure that security problems that have already been fixed
+in unstable and stable do not continue to affect testing, as well as
+dealing with new holes. I don't think Debian has really invested much
+effort into this in past releases, but if we want sarge to be a secure
+release from the beginning, it's important to do it.
+
+If we do that work now, then after sarge is released, we will only need to
+worry about keeping track of new security holes and releasing security
+advisories.
+
+Work before sarge's release:
+---------------------------
+
+Some work on checking sarge for old security issues has already been done.
+With help from some of the people in the CC list, I coordinated a scan of
+every DSA since woody's release and we checked all 450 DSAs to see if fixes
+for those security holes had reached testing. Suprisingly, we found some
+security holes that had not gotten fixed in testing in a year or more,
+though those were the exceptions.
+
+I've continued to do this checking as each new DSA is released, as well as
+filing bugs, working with the security team and Release Managers, and doing
+a few NMUs to get the fixes in. The current list of unfixed DSAs sarge is:
+
+	joeyh@newraff:~/sarge-checks>./checklist.pl DSA/list 
+	kpdf (unfixed; bug #278173) for DSA-573-1
+	gpdf 2.8.0-1 needed, have 2.8.0-0.1 for DSA-573-1
+	libpng3 1.2.5.0-9 needed, have 1.2.5.0-8 for DSA-571-1
+	kdelibs 4:3.2.3-3.sarge.1 needed, have 4:3.2.3-2 for DSA-539
+
+But checking DSAs is not a complete check of known security issues that
+might still be lurking in sarge. To do a really complete scan means looking
+through old non-DSA advisories as far back as is reasonable or doable. I
+think doing this scan and the following up on it to fix things would be a
+good first step for the team, and a way to begin figuring out how the team
+will work together.
+
+Mitre has a fairly comprehensive list of security problems in their list of
+CAN numbers[1]. There have been about 1000 CANs allocated this year, some
+of them are not released yet, some were covered by the DSAs and I've
+checked a few hundred, so there are about 400 left. I think 4 or 5 people
+could check these in a reasonable time period, and maybe do 2003 as well.
+So if you're interested in checking some of the CANs to see if they are
+fixed in sarge, here's what to do:
+
+ - Sign up for an alioth account if you don't have one.
+ - Send me your userid to be added to the secure-testing project on alioth.
+ - svn co svn+ssh://svn.debian.org/svn/secure-testing/sarge-checks
+ - Edit the CAN/list file and claim a range of CANs to check. Note that
+   CANs that have already been checked as part of the DSA checks are so
+   marked. Commit the file.
+ - Go through your claimed CANs and check changelogs, advisories, do
+   testing, whatever is needed to satisfy yourself whether sarge is
+   vulnerable or not, and record your findings in the CANs file.
+ - If it's also not fixed in sid, then be sure to file a RC bug; if it's
+   fixed in sid but not in sarge, be sure to record it as a critical issue
+   on the Release Managers' sarge issue tracker here:
+   http://www.wolffelaar.nl/~sarge/
+   Do other followup as appropriate to get the fix into sarge.
+
+Along with looking for old unfixed holes in sarge and working on getting
+them fixed, we should also keep up-to-date with tracking new holes as
+they're announced.
+
+Work after sarge's release:
+--------------------------
+
+By the time sarge releases, I hope to already have a team that has worked
+together on getting sarge secure, and we'll have a testing distribution
+with no old security holes in it. This would be a great time to start
+regular security updates for testing. I've been considering some acheivable
+goals for the testing security team, and come up with this list:
+
+ - Provide timely security updates for testing, with fixes being made
+   available no more than four days after a DSA is released.
+ - Work with maintainers to include security fixes from unstable
+   that do not have DSAs.
+ - Maintain a public database and statistics about the current state of
+   security in testing.
+
+Exactly how we would handle doing security updates for testing will have to
+be decided by the team. We will probably want to release gpg signed DTSA
+(Debian Testing Security Advisories) to a mailing list and web site. It
+seems likely that we could use the testing-proposed-updates queue to build
+updates, if it gets set up for all arches and continues to work after the
+sarge release. For tracking issues, we may need to come up with our own
+system, or we may be able to use the BTS, it if gets the promised version
+tracking support added to it. We might want to set up our own security
+repository separate from testing, or not.
+
+I think it's important that the team not rely on others in Debian to do the
+work for infrastructure we need; if it's available then great, but if not
+we should be prepared to work around it ourselves.
+
+While it's again up to the eventual team to decide for sure, I suggest that
+we build security updates against the packages in testing. I also suggest
+that unlike security updates to package in stable, we should most often not
+backport fixes to the versions of packages in testing. More often we will
+simply take the fixed package from unstable, recompile it if necessary, and
+qualify it for the testing distribution. This may involve upgrading to new
+upstream releases, and so there's a chance our updates will introduce new
+bugs. Still, that's not as bad as unfixed security holes, and for a small
+team with limited manpower, this is a useful shortcut. We can make sure
+that our users realise that using our security updates can expose them to
+upgrade bugs.
+
+[1] http://cve.mitre.org/cve/candidates/downloads/full-can.html
+

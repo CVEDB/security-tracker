@@ -1,0 +1,31 @@
+source: gaim
+date: August 28th, 2005
+author: Joey Hess
+vuln-type: multiple remote vulnerabilities
+problem-scope: remote
+debian-specific: no
+cve: CVE-2005-2102 CVE-2005-2370 CVE-2005-2103
+testing-fix: 1:1.4.0-5etch2
+sid-fix: 1:1.4.0-5
+upgrade: apt-get install gaim
+
+Multiple security holes were found in gaim:
+
+CVE-2005-2102
+
+  The AIM/ICQ module in Gaim allows remote attackers to cause a denial of
+  service (application crash) via a filename that contains invalid UTF-8
+  characters.
+
+CVE-2005-2370
+
+  Multiple memory alignment errors in libgadu, as used in gaim and other
+  packages, allow remote attackers to cause a denial of service (bus error)
+  on certain architectures such as SPARC via an incoming message.
+
+CVE-2005-2103
+
+  Buffer overflow in the AIM and ICQ module in Gaim allows remote attackers
+  to cause a denial of service (application crash) and possibly execute
+  arbitrary code via an away message with a large number of AIM substitution
+  strings, such as %t or %n.

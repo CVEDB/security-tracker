@@ -1,0 +1,127 @@
+Subject: announcing the beginning of security support for testing
+
+---------------------------------------------------------------------------
+Debian Testing Security Team                            September 9th, 2005
+secure-testing-team@lists.alioth.debian.org
+http://testing-security.debian.net/
+---------------------------------------------------------------------------
+
+Security support for testing
+
+The Debian testing security team is pleased to announce the beginning of
+full security support for Debian's testing distribution. We have spent the
+past year building the team, tracking and fixing security holes, and
+creating our infrastructure, and now the final pieces are in place, and 
+we are able to offer security updates and advisories for testing.
+
+We invite Debian users who are currently running testing, or who would like
+to switch to testing, to subscribe to the secure-testing-announce mailing 
+list, which will be used to announce security updates.
+<http://lists.alioth.debian.org/mailman/listinfo/secure-testing-announce>
+
+We also invite you to add the following lines to your apt sources.list file,
+and run "apt-get update && apt-get upgrade" to make the security updates
+available.
+
+deb http://secure-testing.debian.net/debian-secure-testing etch/security-updates main contrib non-free
+deb-src http://secure-testing.debian.net/debian-secure-testing etch/security-updates main contrib non-free
+
+Alternatively, replace "secure-testing.debian.net" in the above lines with
+a mirror near you:
+
+	ftp.de.debian.org         (located in Germany)
+	ftp.nl.debian.org         (located in the Netherlands)
+	the.earth.li              (located in UK)
+	ftp2.jp.debian.org        (located in Japan)
+	farbror.acc.umu.se        (located in Sweden)
+
+Some initial advisories have already been posted to the list and are already
+available in the repository. These include:
+
+[DTSA-1-1] New kismet packages fix remote code execution
+[DTSA-2-1] New centericq packages fix multiple vulnerabilities
+[DTSA-3-1] New clamav packages fix denial of service and privilege escalation
+[DTSA-4-1] New ekg packages fix multiple vulnerabilities
+[DTSA-5-1] New gaim packages fix multiple remote vulnerabilities
+[DTSA-6-1] New cgiwrap packages fix multiple vulnerabilities
+[DTSA-7-1] New mozilla packages fix frame injection spoofing
+[DTSA-8-1] New mozilla-firefox packages fix several vulnerabilities
+[DTSA-9-1] New bluez-utils packages fix bad device name escaping
+[DTSA-10-1] New pcre3 packages fix buffer overflow
+[DTSA-11-1] New maildrop packages fix local privilege escalation
+[DTSA-12-1] New vim packages fix modeline exploits
+[DTSA-13-1] New evolution packages fix format string vulnerabilities
+
+Note that while all of Debian's architectures are supported, we may release
+an advisory before fixed packages have built for all supported
+architectures. If so, the missing builds will become available as they
+complete.
+
+We are not currently issuing advisories for security fixes that reach
+testing through normal propagation from unstable, but only for security
+fixes that are made available through our repository. So users of testing
+should continue to upgrade their systems on a regular basis to get such
+security fixes. We might provide information about security issues that
+have been fixed through regular testing propagation in the future, though.
+
+Note that this announcement does not mean that testing is suitable for
+production use. Several security issues are present in unstable, and an
+even larger number are present in testing. Our beginning of security
+support only means that we are now able to begin making security fixes
+available for testing nearly as quickly as for unstable. The testing
+security team's website has information about what security holes are still
+open, and users should use this information to make their own decisions
+about whether testing is secure enough for them.
+
+Finally, we are still in the process of working out how best to serve users
+of testing and keep your systems secure, and we welcome comments and
+feedback about ways to do better. You can reach the testing security team
+at secure-testing-team@lists.alioth.debian.org.
+
+If you want to become a mirror, please see
+http://testing-security.debian.net/mirroring.html
+
+Debian developers who would like to upload fixes for security holes in
+testing to the repository can do so, following the instructions on our web
+site. 
+
+For more information about the testing security team, see our web site.
+<http://testing-security.debian.net/>.
+
+----------------------------------------------------------------------------
+
+The archive signing key that is used to sign the apt repository is
+included below and can also be downloaded from
+http://testing-security.debian.net/ziyi-2005-7.asc
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+mQGiBEMM7wgRBACs/rcYtu++PqBV5t6qTf9FsjJYZV4OUoQmtK849PdHUoVONh/b
+yz0vmP4QPCJXraFYiiiaur8WLcOphwY3DFaz0quozxl3pZfJjN27qDdTTDUKk1Kq
+zFQYTsDaXjSh0nRGW3gFmbyIqTL8sVGOAAz2KbrtLEQE11qYZjzvylEf4wCgv6ss
+HgQ7AcSBjpvm72e9PvSuDhMD/1kV0Snq9ilvCv7QLHBo/JnNgiCwxh5nEnPWHYjo
+SB0I99nuFMAzooAXTQhU3Hx1/sdZ3SMk1hWwZCPI0iNqESH2a3ib0YZt0DycWa3Y
+KxXIJet92u3ApSMVbp6OzzL7REoNCAgg6F/lrl+lVtnHbKiKBMZlKMsp+kQLSXqr
+Ki0pA/wIkkp7mJ7IiVS0fy9gueuiLqJKR6+i092J0RXsQesQX4OTC2DY3IICB22Q
+HfE8WNVZ2iPuWK0ymg6GqAHplp7bfVZMzfMSTMc+hj9WnmEVRRjLH66tsq1XHGEQ
+qg/mbkmeXwUwxAT1WGClcRWJqODmWE7KhkjKwGklYgzBoxwqkLRDc2VjdXJlLXRl
+c3RpbmcgQXJjaGl2ZSBLZXkgMjAwNS03IDxrYXRpZUBzZWN1cmUtdGVzdGluZy5k
+ZWJpYW4ubmV0PohkBBMRAgAkBQJDDO8IAhsDBQkElVcABgsJCAcDAgMVAgMDFgIB
+Ah4BAheAAAoJEJRqpuGHIucecvgAoK3nnF0yEwpNeQASyerh4wxRblZzAJ9h8rEF
+YldbZt/zYA53k2/y2m+s7LkCDQRDDO8gEAgAm1Y/a//sVe6fEANvLc5M5pEsoRkP
+LNKcH1O/og2mID8/gBV99LRfRnjcV8xhF5cWIlb4Es3KvQxmvxo6zGEfsMJWoezq
+H+2agIra78dfb0B1AyHuvwSRMc9sVy+3CuegM8bD3ss+4ta3rNLChpVrE8DxJZum
+ecqkNSQVOkqeAOl2JIQ/xBkLg1hjQA8bXW5AiUu4/XAQAe04w7YNfdsApeCfpKEW
+Atg54CD9uRbfSwnd2uYHYcosmBMhryNrHy27RkyS0BFWaL/1gfBqua7VujcnCm6S
+nbhB4t3vk/AnEsPJixtW/tOC3a3BaPqGsTq848e/PzmWY/8y9mvXwbxq5wADBQgA
+gNtB3u8TCN2Z4wkKrg19LohivQzJCXFfRi2ZydOe9E3SbSi6ggthjvGhHv2lTHEu
+e/4wBOta3a9pUpVdMgRFL1UuJy3nPd1yPC0dOegJj+lMkeMGcdKolJUMdoA+ieZ2
+lwkrT1b5GdFBSRn8hsuRtZi69QtzoHzDR5lg9ynwTJ+mLlO8r83HmdxbXsnmGlxy
+ZWRoqiSIl7mRLHp2tuFw9chgJ1nqwewTmCj85Aj/YsbGmqOJcnp98Jk0GDiP/le4
+rktZAqG2blwVpC2DLLiQSqcYS5jjq/iiGnYEIVG+nPa/29OuoX40zwKqBcy5I8rJ
+ZIq2hzbazsyg2Sd3vhmZuohPBBgRAgAPBQJDDO8gAhsMBQkElVcAAAoJEJRqpuGH
+IuceRqUAn3Q8msRUTsp882QINWyy5fqTehb5AJ9+kz3xq+7ooAwkdgpNOiz7ogxp
+Qg==
+=KBNL
+-----END PGP PUBLIC KEY BLOCK-----

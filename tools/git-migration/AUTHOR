@@ -1,0 +1,54 @@
+#!/bin/sh
+
+set -e
+set -u
+
+usage() {
+    echo "Syntax: $0 <author>"
+}
+[ -n "${1:-}" ] && [ -z "${2:-}" ] || usage
+
+author="$1"
+real_author=$author
+full_name=`getent passwd $author | cut -d: -f5 | sed 's/,.\+//'`;
+
+if [ -z "$full_name" ]; then
+    echo "Unable to get account information for $author" >& 2
+    if echo $author  | grep -q -E -- '-guest$'; then
+	echo "  trying without -guest suffix" >& 2
+	author=`echo $author | sed 's/-guest$//'`
+	full_name=`getent passwd $author | cut -d: -f5 | sed 's/,.\+//'`;
+	if [ -z "$full_name" ]; then
+	    echo "Unable to get account information for $author" >& 2
+	    echo "  trying a hard-coded list of DDs" >& 2
+	    author=`echo $author | sed 's/xaviero/xoswald/; s/hanska/dapal/; s/kitterma/kitterman/; s/ra28145/jjr/; s/ryan52/ryan/; s/thialme/franck/'`
+	    full_name=`getent passwd $author | cut -d: -f5 | sed 's/,.\+//'`;
+	    if [ -z "$full_name" ]; then
+		echo "NO MORE WORKAROUNDS: Unable to get account information for $author" >& 2
+		exit 0
+	    fi
+	fi
+    else
+    	exit 0
+    fi
+fi
+
+if which curl > /dev/null; then
+	CURL='curl -s'
+else
+	CURL='wget -q -O -'
+fi
+
+if echo $author | grep -E -q -e '-guest$'; then
+    email=`$CURL https://alioth.debian.org/users/$author/ | grep sendmessage|grep touser|grep nospam|sed 's,.*<strong>.*<a href[^>]\+>,,; s/<.*//; s/ @nospam@ /@/'`;
+    
+    if [ -z "$email" ]; then
+        email="$author@users.alioth.debian.org";
+    fi;
+else
+    email="$author@debian.org";
+fi;
+
+echo "$real_author = $full_name <$email>"
+
+# vim: set et sw=4 sts=4 ts=8 tw=78 ai :

@@ -1,0 +1,167 @@
+{
+  "repositories": {
+    "etch": "http://mirror.1und1.de/debian/dists/etch",
+    "etch-security": "http://security.debian.org/debian-security/dists/etch/updates",
+    "etch-proposed-updates": "http://mirror.1und1.de/debian/dists/etch-proposed-updates",
+    "lenny": "http://mirror.1und1.de/debian/dists/lenny",
+    "lenny-security": "http://security.debian.org/debian-security/dists/lenny/updates",
+    "lenny-proposed-updates": "http://mirror.1und1.de/debian/dists/lenny-proposed-updates",
+    "squeeze": "http://mirror.1und1.de/debian/dists/squeeze",
+    "squeeze-security": "http://security.debian.org/debian-security/dists/squeeze/updates",
+    "squeeze-proposed-updates": "http://mirror.1und1.de/debian/dists/squeeze-proposed-updates",
+    "sid": "http://mirror.1und1.de/debian/dists/sid"
+  },
+  "distributions": {
+    "potato": {},
+    "woody": {},
+    "sarge": {},
+    "etch": {},
+    "lenny": {
+      "members": {
+        "supported": [
+          "lenny",
+          "lenny-security"
+        ],
+        "optional": [
+          "lenny-proposed-updates"
+        ]
+      }
+    },
+    "squeeze": {
+      "members": {
+        "supported": [
+          "squeeze",
+          "squeeze-security"
+        ],
+        "optional": [
+          "squeeze-proposed-updates"
+        ]
+      }
+    },
+    "wheezy": {
+      "members": {
+        "supported": [
+          "wheezy",
+          "wheezy-security"
+        ],
+        "optional": [
+          "wheezy-proposed-updates"
+        ]
+      }
+    },
+    "jessie": {
+      "members": {
+        "supported": [
+          "jessie",
+          "jessie-security"
+        ],
+        "optional": [
+          "jessie-proposed-updates"
+        ]
+      }
+    },
+    "stretch": {
+      "members": {
+        "supported": [
+          "stretch",
+          "stretch-security"
+        ],
+        "optional": [
+          "stretch-proposed-updates"
+        ]
+      }
+    },
+    "buster": {
+      "members": {
+        "supported": [
+          "buster",
+          "buster-security"
+        ],
+        "optional": [
+          "buster-proposed-updates"
+        ]
+      },
+      "architectures": [ "amd64", "arm64", "armhf", "i386" ],
+      "release": "oldstable"
+    },
+    "bullseye": {
+      "members": {
+        "supported": [
+          "bullseye",
+          "bullseye-security"
+        ],
+        "optional": [
+          "bullseye-proposed-updates"
+        ]
+      },
+      "architectures": [ "amd64", "arm64", "armel", "armhf", "i386", "mips64el", "mipsel", "ppc64el", "s390x" ],
+      "release": "stable"
+    },
+    "bookworm": {
+      "members": {
+        "supported": [
+          "bookworm",
+          "bookworm-security"
+        ],
+        "optional": [
+          "bookworm-proposed-updates"
+        ]
+      },
+      "architectures": [ "amd64", "arm64", "armel", "armhf", "i386", "mips64el", "mipsel", "ppc64el", "s390x" ],
+      "release": "testing"
+    },
+    "trixie": {
+      "members": {
+        "supported": [
+          "trixie",
+          "trixie-security"
+        ],
+        "optional": [
+          "trixie-proposed-updates"
+        ]
+      }
+    },
+    "forky": {
+      "members": {
+        "supported": [
+          "forky",
+          "forky-security"
+        ],
+        "optional": [
+          "forky-proposed-updates"
+        ]
+      }
+    },
+    "sid": {
+      "members": {
+        "supported": [
+          "sid"
+        ]
+      },
+      "architectures": [ "amd64", "arm64", "armel", "armhf", "i386", "mips64el", "mipsel", "ppc64el", "s390x" ],
+      "release": "unstable"
+    }
+  },
+  "sources": [
+    {
+      "name": "CVE",
+      "path": "/CVE/list",
+      "class": "CVEFile"
+    },
+    {
+      "name": "DSA",
+      "path": "/DSA/list",
+      "class": "DSAFile"
+    },
+    {
+      "name": "DTSA",
+      "path": "/DTSA/list",
+      "class": "DTSAFile"
+    },
+    {
+      "name": "DLA",
+      "path": "/DLA/list",
+      "class": "DSAFile"
+    }
+  ]
+}

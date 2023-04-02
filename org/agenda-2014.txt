@@ -1,0 +1,155 @@
+Agenda for Security Team Meeting
+--------------------------------
+
+Workflow
+========
+
+- Opening up the security process further to allow maintainers of packages with
+  frequent issues to release updates themselves
+  - Updates need to be reviewed/acked by sec team members
+
+  - Requires changes to dak to no longer require access to security-master,
+    e.g.  by using a mechanism similar to allowing a DM to upload and sending
+    error messages to the signer of the upload (already requested by Thijs)
+
+  - Requires changes to debian-security-announce
+
+- Is dsa-needed an improvement? What shall we do with embargoed issues?
+
+- Ditch RT?
+
+- If we want to keep RT as part of our workflow: clean up or review all
+  current open/stalled/pending tickets in the Security Private and
+  Security queues.
+
+- Draft new people, possible candidates
+
+- Drop "Problem type" and "Vulnerability" from DSAs? Mostly
+  duplicating information from vulnerability databases
+
+- Review developers reference, does it still reflect current best practices?
+
+- How to contribute back security NMUs to packages repositories?
+
+Archive tools
+=============
+
+- Compile a list of issues we want to see fixed
+
+- Do we really need the embargo queue? This would simplify dak/FTP situations immensely.
+
+  - Or rather, do we need an unembargoed queue? we still have different
+    UNIX groups and nowadays all uploads end up in the embargoed queue
+
+- Make it simple to release packages for others to test, e.g. an aptable security queue
+
+- autopkgtest on security-master for jessie (for wheezy the amount of tests is
+  probably negligable
+
+Tracker
+=======
+
+- Add a new status to differentiate between "no-dsa, if the maintainer wants
+  to fix in a point update go ahead" and "no-dsa, was ignored because it's
+  possible to backport".
+
+- Automatic weekly status on open issues sent to maintainers (catches
+  issues which fell through the cracks, like CVE-2013-2236)
+
+- Check open bugs in the BTS, check bugs against security-tracker pseudo package
+
+- Support for consistency checks on source package names, e.g linux-2.6/linux
+  or all of the ruby packages
+
+- Version consistency checks, like an issue being marked as fixed in x.z and
+  not affecting stable, yet stable has x.y.
+
+- Keeping information about older, archived, releases? related to the above
+  point about consistency checks on source package names: should be possible
+  to say a package was renamed from foo to bar.
+
+- Automating more tasks:
+  + dropping "NOTE: to be rejected" when an issue is marked as REJECTED
+  + script to automatically merge data/next-{oldstable-,}point-update.txt
+  + get an overview of newly reported bugs in the Debian BTS which have
+    tag security (if one submits a bug not over reportbug we do not get
+    a copy)?
+  + Automatically group/reorder unassigned CVE-$year-XXXX item to have
+    them in one place and get a better overview?
+
+- debsecan should move to a shared development platform
+  (collab-maint on alioth?)
+
+Infrastructure
+==============
+
+- Availability in general. sec-master going down, alioth going down
+  (again), what are the implications and what can be done about it.
+
+- Migrate to git?
+
+Documentation
+=============
+
+- Work on proper documentation how people can contribute
+
+- Remove mentions of the "testing security team" since that doesn't
+  seem to exist anymore?
+
+Others
+======
+
+- d-d-a mail for file collecting willing testers for exotic setups
+  - maybe setup a mailing list or wiki page where we could send some “calls for
+    testers” when we have a package to test?
+
+- Compile a list of test instructions for key packages
+
+- Provide src:debian-unsupported to indicate unsupported packages
+
+- Compile a list of problematic packages in jessie for the release team
+  vlc, mariadb/mysql, OpenStack, libv8, owncloud, moodle
+  + What to do with OpenJDK? best-effort + dropping icedtea-web?
+    Ubuntu is also questioning the support:
+    https://lists.ubuntu.com/archives/ubuntu-devel/2014-January/037991.html
+
+Distribution hardening
+======================
+
+- hardening build flags:
+
+  - release goal status
+
+  - PIC/PIE situation
+
+  - adding new flags to dpkg-buildflags? (-fstack-protector-strong, others?)
+
+  - planning for release goal speedup? [corsac: what does it means?]
+
+  - improve detection of hardened build flags, maybe write the flags used into an
+    ELF section? This way it could be more reliably checked whether correct flags
+    were used (e.g. for binaries using fortified source, but not using any of the
+    functions covered by it)
+
+  - hidepid by default
+
+  - heap protection experiment for some packages? (e.g. mcheck)
+
+- mount flags and default partitioning
+
+- default open ports
+
+- kernel hardening: memory protections (heap/stack/...), reducing the attack surface
+
+- Require fs.protected_symlinks? (enabled by default in Wheezy, kfreebsd doesn't support it)
+
+- Disabling rare codecs/stuff by default.
+
+LTS
+===
+
+- Setup and organisation
+
+- Gather a specific list of people interested in contributing (e.g. credative already stepped forward)
+
+.. vim: filetype=rst:

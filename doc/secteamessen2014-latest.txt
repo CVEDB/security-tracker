@@ -1,0 +1,306 @@
+Live notes: 
+
+ * start at 10:40 CET
+ * break from 14:00 to 15:30 and 19:30 to 21:00 approx
+ * end at 00:50
+ * restart at 10:10 CET
+
+Tracker
+
+ * Add a new status to differentiate between "no-dsa, if the maintainer wants to fix in a point update go ahead" and "no-dsa, was ignored because it's possible to backport".
+   * fw will ask Jon Wiltshire if he still needs this.
+
+ * Automatic weekly status on open issues sent to maintainers (catches issues which fell through the cracks, like CVE-2013-2236)
+   * People getting annoyed by that ("spamming")?
+   * Packages being fixed through O/SPU, maintainers should not receive a copy of the mail. jmm, corsac: tag them no-dsa. May benefit from better spu/ospu processing (see below).
+   * have a way to know if an unmaintained package has users? popcon?
+   * fw will prepare a trial run and report on the amount of mail generated (after the schema reorg).
+   * It could be implemented by sending it through the PTS
+     * If mail is sent to PACKAGENAME@qa.debian.org also interested non-maintainers are notified
+     * A magic header is needed to get the mail through (see dev ref)
+     * Sending to a specific tag can be done with ${package}_${tag}@packages.qa.debian.org (e.g. tag=summary)
+       * N.b. that address should NOT be made public. E.g. for DEHS I used to set the To: to $package@packages.qa.debian.org and actually add the tag address as bcc and then prevent sendmail from sending a copy to $package@packages.qa.debian.org
+
+ * Check open bugs in the BTS, check bugs against security-tracker pseudo package (bugs.debian.org/security-tracker)
+   * Tracker needs some changes first, check at a later point. Most of the issues are no longer relevant anyway probably
+
+ * Support for consistency checks on source package names, e.g linux-2.6/linux or all of the ruby packages
+   * Wishlist bug has been filed: #738172
+
+ * Version consistency checks, like an issue being marked as fixed in x.z and not affecting stable, yet stable has x.y. (Example: r25293 in security-tracker, package mpack, CVE-2011-4919)
+   * #738173
+
+ * Keeping information about older, archived, releases? related to the above point about consistency checks on source package names: should be possible  to say a package was renamed from foo to bar.
+   * scalability concerns, we might be pushing the limits of SQLite
+   * Support for oldoldstable should be possible, if there's a performance bottleneck we can move it to a faster VM (or use PostgreSQL?)
+
+ * Automating more tasks:
+   * dropping "NOTE: to be rejected" when an issue is marked as REJECTED
+     * Add explicit TO-BE-REJECTED state and drop it during master CVE import.
+   * script to automatically merge data/next-{oldstable-,}point-update.txt
+     * solution for that seems to be to include spu/ospu in the CVE/list. Needs third state, "pending", in addition to "fixed" and unfixed for internal and external reporting, and inclusion of additional package sources for spu/ospu.
+   * get an overview of newly reported bugs in the Debian BTS which have tag security (if one submits a bug not over reportbug we do not get a copy)?
+     * Can be implemented with procmail and a subscription to bugs-dist.
+   * getting notice of new bugs not tagged security that contain words that might indicate possible security problems (security, injection, overflow, attack etc)
+   * Automatically group/reorder unassigned CVE-$year-XXXX item to have them in one place and get a better overview?
+     * https://security-tracker.debian.org/tracker/data/fake-names
+     * Maybe simply send the list to cve-assign and CC oss-security?
+     * Can be automated if we have a Debian bug to point to. If the only thing we have is a version number, it's difficult. Perhaps point to snapshot.debian.org if the version is available there.
+     * what's the point of list things like TEMP-0000000-00657F?
+   * automated CVE closing using (Closes: CVE-2014-1234) in debian/changelog?
+     * there is already some sort of convention of writing '"Fix(es) CVE-YYYY-XXXX"
+     * This is related to BTS syncing.  Questionable usefulness.  Needs to be delayed and batched up once per day because people are already on it.
+     * alternatively process debian-devel-changes filtering out ones mentioning CVEs and forward it to one of our lists?
+   * Get an overview for all CVEs with unfixed packages but not bug reported (can be done by command line via bin/check-new-issues -lfU)? (cf. #529788)
+     * There was also an idea of automatically filing bugs; at least bin/report-vuln can now generate a useful report with almost no interaction (bin/report-vuln --no-blanks foosrc CVE-2013-XXXX)
+
+ * debsecan should move to a shared development platform (collab-maint on alioth?)
+   * Add it collab-maint and make sure that there is commit mail. Documentation at https://wiki.debian.org/Alioth/Git#Setting_up_hooks
+   * anyone interested should send a mail to security-tracker.debian.org ML
+
+Workflow
+
+ * Opening up the security process further to allow maintainers of packages with frequent issues to release updates themselves
+   * Updates need to be reviewed/acked by sec team members
+   * How about adding more people to the team who handle some specific packages? (ala eglibc, kfreebsd, linux, iceweasel)
+   * Requires changes to dak to no longer require access to security-master, e.g.  by using a mechanism similar to allowing a DM to upload and sending error messages to the signer of the upload (already requested by Thijs). Some kind of ACL mechanism is needed so that e.g. security team members can process all and some maintainers are limited to specific source packages
+   * Requires changes to debian-security-announce (so that the same ACLs are applied as for releasing security updates) (Contact list masters)
+   * futher idea: command file templates: releasing packages/dak new-security-install *and* sending the mail.
+   * Use the release team's stable/oldstable proposed-updates infrastructure in a similar way?
+
+ *  Is dsa-needed an improvement?
+   * Can we include the info about specific-packages-handler-people somehow here?  shouldn't be needed if the ACLs thing (above) is implemented; people themselves could take/assign them
+   * svn blame-based detection of stalled issues? e.g. xen's "maintainer prepared updates" Last Changed Date: 2013-09-12 07:30:02 +0200 by jmm
+   * What shall we do with embargoed issues?
+   * check next item.
+
+ * Deprecate RT:
+   * Setup a private repository for embargoed issues
+   * Do a spring cleaning of remaining issues and add them to dsa-needed, close the tickets or add them to the private repository
+   * Close rt.debian.org security queues and update information recommending maintainers to open a ticket if they want to report a security issues (wiki.debian.org page and dev-ref)
+
+ * Maintain a file in SVN to track TODO items which are not related to preparing security updates, e.g. work on infrastructure
+   * org/TODO
+
+ * Draft new people, possible candidates
+   * watch out for people contributing on e.g. security-tracker and ask them specifically
+   * maybe send out specific calls for help for specific packages
+
+ * Drop "Problem type" and "Vulnerability" from DSAs? Mostly duplicating information from vulnerability databases
+   * nion: is this true or is this also a source for those, especially for issues affecting debian specifically? to me this belongs to a complete advisory, we also dont want admins processing these to lookup additional information on external websites (lalso if yes, which specifically?)
+   * But what's the use case? Problem type is totally opaque and useless, there's simply too much overlap. And Debian-specific is also not very useful, does it make any difference whether I install fix which is specific to Debian or a generic bug? This is only relevant for other distros and they get a note through linux-distros or oss-sec. Information is still available in CVSS scores
+   * If there's anything specific to mention we can still add it to the advisory freeform text
+     * ok we disagree here then, but that's fine. in my personal opinion that just belongs to what i consider a professional security advisory and i don't like hinting/relying to/on further external sources that we might know, but the end user not or simply doesn't care about. the term sucks, it should be access vector or something. but i do think it provides people processing DSAs another criteria that allows people to quickly determine whether they care or notthat allows people to quickly determine whether they care or not  what i mean wrt debian-specific bugs is not if an administrator cares if its debian specific or not. i agree, it doesnt matter. what i meant is that in the case the origin of an issue is debian, external sites use our advisories as the source/reference, so i think they should be complete in this aspect rather than making something up or guessing. im all for reducing the amount of work that goes into advisories, but im not for stripping it to a level where its way sub-par of "industry standards". and cvss is not an argument at all in my book, this is completely ignored by a large fraction of people due to its questionable use
+   * Reference the CVEs to the security-tracker instead of the cve.mitre.org page (on the generated webpages -- section Security database references).
+   * Incude link to the webpage and tracker in the mail? nope
+   * So, "Vulnerability" hasn't been dropped yet, as some of this information is also used to generate the webpages below security.debian.org. The release team also uses it to generate the announcements
+   * Crossreferences to cvs.mitre.org change to the security-tracker pages should be enough.
+
+ * Review developers reference, does it still reflect current best practices?
+   * https://www.debian.org/doc/manuals/developers-reference/pkgs.html#bug-security
+   * Once we've discarded RT dev ref needs to be updated
+   * Same with wiki pages
+     * https://wiki.debian.org/DebianSecurity/Contacts needs to be updated or removed
+
+ * How to contribute back security NMUs to packages repositories?
+   * or: have some pages like the release-team generating the debdiff from previous version in stable/oldstable. Like: https://release.debian.org/proposed-updates/stable.html (or actually we do not need a separate page, as every upload done via a DSA will land in (o)pu-NEW and is displayed on the release team page)
+
+ * Is there any official way our private key is managed?
+   * Our security key expires in Sep 2015; buy g10 crypto cards (or if there's a technical superior solution available something different) and manage the next security team key via smart card
+   * http://shop.kernelconcepts.de/product_info.php?cPath=1_26&products_id=42
+
+Archive tools
+
+ * Compile a list of issues we want to see fixed
+   *  https://wiki.debian.org/DebianSecurity/AdvisoryCreation/dak-bugs
+   * Uploaders need to be notified if an upload is botched (e.g. missing orig tarball). We cannot use the Maintainers: field since it might leak information.
+
+ * be more consistent on using embargoed and unembargoed queue? (unenbargoed queue e.g. could be used for apt-able source for testers? See next points)
+
+ * Make it simple to release packages for others to test, e.g. an aptable security queue
+   * FTP masters already make incoming.debian.org availalble for buildds, similar mechanism should be deployed. Jörg is looking into it. Used for the unembargoed queues (which the team needs to start using then)
+
+ * Question for ftp-master: is there as easy way to check orig.tar.gz for packages already in the main archive and do not accept it to security-master? (ftp-masters have already a patch for this in dak and will activate it) 
+   done
+
+Infrastructure
+
+ * Availability in general.
+   * sec-master going down, Is there a fallback-plan by DSA if security-master goes down (maybe clarify with them; redundancy?)
+     * we trust DSA for backups
+     * emergency plan: a remote vuln in ssh, anything that might prevent us from delivering an urgent fix
+       * Limiting access to $resource (e.g. ssh) via a firewall, only adding exceptions to handle the situation
+   * alioth going down (again), what are the implications and what can be done about it.
+
+ * Migrate to git?
+   * No strong opinions.
+   * Migrate implies change a lot of things and there is no real benefit to our workflow
+   * Keep things as they are for now.
+   * Make sure we have backups of history? (cf. svnsync setup)
+
+ * Fallbackplans if subversion server on alioth is again down for several days? Have a sync on soler which we could use in emergencies to continue coordinating our work.
+
+Others
+
+ * d-d-a mail for file collecting willing testers for exotic setups
+   * maybe setup a mailing list or wiki page where we could send some “calls for testers” when we have a package to test?
+   * Get through the list of interesting packages and add it to the "Bits from the security team" mail
+   * Track that file in the private security team repository
+   * If there's a staging security queue we can check the access.log how often a package was installed (if has been installed many times w/o failure reports it's also an indication)
+
+ * Compile a list of test instructions for key packages
+   * Collect testing instructions in SVN and related test files on security-master (e.g. test files for parsers) or example configuration files for servers
+   * ask maintainers to add autopkgtest testsuites
+
+ * Provide src:debian-unsupported to indicate unsupported packages
+   * Package tags exist for a long time, but not implemented in any frontends
+   * Also covers packages with limited security support (e.g. ganglia, sql-ledger or glpi)
+
+ * Compile a list of problematic packages in jessie for the release team:
+   * vlc: Phonon is a reverse dep so we cannot update to current upstream release, contact VLC maintainers/KDE
+   * mariadb/mysql: mysql contact Oracle if they want to package/support MySQL for Debian? MariaDB is in this regard a bit more verbose in their changelogs, e.g. https://mariadb.com/kb/en/mariadb-5535-changelog/, mariadb has just had a single upload and already 3 RC bugs
+   * OpenStack: Maintainer apparently no longer interested in having it part of a stable release, instead use PPAs
+   * libv8: used by nodejs, mongodb, intransparent security handling
+   * owncloud: requires a LTS upstream branch to follow
+   * docker.io?
+   * moodle: was removed from wheezy, but since then it's maintained by Thijs, if he thinks it's supportable keep it for jessie
+   * What to do with OpenJDK? best-effort + dropping icedtea-web? Ubuntu is also questioning the support: https://lists.ubuntu.com/archives/ubuntu-devel/2014-January/037991.html . We'll need to continue to support it, but must make sure that only one release ends up in jessie (i.e. openjdk-7 or openjdk-8 but not both)
+     * we should keep icedtea-web away from stable releases
+   * ffmpeg/0.5 is hopeless, doesn't make sense to backport fixes, backporting libav to oldstable isn't possible either
+
+ * Ways to contact users of packages to test security updates (like wordpress etc) before release?
+
+ * Use ubuntu-security-tools to point at new/old packages that need audits (talk to sarnold about this).
+
+Documentation
+
+ * Work on proper documentation how people can contribute
+   * Converted introduction document to Markdown (needs to linked properly, TODO: rendering part is not yet done)
+   * Create easy hacks as LibreOffice 
+     * Use our new TODO file for that
+
+ * Create a one-stop web page security-team.debian.org which links all information wrt to working/contrbuting on security, e.g. links to the tracker, introduction information, links to useful wiki pages etc. release.debian.org is a good example for such a specific target page.This information shouldn't be collected on www.debian.org/security since this is targeted for people using security updates
+
+ * Remove mentions of the "testing security team" since that doesn't  seem to exist anymore?
+   * remove/rename all secure-testing mailing list and repositories? (need to collect information where they are all used, e.g. reportbug send's a email to also secure-testing-team address when tag security is set -- and fortunately also to team@security.debian.org).
+   * Alioth project is still called secure-testing, ask Alioth admins whether a rename of the Alioth project is possible. Once renamed, simply fix up the fallout of the rename. If possible rename it to security-tracker.
+
+ * Check out the documentation index for a kinda of TODO of the future sections: https://alioth.debian.org/scm/viewvc.php/doc/public/index?view=markup&root=secure-testing
+
+ * Security section of the Debian website needs review and cleanup http://www.debian.org/security/
+
+Distribution hardening
+
+Relevant documentation from other distributions:
+ * http://www.chromium.org/chromium-os/chromiumos-design-docs/system-hardening
+ * https://wiki.ubuntu.com/Security/Features
+
+ * hardening build flags:
+   * http://www.outflux.net/blog/archives/2014/02/03/compiler-hardening-in-ubuntu-and-debian/
+   * release goal status
+     * working out fairly well for -dsa and -important, mostly needs some attention/handling, but active DD are working it on their own
+   * PIC/PIE situation
+     * performance impact on i386
+     * full archive rebuild to detect build failure?
+     * add it to “easy tasks”?
+   * adding new flags to dpkg-buildflags? (-fstack-protector-strong, others?)
+     * Depends on the GCC 4.9
+       * Check with doko on the target GCC version for jessie or check whether a backport will be accepted (backport for 4.8 is available in RHEL7)
+         * "It is planned to only keep GCC 4.8 and the upcoming GCC 4.9, and to remove 4.4, 4.6 and 4.7 from jessie." - https://lists.debian.org/debian-devel-announce/2013/05/msg00005.html
+         * but default would be 4.8? 
+     * http://www.outflux.net/blog/archives/2014/01/27/fstack-protector-strong/
+     * https://fedorahosted.org/fesco/ticket/1128
+   * improve detection of hardened build flags, maybe write the flags used into an ELF section? (-grecord-gcc-switches as a hardening flag would do this) This way it could be more reliably checked whether correct flags were used (e.g. for binaries using fortified source, but not using any of the functions covered by it)
+     * https://github.com/kholia/checksec/commit/0ec9bba974d7b16af71cdac202d1e34c57c95962
+     * Downside: Depends on debugging information
+     * Maybe error out in dh_strip?
+     * Maybe perform an archive rebuild with that option added to dpkg-buildflags (CFLAGS)
+     * Moritz will test and add it to the hardening walkthrough
+   * hidepid by default
+     * to what value? 1? 2? (I think we can start with 2 and fallback to 1 if it really breaks)
+     * File bugs for systemd (maybe), dracut and initramfs-tools
+       * https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=733112#32
+     * Change the default in the kernel or 
+       * http://sources.debian.net/src/linux/3.12.8-1/fs/proc/root.c?hl=77#L77
+   * heap protection experiment for some packages? (e.g. mcheck)
+     * fw will contact tool chain maintainers
+
+ * mount flags and default partitioning (W^X by where possible)
+   * noexec /var only possible if you mount /var/lib/dpkg/info exec
+   * check in the installer
+
+ * default open ports
+   * is “standard system” task still relevant? (installs rpcbind which listen by default)
+   * file bugs in tasksel
+
+ * interesting sysctls:
+   * Require fs.protected_symlinks? (enabled by default in Wheezy, kfreebsd doesn't support it)
+   * kernel.kptr_restrict / kernel.dmesg_restrict
+   * kernel.yama.ptrace_scope
+   * todo: talk with kernels maintainers about that
+   * alternative solution: provide a hardening package shipping a /etc/sysctl.d/hardening.conf or something
+
+ * Disabling rare codecs/stuff by default
+   * Lots of formats/codecs are enabled by default, exposing bugs in those libraries:
+     * gstreamer
+     * vlc
+     * ffmpeg/libav
+     * openjpeg
+     * jasper
+     * libmodplug
+     * libopenraw/lib{kd,}raw
+     * libsndfile
+   * Very difficult to get traction with package maintainers or upstream
+
+ * Fully-hardened archive rebuilt from scratch using ideas from:
+   * http://media.ccc.de/browse/congress/2013/30C3_-_5412_-_en_-_saal_1_-_201312271830_-_bug_class_genocide_-_andreas_bogk.html
+   * Still an ongoing research project
+
+
+LTS
+
+ * Setup and organisation
+   * need to be clear that is a first time experiment starting. How to initiate the project?
+     * Create a separate suite (e.g. squeeze-lts)
+     * Compile a list of potentially invasive/problematic packages and exempt them from support (e.g. typo3)
+     * Start of with squeeze, consider later whether there's LTS for wheezy as well or again for jessie
+     * Allow every DD and DM to upload
+   * Idea: everyone who can upload to main achrive could als be allowed to upload packages for LTS.
+   * maintain usablility of the LTS.
+   * expectations of LTS (e.g. still possible to update LTS to current/next stable release)
+   * Infrastructure
+     * Mailing list: no (for now) to avoid separation
+     * buildds?
+     * mirrors: we would keep the whole oldoldstable release in the standard mirrors network. Ftpmaster wishes there to be lts support only for every other release.
+   * what about mirrors admins? source + i386 + amd64 + arch:all packages is still a lot of space, will it work for them?
+       * ~20GBs per arch for squeeze
+     * tracker?
+       * Tracker needs no code changes if the lifetimes of squeeze and squeeze-lts are disjoint.
+   * LTS support starts after a release EOL (architecture in place before, but nothing in there before): so ~may 2014 for squeeze-lts
+   * limited to some architectures: i386 and amd64 (contact wanna-build admins)
+   * Call for interested parties
+   * Bar for severity will be raised (minor issues will no longer be fixed)
+
+Other
+
+ * keysigning
+ * Luciano Bello:
+   * 53D7 3210 9C90 AAB2 11D8 0503 4164 D1B3 894B B479
+   * 6B2C C596 7BD1 BDEA 9E58 9B29 6EC2 DEF6 8FFE 3774
+ * Yves-Alexis Perez (4096R/0x30550F7871EF0BA8)
+   * 4510 DCB5 7ED4 7040 60C6  6476 3055 0F78 71EF 0BA8
+ * Raphael
+   * 4096R/48F8B729 DD0D BBEC 5AAB 040B C01A  2226 CD66 DE3D 48F8 B729
+ * Moritz
+   * pub   4096R/C37C4E36 2014-01-01
+   *   Schl.-Fingerabdruck = B6E6 2F3D 12AC 3849 5C0D  A905 10C2 93B6 C37C 4E36
+   * uid                  Moritz M�hlenhoff <jmm@debian.org>
+   * uid                  Moritz M�hlenhoff <jmm@inutil.org>
+   * sub   4096R/DECE9BC3 2014-01-01
+    Florian: 2048R/02D524BE
+        C8D3 D9CF FA9E 7056 3F32  FA54 BF7B FF04 02D5 24BE
+
+ * next meeting
+   * ~yearly meetings?
+   * next one begninning of 2015, which fits well with the Jessie schedule
+

@@ -1,0 +1,90 @@
+Setup
+=====
+Repository on alioth
+--------------------
+- Commit hook:
+  + pre-commit: Calls
+	"$1/hooks/check-file" "$1" "$2"
+    and in this form requires the name of the file that has been
+    modified. this is not strictly needed if not possible with git,
+    since that is only an optimisation to check the syntax of only
+    that file.
+
+    $1/hooks/check-file: Looks at the modified file and runs
+    bin/check-syntax script checked out in the local checkout in
+    /srv/home/groups/secure-testing/repo . This does not need to be a
+    complete checkout as it uses only the check-syntax and lib
+    directory.
+
+  + post-commit:
+    - Invoke /usr/share/subversion/hook-scripts/commit-email.pl to send
+      email to secure-testing-commits@lists.alioth.debian.org
+    - Runs kgb-client. Configuration is in
+      /home/groups/secure-testing/kgb-client.conf and has setting for
+      svn repository.
+    - Checks out the local copy of the repository on
+      /home/groups/secure-testing/repo (this is possibly not needed
+      anymore in this form)
+
+  + secure-testing-commits mailing list:
+    - sectracker@soriano.debian.org needs to be subscribed to the
+      commits list which are used as triggers to update / create
+      sec-tracker information on security-tracker.debian.org (soriano)
+
+Todos:
+======
+cronjobs:
+- Makefile
+
+alioth project:
+- migrate (active) users (maybe based on only the ones which commited
+to the svn repository in recent years?)
+- get the DD acl applied (then point above only applies to -guest users)
+  => We will add Debian group by default, *-guest user need to re-apply
+
+hooks:
+- this is problematic, we run syntax/sanity checks pre-commit. But with
+  salsa/gitlab there is no easy way anymore without involving protected
+  braches/runners:
+  [18:58] < carnil> is there a way to implement such pre-commit checks with gitlab/salsa?
+  [18:58] < Myon> carnil: I think the short answer is "no"
+  [18:59] < Myon> the longer answer might include protected branches and runners and stuff
+  [...]
+  [20:15] < formorer> carnil: you answer was probably answered, but no thats not possible. Not allowing random hooks was a design decision because it opens several interesting security consequences
+  [20:17] < formorer> carnil: but if you provide a hook, we can review it and enable it
+  [20:18] < formorer> carnil: see https://docs.gitlab.com/ce/administration/custom_hooks.html for details
+  [20:19] < formorer> hope that helps
+  [20:27] < formorer> carnil: https://wiki.debian.org/Salsa/Doc#Custom_Hooks
+
+  => agx/Guido implemented a solution installing a pre-commit hook via
+     bin/setup-repo.
+     although that is not an enforcement it is good enough until CI/runners are
+     available
+
+security-team.debian.org website
+
+- move this file to git
+- ping federico3 to update the codebase for security-metrics.d.n (uses git-svn)
+  => This seems not to be updated anymore
+
+sectracker role account:
+- Creation request: https://salsa.debian.org/salsa/support/issues/6
+  -> Use 'deploy keys'
+- can the role account be added to the project and get the notifications?
+  Possible alternative: https://docs.gitlab.com/ce/user/project/integrations/emails_on_push.html
+  cf. https://salsa.debian.org/salsa/support/issues/5
+- what needs to be done to allow sectracker role account to commit
+  (user creation, guest-user?)
+- Adjust role account procmailrc for trigger updates via mail
+
+bin/tracker_data.py:
+- needs a rewrite, contact buxy (Raphaël Hertzog)
+  => agx/Guido fixed this to work with the git repository
+
+old repository:
+- Add a pre-receive hook to prevent accidental pushes to the old alioth
+  account
+
+References:
+===========
+Mailinglists: https://lists.debian.org/debian-devel-announce/2017/09/msg00004.html

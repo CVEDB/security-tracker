@@ -1,0 +1,253 @@
+#!/usr/bin/perl -w
+
+# Compares the testing_status tables from two versions of security.db.
+# To be accurate, both versions must have been created with the same
+# revision of the tracker data files (but with different package files).
+
+use strict;
+use DBI;
+
+my $TESTING="wheezy";
+my $MAILTO='secure-testing-team@lists.alioth.debian.org';
+my $MAILFROM='sf@sfritsch.de';
+
+my @d = localtime(time);
+my $MAILDATE = sprintf("%4d-%02d-%02d", $d[5] + 1900, $d[4] + 1, $d[3]);
+
+if (@ARGV != 2) {
+	die "usage:\nlist-updates old.db new.deb\n";
+}
+
+my $migrated = {};
+my $dtsa = {};
+my $removed = {};
+my $versions = {};
+
+my $mail_text = "";
+
+my $old_dbh = DBI->connect("dbi:SQLite:dbname=$ARGV[0]","","", { RaiseError => 1 });
+my $new_dbh = DBI->connect("dbi:SQLite:dbname=$ARGV[1]","","", { RaiseError => 1 });
+
+my $sth_version = $new_dbh->prepare("SELECT version, archive FROM source_packages WHERE name = ? AND release = '$TESTING' AND subrelease = ? ");
+my $sth_desc    = $new_dbh->prepare("SELECT description FROM bugs WHERE name = ?");
+my $sth_debbug  = $new_dbh->prepare("SELECT d.bug FROM package_notes p JOIN debian_bugs d ON d.note = p.id WHERE bug_name = ? AND package = ? AND release = ''");
+
+my $old_issues = get_issues($old_dbh);
+my $new_issues = get_issues($new_dbh);
+
+foreach my $package ( sort keys %{$old_issues} ) {
+	$versions->{$package} = package_version($package); # undef if package does not exist in $new_dbh
+
+	foreach my $issue ( sort keys %{$old_issues->{$package}} ) {
+		my $old = $old_issues->{$package}->{$issue};
+		my $new = $new_issues->{$package}->{$issue};
+
+		if ( $new ) {
+			if (     $old->{testing_security_fixed} == 0
+			     and $new->{testing_security_fixed} == 1 )
+			{
+			     	push @{$dtsa->{$package}}, $issue;
+				$versions->{$package} = package_version($package, "security");
+			}
+			
+		}
+		else {
+			if ( ! defined $versions->{$package} ) {
+				push @{$removed->{$package}}, $issue;
+			}
+			elsif ( $old->{testing_security_fixed} != 1 ) {
+				push @{$migrated->{$package}}, $issue;
+			}
+		}
+	}
+}
+
+print_hash($dtsa, "DTSA", <<"EOF");
+The following issues have been fixed by uploads to testing-security:
+
+EOF
+
+print_hash($migrated, "Migrated from unstable");
+
+print_hash($removed, "Removed from testing", <<"EOF");
+The following issues have been "fixed" by removing the (source) packages from 
+testing. This probably means that you have to manually uninstall the 
+corresponding binary packages to fix the issues.
+It can also mean that the packages have been replaced, or that they have been 
+temporarily removed by the release team to make transitions from unstable 
+easier.
+
+EOF
+
+
+
+if ($mail_text) {
+	send_mail();
+	print "mail sent.\n";
+}
+else {
+	print "nothing fixed, no mail sent.\n";
+}
+
+# workaround DBD::Sqlite bug
+undef $sth_version;
+undef $sth_desc;
+undef $sth_debbug;
+
+########### end MAIN #############
+
+sub print_mail {
+	$mail_text .= join('', @_);
+}
+
+sub print_both {
+	print_mail(@_);
+	print @_;
+}
+
+sub print_hash {
+	my $hash = shift;
+	my $name = shift;
+	my $desc = shift;
+
+	return if ! scalar keys %{$hash};
+
+	print_both("$name:\n");
+	print_both('=' x ( length($name) + 1) , "\n");
+	print_mail("$desc") if $desc;
+
+	foreach my $p (sort keys %{$hash}) {
+		my $version = "";
+		if ( $versions->{$p} ) {
+			$version = " $versions->{$p}";
+		}
+		print_both("$p"  . $version . ":\n");
+
+		# sort DTSAs first
+		my @issues = sort grep(/^DTSA/, @{$hash->{$p}});
+		push @issues, sort grep(!/^DTSA/, @{$hash->{$p}});
+		my %seen_dbug;
+		foreach my $i (@issues) {
+			print_both(issue2string($i));
+
+			# print debian bug no more than once per package
+			my @dbugs = issue2debbug($i, $p);
+			foreach my $dbug (@dbugs) {
+				if ( ! $seen_dbug{$dbug} ) {
+					$seen_dbug{$dbug} = 1;
+					print_both(" "x15 . "https://bugs.debian.org/$dbug\n");
+				}
+			}
+		}
+		print_both("\n");
+	}
+
+}
+
+
+sub get_issues {
+	my $dbh = shift;
+	return $dbh->selectall_hashref(
+		'SELECT package, bug, unstable_vulnerable, testing_security_fixed FROM testing_status',
+		[ 'package', 'bug' ] );
+}
+
+sub package_version {
+	my $package = shift;
+	my $subrelease = shift || "";
+	$sth_version->execute($package, $subrelease);
+	my $result = $sth_version->fetchall_arrayref();
+
+	if (scalar @{$result} > 1) {
+		return "";
+	}
+	if (scalar @{$result} == 0) {
+		return undef;
+	}
+	my $archive = "";
+	if ($result->[0]->[1] ne 'main') {
+		$archive = " ($result->[0]->[1])";
+	}
+	return $result->[0]->[0] . $archive;	
+
+}
+
+sub issue2string {
+	my $issue = shift;
+	my $url = "";
+	my $desc = "";
+
+	$sth_desc->execute($issue);
+	my $result = $sth_desc->fetchall_arrayref();
+	$desc = $result->[0]->[0];
+
+	if ( $issue =~ /^CVE-\d{4}-\d{4,}/ ) {
+		$url = "https://cve.mitre.org/cgi-bin/cvename.cgi?name=" . $issue ;
+		return "$issue: $url\n";
+	}
+	elsif ( $issue =~ /^DTSA-/ ) {
+		return "$issue    : $desc\n";
+	}
+	else {
+		return "<no CVE yet> : $desc\n";
+	}
+
+}
+
+sub issue2debbug {
+	my ($issue, $package) = @_;
+
+	$sth_debbug->execute($issue, $package);
+	my $rows = $sth_debbug->fetchall_arrayref();
+	my @bugs = map { $_->[0] } @{$rows};
+
+	return @bugs;
+}
+
+sub send_mail {
+	open(my $sendmail, "| /usr/sbin/sendmail -bm -ti") or die "could not invoke sendmail\n";
+	print $sendmail <<"EOF";
+From: $MAILFROM
+To: $MAILTO
+Subject: Security update for Debian Testing - $MAILDATE
+
+This automatic mail gives an overview over security issues that were recently 
+fixed in Debian Testing. The majority of fixed packages migrate to testing 
+from unstable. If this would take too long, fixed packages are uploaded to the 
+testing-security repository instead. It can also happen that vulnerable 
+packages are removed from Debian testing.
+
+$mail_text
+
+How to update:
+--------------
+Make sure the line
+
+	deb http://security.debian.org $TESTING/updates main contrib non-free
+
+is present in your /etc/apt/sources.list. Of course, you also need the line
+pointing to your normal $TESTING mirror. You can use
+
+	aptitude update && aptitude dist-upgrade
+
+to install the updates.
+
+
+More information:
+-----------------
+More information about which security issues affect Debian can be found in the 
+security tracker:
+
+	https://security-tracker.debian.org/tracker/
+
+A list of all known unfixed security issues is at
+
+	https://security-tracker.debian.org/tracker/status/release/testing
+
+EOF
+#############################
+	close($sendmail);
+	if ($?) {
+		print "Sendmail error\n";
+	}
+}

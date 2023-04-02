@@ -1,0 +1,4 @@
+CVE-2019-14433
+	[buster] - nova 2:18.1.0-6+deb10u1
+CVE-2022-28737
+	[buster] - shim 15.6-1~deb10u1

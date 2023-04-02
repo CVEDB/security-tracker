@@ -1,0 +1,450 @@
+# Securing the Testing Distribution #
+
+Joey Hess, DebConf5, Helsinki Finland
+
+----------------------------------------------------------------------------
+
+## Introduction ##
+
+Debian's unique "testing" distribution is a potentially useful distribution
+for both Debian end users and Custom Debian Distributions, who need a
+reasonably up-to-date but not unstable version of Debian. One of the
+distribution's main downfalls in attracting users has always been the lack
+of security support. Over the past year, efforts have begun to change that.
+
+## The "testing" Distribution ##
+
+Debian's "testing" distribution is intended to be an automatically
+stabilised version of Debian unstable, which is, in theory, kept free
+of most of the release critical bugs that block a Debian release, while
+still containing reasonably up-to-date software. Testing is intended to be
+suitable as the basis for a stable Debian release at all times.
+
+Testing grew out of the difficulty of managing a release based on the
+unstable distribution. Before the advent of testing, Debian releases began
+by taking a snapshot of unstable, fixing any show-stopper bugs, testing it,
+and eventually releasing the snapshot as stable. As Debian grew larger and
+supported more architectures, this process did not scale well, freeze
+periods became ever longer, and Debian releases more out of date and less
+internally consistent. These problems led to the invention of the testing
+distribution in 2000 by Anthony Towns.
+
+Updated packages reach testing under the control of a program (`britney`)
+which ensures that several conditions are always met before a package in
+testing can be updated to a newer version:
+
+  * The new version cannot have more release critical bugs than the
+    version already in testing.
+  * The new package has to have aged and been tested for 10 days in
+    Debian's "unstable" distribution, to help ensure it has no serious bugs.
+    However, this delay can be reduced to 5 or even 2 days if packages have
+    an urgent reason to be updated.
+  * The new version of the package must have been built successfully on
+    all the architectures Debian plans to release.
+  * All the dependencies of the new version must be satisfied by packages
+    in testing.
+
+Handing most of the day-to-day management of a linux distribution over to a
+program is a bold and unique idea among linux distributions, and making it
+work has involved some unique challenges, many of them beyond the scope of
+this discussion. On the whole, though, the resulting distribution has been
+useful for its intended purpose of serving as a base for stable Debian
+releases.
+
+But ever since it was introduced, testing has seemed an attractive
+distribution for other purposes as well. It's seemed useful for those who
+need newer software than stable, such as updated desktop software, but
+cannot deal with the problems inherent in using unstable. One example is
+installing Debian on hundreds of desktops at a company or school, another
+is installing it on a single computer which one does not have much time to
+maintain. A third example is a Custom Debian Distribution, such as
+[Debian-Edu](http://skolelinux.org).
+
+While testing is used in all of these ways, a nasty little problem has kept
+it from being widely used, limiting its users to a few with enough manpower
+to do a lot of additional work, and a few who would rather not admit they're
+using it. That problem is the difficulty in securing this distribution.
+
+## Problems With Securing Testing ##
+
+There are many problems that keep testing from being secure, and most have
+their roots in the same conditions that are used to automatically control
+the upgrading of packages in testing. Indeed, every one of those conditions
+causes its own problems that can keep a security update in unstable from
+reaching testing in an appropriately fast time span for testing to be safe
+and secure.
+
+  * Most security problems are release critical bugs, but if the package in
+    unstable has additional release critical bugs besides the security fix,
+    these can hold a crucial security fix out of testing indefinitely.
+
+    The only way to avoid this is by back-porting the security fixes to the
+    package version that is in testing, but besides often being difficult
+    and introducing new bugs, back-ports need an upload queue like
+    testing-proposed-updates or testing-security, and Debian has not kept
+    these queues functional between stable releases.
+  * The built-in delays in propagation of packages to testing keep any
+    security fix out of testing for at least a couple of days, and possibly
+    longer if it was not marked as being of high urgency.
+
+    Release managers are able to reduce these delays, but some delay still
+    exists, and reducing the delay increases the risk of buggy packages
+    entering testing, which has to be weighed against the security problem
+    if testing is to meet its original purpose.
+  * If a package fails to auto-build on even one architecture, or if an
+    architecture's auto-builder is slow or backlogged, this will keep it
+    from reaching testing.
+
+    Release managers are able to force in a package on the architectures
+    for which it's already built, but breaking the consistency of testing
+    like this can cause other problems and must be done with care.
+  * A new version of a package often has dependencies on other new
+    package versions, and anything that delays those packages from reaching
+    testing can delay a security fix.
+
+    Unlike all the other problems listed above, no solution is known for
+    this problem. It can be ameliorated by avoiding overly tight library
+    dependencies, but not avoided.
+  * Testing is based on unstable which is always in a state of flux and for
+    which security is by no means guaranteed.
+
+All of these problems seem so insurmountable that for years no-one dared to
+try to work on making testing more secure. Recently though a team has
+formed that intended to do that, although the problems above remain as
+constraints that must be constantly worked around.
+
+## The Testing Security Team ##
+
+The testing security team was formed in the fall of 2004. It is an open
+team which currently has a combined membership of half a dozen Debian
+developers and users. 
+
+Team members spend between a few hours, up to a day or two of work time per
+week on tracking and fixing security issues in testing. This is a fairly
+large ongoing time commitment for a volunteer group, and in a survey of
+some of the participants, they gave some reasons for working on the
+security of testing that are not common in Debian, as well as some that
+will be familiar to many Debian developers:
+
+  * One member works for a organization which is deploying Debian sarge
+    on a large scale and needs to keep track of security issues anyway.
+    
+  * One member works for the Debian-Edu distribution, which is based on
+    Debian sarge, had to provide its own security support for its prior 
+    release (Skolelinux) which was based on Debian woody, and needs to deal
+    with security holes in testing.
+  
+  * One member works on another derived distribution (Univention Corporate
+    Server), which is not based directly on sarge, and needs to keep track
+    of security issues and cherry-pick fixes from Debian, and finds tracking
+    and fixing security holes in testing a useful way to do this.
+  
+  * One member wants to work on Debian as a whole, not just on maintaining
+    some packages, and finds working on security interesting.
+    
+  * Several members are interested in helping sarge release.
+  
+  * Several members want testing to have security support since they
+    perceive it to be a useful alternative to stable for some Debian users.
+    
+  * Several members pointed out that the testing security team also makes
+    Debian unstable more secure.
+    
+  * Several members appreciate the openness and transparency of the testing
+    security team, in which everything is done in public mailing lists, bug
+    tracking systems, and code repositories; compared to the stable
+    security team which does many things in secret.
+    
+  * At least one member thinks that "it's fun".
+
+Half of the members of the team have day jobs that involve large scale
+Debian deployments, or distributions derived from Debian, all based on
+the testing distribution. This could explain why it took four years from 
+the introduction of testing to the formation of this team; it took nearly
+that long for such uses of testing to become both necessary and
+conceivable, and the pressure of trying to do these things with testing has
+been a powerful motivator for many team members. If that is the case then
+we can hope to see the team grow as others find themselves in similar
+positions.
+
+The testing security team is designed to scale up well and be easy to grow.
+All of the work is innately divisible; our database of potential security
+issues allows members to claim issues to check, and fixing the issues also
+parallelises nicely. Little communication is needed between team members;
+indeed days go by with the only communication being automatic updates on
+who has checked which issues and what holes have been fixed. 
+
+The barriers for entry to the team are as low as possible; team members do
+not need to be Debian developers, the team operates on public information
+about security issues, so there are no confidentiality requirements. The
+only significant requirement is that team members have the time and skills
+to do the work.
+
+Indeed one of the goals of the talk which this paper accompanies is to find
+someone new in the audience who can join the team. If you are interested or
+wish to contact the team, our mailing list is
+<secure-testing-team@lists.alioth.debian.org>.
+
+## Tracking Vulnerabilities ##
+
+A large part of the day to day job of the testing security team is simply
+keeping track of security issues as they are discovered and announced,
+checking whether they affect testing, and tracking fixes as they make their
+way from unstable to testing. Some of this has been automated, but a lot of
+the work must still be done by hand, and this work occupies a large part of
+the total time spent by the team on security.
+
+Different team members monitor different sources of data about new security
+holes, including the [bugtraq](http://www.securityfocus.com/archive/1) and
+[full-disclosure](http://lists.grok.org.uk/full-disclosure-charter.html)
+mailing lists, the Debian bug tracking system, security advisories from
+Debian stable, and security advisories from distributions related to
+Debian (such as Ubuntu) and not related (such as Gentoo).
+
+Unlike Debian's stable security team, we do not have access to the
+vendor-sec mailing list where unreleased security holes are disclosed for
+coordinated release by many linux distributions. From time to time we may
+be forwarded such information but then we have to keep it private until it
+is released, so only one team member will typically know about it. Since
+this makes it hard to work as a team, we prefer to work with disclosed
+security issues.
+
+Keeping all of these sources of security holes straight and correlating
+holes that are often mentioned in multiple places can be challenging.
+Luckily this is not a problem that is unique to this security team, and
+there is already a solution: The security community is standardising on the
+[Common Vulnerabilities and Exposures](http://www.cve.mitre.org/)
+dictionary. CVE is a global way to identify security issues that may affect
+multiple distribution or operating systems. Each new security issue is
+assigned a CVE ID, and these IDs are used to identify the issue in
+advisories, bug reports, changelogs, and so on.
+
+A sample CVE ID is "CAN-2005-1263", which refers to a linux kernel core
+dump privilege escalation. Dozens to hundreds of new CVE IDs are issued
+each week for security holes in linux and many other operating systems and
+other software, and we try to have all the new IDs checked within a day of
+each update.
+
+This is one of the most parallelisable parts of the work of the testing
+security team, and also often one of the most tedious, as the majority of
+CVE entries are for software not in Debian, and some CVEs lack much useful
+information or are unlikely to really be security holes, and we have to
+check them manually, one at a time. Debian contains so many packages and
+there are enough different ways to write the name of a piece of software
+that it can involve quite a bit of checking just to see if a given piece
+of software is in the distribution. Also, many CVE items affect multiple
+packages in Debian due to code duplication and static linking, which can
+make checking much harder.
+
+Debian developers can do three things to make the testing security team's
+CVE tracking easier.
+
+1. If a security hole does not yet have a CVE ID assigned, contact the
+   team or someone else and work to get one assigned.
+2. Always list CVEs in the subjects of bug reports about security issues.
+3. Always list CVEs in the changelog for security fixes.
+
+As of June 2005, the testing security team had checked 8600 unique CVEs,
+of which 1054 affected Debian. This included retroactively checking all
+CVEs issued since the release of Debian 3.0.
+
+## Fixing Vulnerabilities ##
+
+The other half of the job of the testing security team is to work with
+developers to get vulnerabilities fixed. Once we have identified a new
+security hole, we will ensure that there is a bug in the Debian BTS for it
+and if the maintainer can use our help, will work to find a patch or new
+upstream release that fixes the hole, and if necessary, team members who
+are Debian developers will make a Non-Maintainer Upload to fix the problem
+in unstable.
+
+Once a package is fixed in unstable, we can automatically track its
+progress into testing, and will work with the release managers and others
+to deal with any issues that might keep it out of testing. Some of the
+techniques we use to deal with problems that might hold a package out of
+testing include:
+
+ * Uploading a back-ported security fix to the testing-proposed-updates
+   queue, if that queue is functional.
+   
+ * Fixing unrelated release critical but not security-related bugs that are
+   blocking the security fix from reaching testing.
+   
+ * Getting hints added to move a package into testing more quickly if it
+   was uploaded with too low an urgency.
+ 
+ * Dealing with problems that cause failure to build from source on the
+   auto-builders, or bringing auto-builder problems to the attention of the
+   package maintainer and/or auto-builder administrators.
+
+ * Getting hopelessly insecure packages removed from testing.
+
+ * Making it easy for the release team to follow what issues are keeping
+   security fixes out of testing, so they can use the above and other
+   techniques. They often do a better job than the testing security team
+   at pushing the fixes into testing.
+
+One further step is needed in the vulnerability fixing process before most
+people will consider testing to really be security supported; that is
+uploading fixes immediately to a temporary repository (such as
+security.debian.org), and posting advisories so users can know a fix is
+available for a security hole.
+
+The testing security team hopes to do this, but is hampered by lack of
+access to security.debian.org and lack of auto-builder support for testing.
+We hope that these infrastuctural issues will be resolved after the release
+of sarge. If not, we do plan to work around them and try to offer a
+security repository and advisories anyway. We consider this very important
+as without these last two pieces, most users will still consider testing to
+be insecure and not security supported, and will not take into account all
+the work we are already doing.
+
+## Results ##
+
+Anyone deciding whether to use testing and rely on the security support
+provided by the testing security team, or to instead use stable, or even
+unstable, would like to see a comparison of how long it takes to fix holes
+in each of these versions of Debian. 
+
+For example, we could examine all security holes for which Debian Security
+Advisories (DSAs) have been issued for stable in the past year, and check
+to see how much longer it took the holes to be fixed in testing. Or we
+could examine all holes that have been known to affect testing and compare
+how long it took to get the hole fixed in unstable with how long it took to
+get the same fix into testing.
+
+But this kind of comparison of how well the fixing of security holes is
+managed is often flawed. Some of the pitfalls include:
+
+  * Security holes differ widely in their severity, ease of exploitation,
+    how many systems are vulnerable, etc. Simply counting security holes
+    is not a good metric, and rating security holes or selecting only
+    "important" holes to concentrate on can be subjective.
+    
+    This becomes very complex when security holes can be combined in
+    different ways to produce a working exploit, as is often the case with
+    remote code execution and local root exploit holes.
+
+  * A single security hole can affect one package, or dozens of packages,
+    and these can be fixed at different times and need to be tracked
+    separately. However, a security hole that affects a dozen packages may
+    still impact fewer machines than a hole that affects a single package.
+    
+  * Not all security holes will affect all distributions, but this doesn't
+    necessarily mean that the distribution with less security holes is more
+    secure. Instead it can mean that fewer people are reporting holes in
+    its code-base, for whatever reason, or that the same holes exist in its
+    code-base, but are not obvious due to code reorganizations. Or fewer
+    holes might exist, but be more more serious. Or expectations of what
+    constitutes a security hole can vary.
+
+    These problems often show up in comparisons of the security of Windows
+    and Linux, and of Linux and other Unix clones.
+
+  * While the testing security team has comprehensive lists of all holes
+    we've identified to affect testing, and have checked every CVE ID
+    since 2002, no equivalent lists exist for stable, and our lists may be
+    incomplete for unstable.
+    
+    The list of stable DSAs is known to be an incomplete list of security
+    holes that affect stable, because the stable security team triages the
+    more important and/or easy to fix hole first, and may never find the time
+    or reason to fix all holes.
+
+    So even getting a list of holes that affect the distributions to
+    compare is problematic, without repeating all the work that has been
+    done for testing, for the other distributions.
+
+The comparisons that follow should be read with the above caveats in mind.
+The only foolproof way to compare the security of two systems is probably
+to put honeypots installed with each up on the internet and watch what
+happens to them..
+
+### Comparing stable and testing ###
+
+A very rough comparison can be done with data the testing security team
+gathers on a daily basis. Since the beginning of this year, we have tracked
+whether security holes are already fixed in testing or not when a DSA is
+issued for the holes.
+
+However, no good data exists for the date that each of these holes was
+fixed in testing, so we cannot compare how much more quickly or slowly the
+fixes occurred, only which distribution fixed it first. And all of the
+caveats above apply; security holes in DSAs vary in severity; DSAs can
+cover multiple packages or holes; multiple DSAs may be released for one
+hole; and a list of DSAs is not a complete list of holes that were
+discovered in this time period.
+
+Of 112 DSAs issued between January and May of 2005, 56 (exactly 50%) were
+not fixed in testing before the DSA was released; 37 (33%) were fixed in
+testing first, and 19 (17%) did not affect software in testing.
+
+### Comparing testing and unstable ###
+
+To track which holes are not fixed in unstable yet, and which holes have
+been fixed in unstable but have not reached testing, we use an
+[automatically updated list](http://spohr.debian.org/~joeyh/testing-security.html).
+
+This list includes a count of the numbers of each type of unfixed hole, and
+comparing these numbers is a useful (if flawed) metric to see if there is
+typically more delay associated with fixing a hole in unstable in the first
+place, or with getting the fix accepted into testing.
+
+Unfortunately historical data is not available for these numbers, however
+they have been roughly equal during most of this year, which suggests that
+on average approximately half of the time to fix a hole is spent in getting
+the hole fixed in unstable, and half in getting the fix into testing.
+
+One interesting consequence of this is that it might be a better use of the
+testing security teams's time to focus more effort on getting holes fixed
+in unstable, since this is a more tractable problem than working on issues
+that can block a fix from reaching testing, and since this would benefit
+users of both distributions. However, it's probably too soon to tell, since
+the release team was aggressively working on pushing fixes into testing
+during this time period because of the impending release of sarge, and that
+has likely skewed the numbers.
+
+### Further Comparisons ###
+
+Kernel security holes are a class of hole that is especially interesting,
+because it can affect users of all versions of Debian, and because these
+holes can be easily categorised into a few sets:
+
+* remote root exploits
+* local root exploits
+* remote code execution
+* remote denial of service
+* local denial of service
+
+Gathering the data and comparing the security history of testing with that
+of stable during the first six months of 2005 would be a worthwhile
+approach to better characterising the relative security of stable and
+testing.
+
+Other comparisons would be useful, especially if they were based on better
+data and perhaps performed by a statistician. Real-world data about how
+Debian machines are exploited would be even more useful in determining the
+relative value of the work done by Debian's stable and testing security
+teams. 
+
+## Conclusions ##
+
+The mantra that "testing is insecure" has become less true over the past
+year thanks to the work of the testing security team, but much work still
+remains before users can count on the security of testing. The team needs
+to grow to the point that it can begin issuing formal advisories for
+security holes in testing, so that users can begin to take these security
+efforts seriously.
+
+This effort began on the sidelines as a not-quite-official Debian project,
+with many contributors who are not Debian developers; it is already
+becoming a more recognised part of Debian as users, developers and even 
+release managers realise its usefulness, and it can be hoped that this will
+grow into a formal security support for testing on the same par as Debian's
+security support for stable.
+
+---------------------------------------------------------------------------
+
+Copyright 2005 by Joey Hess <joeyh@debian.org>. 
+
+Licensed under the GNU General Public License.

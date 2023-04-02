@@ -1,0 +1,19 @@
+source: lm-sensors
+date: September 15th, 2005
+author: Micah Anderson
+vuln-type: insecure temporary file
+problem-scope: local
+debian-specifc: no
+cve: CVE-2005-2672
+vendor-advisory: 
+testing-fix: 1:2.9.1-6etch1
+sid-fix: 1:2.9.1-7
+upgrade: apt-get install lm-sensors
+
+Javier Fernández-Sanguino Peña discovered that a script included in
+lm-sensors, used to read temperature/voltage/fan sensors, creates a temporary
+file with a predictable filename, leaving it vulnerable for a symlink
+attack.
+
+Note that this is the same set of security fixes put into stable in
+DSA-814-1.

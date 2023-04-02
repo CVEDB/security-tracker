@@ -1,0 +1,20 @@
+Howto for conversion (WIP)
+--------------------------
+1/ On alioth generate the AUTHORS.txt lists via fetch-authors script.
+
+2/ Clone the subversion repository using git-svn:
+
+ $ git svn clone svn+ssh://svn.debian.org/svn/secure-testing -A AUTHORS.txt tmp-git-repo
+
+3/ Push repository to new bare git repo
+
+ $ cd tmp-git-repo
+ $ git remote add new-repo git+ssh://git.debian.org/git/debian-security/debian-security.git
+ $ git config remote.new-repo.push 'refs/remotes/*:refs/heads/*'
+ $ git push --new-upstream new-repo master
+
+
+POC
+---
+Proof of concept for only the conversion:
+https://gitlab.com/carnil/secure-testing

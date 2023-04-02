@@ -1,0 +1,65 @@
+Presentation
+------------
+
+The LTS frontdesk handles:
+
+ * CVE triaging:
+   https://wiki.debian.org/LTS/Development#Triage_new_security_issues
+
+ * Making sure that queries on debian-lts@lists.debian.org get an answer.
+
+Who is in charge ?
+------------------
+
+From 04-01 to 10-01:Chris Lamb <chris@chris-lamb.co.uk>
+From 11-01 to 17-01:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 18-01 to 24-01:Thorsten Alteholz <debian@alteholz.de>
+From 25-01 to 31-01:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 01-02 to 07-02:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 08-02 to 14-02:Thorsten Alteholz <debian@alteholz.de>
+From 15-02 to 21-02:Chris Lamb <chris@chris-lamb.co.uk>
+From 22-02 to 28-02:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 01-03 to 07-03:Abhijith PA <abhijith@debian.org>
+From 08-03 to 14-03:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 15-03 to 21-03:Chris Lamb <chris@chris-lamb.co.uk>
+From 22-03 to 28-03:Thorsten Alteholz <debian@alteholz.de>
+From 29-03 to 04-04:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 05-04 to 11-04:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 12-04 to 18-04:Chris Lamb <chris@chris-lamb.co.uk>
+From 19-04 to 25-04:Thorsten Alteholz <debian@alteholz.de>
+From 26-04 to 02-05:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 03-05 to 09-05:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 10-05 to 16-05:Chris Lamb <chris@chris-lamb.co.uk>
+From 17-05 to 23-05:Thorsten Alteholz <debian@alteholz.de>
+From 24-05 to 30-05:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 31-05 to 06-06:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 07-06 to 13-06:Chris Lamb <chris@chris-lamb.co.uk>
+From 14-06 to 20-06:Abhijith PA <abhijith@debian.org>
+From 21-06 to 27-06:Thorsten Alteholz <debian@alteholz.de>
+From 28-06 to 04-07:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 05-07 to 11-07:Chris Lamb <chris@chris-lamb.co.uk>
+From 12-07 to 18-07:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 19-07 to 25-07:Thorsten Alteholz <debian@alteholz.de>
+From 26-07 to 01-08:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 02-08 to 08-08:Chris Lamb <chris@chris-lamb.co.uk>
+From 09-08 to 15-08:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 16-08 to 22-08:Anton Gladky <gladk@debian.org>
+From 23-08 to 29-08:Thorsten Alteholz <debian@alteholz.de>
+From 30-08 to 05-09:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 06-09 to 12-09:Chris Lamb <chris@chris-lamb.co.uk>
+From 13-09 to 19-09:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 20-09 to 26-09:Thorsten Alteholz <debian@alteholz.de>
+From 27-09 to 03-10:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 04-10 to 10-10:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 11-10 to 17-10:Chris Lamb <chris@chris-lamb.co.uk>
+From 18-10 to 24-10:Thorsten Alteholz <debian@alteholz.de>
+From 25-10 to 31-10:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 01-11 to 07-11:Anton Gladky <gladk@debian.org>
+From 08-11 to 14-11:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 15-11 to 21-11:Chris Lamb <chris@chris-lamb.co.uk>
+From 22-11 to 28-11:Thorsten Alteholz <debian@alteholz.de>
+From 29-11 to 05-12:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 06-12 to 12-12:Chris Lamb <chris@chris-lamb.co.uk>
+From 13-12 to 19-12:Thorsten Alteholz <debian@alteholz.de>
+From 20-12 to 26-12:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 27-12 to 02-01:Emilio Pozuelo Monfort <pochu27@gmail.com>

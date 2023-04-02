@@ -1,0 +1,320 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+    <html><head><meta http-equiv="Content-Type" content="text/html; charset=iso8859-1">
+    <title>Debian testing security team - Advisory</title>
+    <link type="text/css" rel="stylesheet" href="../style.css">
+    <link rel="shortcut icon" href="http://www.debian.org/favicon.ico">
+    </head>
+    <body>
+    <div align="center">
+    <a href="http://www.debian.org/">
+
+     <img src="http://www.debian.org/logos/openlogo-nd-50.png" border="0" hspace="0" vspace="0" alt=""></a>
+    <a href="http://www.debian.org/">
+     <img src="http://www.debian.org/Pics/debian.png" border="0" hspace="0" vspace="0" alt="Debian Project"></a>
+    </div>
+    <br />
+    <table class="reddy" width="100%">
+    <tr>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+
+    <td rowspan="2" class="reddy">Debian testing security team - Advisory</td>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+    </tr>
+    <tr>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-lowerleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+    <td class="reddy">
+
+    <img src="http://www.debian.org/Pics/red-lowerright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+    </tr>
+    </table>
+
+<!-- header -->
+<h2>DTSA-16-1</h2>
+<dl>
+<dt>Date Reported:</dt>
+<dd>September 15, 2005</dd>
+<dt>Affected Package:</dt>
+<dd><a href='http://packages.debian.org/src:linux-2.6'>linux-2.6</a></dd>
+<dt>Vulnerability:</dt>
+<dd>several holes</dd>
+<dt>Problem-Scope:</dt>
+<dd>remote</dd>
+<dt>Debian-specific:</dt>
+<dd>No<br></dd>
+<dt>CVE:</dt>
+<dd>
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2098'>CVE-2005-2098</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2099'>CVE-2005-2099</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2456'>CVE-2005-2456</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2617'>CVE-2005-2617</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-1913'>CVE-2005-1913</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-1761'>CVE-2005-1761</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2457'>CVE-2005-2457</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2458'>CVE-2005-2458</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2459'>CVE-2005-2459</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2548'>CVE-2005-2548</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-2302'>CVE-2004-2302</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-1765'>CVE-2005-1765</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-1762'>CVE-2005-1762</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-1761'>CVE-2005-1761</a> 
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-2555'>CVE-2005-2555</a> 
+<br></dd>
+<br><dt>More information:</dt>
+<dd>Several security related problems have been found in version 2.6 of the&nbsp;<br>
+linux kernel. The Common Vulnerabilities and Exposures project identifies&nbsp;<br>
+the following problems:&nbsp;<br>
+&nbsp;<br>
+CVE-2004-2302&nbsp;<br>
+&nbsp;<br>
+  Race condition in the sysfs_read_file and sysfs_write_file functions in&nbsp;<br>
+  Linux kernel before 2.6.10 allows local users to read kernel memory and&nbsp;<br>
+  cause a denial of service (crash) via large offsets in sysfs files.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-1761&nbsp;<br>
+&nbsp;<br>
+  Vulnerability in the Linux kernel allows local users to cause a&nbsp;<br>
+  denial of service (kernel crash) via ptrace.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-1762&nbsp;<br>
+&nbsp;<br>
+  The ptrace call in the Linux kernel 2.6.8.1 and 2.6.10 for the AMD64&nbsp;<br>
+  platform allows local users to cause a denial of service (kernel crash) via&nbsp;<br>
+  a "non-canonical" address.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-1765&nbsp;<br>
+&nbsp;<br>
+  syscall in the Linux kernel 2.6.8.1 and 2.6.10 for the AMD64 platform, when&nbsp;<br>
+  running in 32-bit compatibility mode, allows local users to cause a denial&nbsp;<br>
+  of service (kernel hang) via crafted arguments.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-1913&nbsp;<br>
+&nbsp;<br>
+  When a non group-leader thread called exec() to execute a different program&nbsp;<br>
+  while an itimer was pending, the timer expiry would signal the old group&nbsp;<br>
+  leader task, which did not exist any more. This caused a kernel panic.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2098 &nbsp;<br>
+&nbsp;<br>
+  The KEYCTL_JOIN_SESSION_KEYRING operation in the Linux kernel before&nbsp;<br>
+  2.6.12.5 contains an error path that does not properly release the session&nbsp;<br>
+  management semaphore, which allows local users or remote attackers to cause&nbsp;<br>
+  a denial of service (semaphore hang) via a new session keyring (1) with an&nbsp;<br>
+  empty name string, (2) with a long name string, (3) with the key quota&nbsp;<br>
+  reached, or (4) ENOMEM.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2099&nbsp;<br>
+&nbsp;<br>
+  The Linux kernel before 2.6.12.5 does not properly destroy a keyring that&nbsp;<br>
+  is not instantiated properly, which allows local users or remote attackers&nbsp;<br>
+  to cause a denial of service (kernel oops) via a keyring with a payload&nbsp;<br>
+  that is not empty, which causes the creation to fail, leading to a null&nbsp;<br>
+  dereference in the keyring destructor.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2456&nbsp;<br>
+&nbsp;<br>
+  Array index overflow in the xfrm_sk_policy_insert function in xfrm_user.c&nbsp;<br>
+  in Linux kernel 2.6 allows local users to cause a denial of service (oops&nbsp;<br>
+  or deadlock) and possibly execute arbitrary code via a p->dir value that is&nbsp;<br>
+  larger than XFRM_POLICY_OUT, which is used as an index in the&nbsp;<br>
+  sock->sk_policy array.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2457&nbsp;<br>
+&nbsp;<br>
+  The driver for compressed ISO file systems (zisofs) in the Linux kernel&nbsp;<br>
+  before 2.6.12.5 allows local users and remote attackers to cause a denial&nbsp;<br>
+  of service (kernel crash) via a crafted compressed ISO file system.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2458&nbsp;<br>
+&nbsp;<br>
+  inflate.c in the zlib routines in the Linux kernel before 2.6.12.5 allows&nbsp;<br>
+  remote attackers to cause a denial of service (kernel crash) via a&nbsp;<br>
+  compressed file with "improper tables".&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2459&nbsp;<br>
+&nbsp;<br>
+  The huft_build function in inflate.c in the zlib routines in the Linux&nbsp;<br>
+  kernel before 2.6.12.5 returns the wrong value, which allows remote&nbsp;<br>
+  attackers to cause a denial of service (kernel crash) via a certain&nbsp;<br>
+  compressed file that leads to a null pointer dereference, a different&nbsp;<br>
+  vulnerbility than CVE-2005-2458.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2548&nbsp;<br>
+&nbsp;<br>
+  vlan_dev.c in Linux kernel 2.6.8 allows remote attackers to cause a denial&nbsp;<br>
+  of service (kernel oops from null dereference) via certain UDP packets that&nbsp;<br>
+  lead to a function call with the wrong argument, as demonstrated using&nbsp;<br>
+  snmpwalk on snmpd.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2555&nbsp;<br>
+&nbsp;<br>
+  Linux kernel 2.6.x does not properly restrict socket policy access to users&nbsp;<br>
+  with the CAP_NET_ADMIN capability, which could allow local users to conduct&nbsp;<br>
+  unauthorized activities via (1) ipv4/ip_sockglue.c and (2)&nbsp;<br>
+  ipv6/ipv6_sockglue.c.&nbsp;<br>
+&nbsp;<br>
+CVE-2005-2617&nbsp;<br>
+&nbsp;<br>
+  The syscall32_setup_pages function in syscall32.c for Linux kernel 2.6.12&nbsp;<br>
+  and later, on the amd64 architecture, does not check the return value of&nbsp;<br>
+  the insert_vm_struct function, which allows local users to trigger a memory&nbsp;<br>
+  leak via a 32-bit application with crafted ELF headers.&nbsp;<br>
+&nbsp;<br>
+In addition this update fixes some security issues that have not been&nbsp;<br>
+assigned CVE ids:&nbsp;<br>
+&nbsp;<br>
+  - Fix DST leak in icmp_push_reply().  Possible remote DoS?&nbsp;<br>
+&nbsp;<br>
+  - NPTL signal delivery deadlock fix; possible local DoS.&nbsp;<br>
+  &nbsp;<br>
+  - fix a memory leak in devices seq_file implementation; local DoS.&nbsp;<br>
+&nbsp;<br>
+  - Fix SKB leak in ip6_input_finish(); local DoS.&nbsp;<br>
+</dd>
+<br><dt>For the testing distribution (etch) this is fixed in version 2.6.12-6</dt>
+<dt>For the unstable distribution (sid) this is fixed in version 2.6.12-6</dt>
+</dl>
+<p>
+The Debian testing security team does not track security issues for the
+stable (sarge) and oldstable (woody) distributions. If stable is vulnerable,
+the Debian security team will make an announcement once a fix is ready.
+</p>
+<p>
+Your system does not need to be configured to use the Debian testing security
+archive to install this update. The fixed kernel packages are available
+in the regular Debian testing archive.
+</p>
+<p>
+To install the update, first run this command as root:
+</p>
+<p>
+  apt-get update
+</p>
+<p>
+Next, install an appropriate kernel package for your architecture and
+machine. The following kernel will work for all i386 machines:
+</p>
+<p>
+  apt-get install linux-image-2.6-386
+</p>
+<p>
+However, you may prefer to install an optimised kernel for your machine:
+</p>
+<p>
+  apt-get install linux-image-2.6-686<br>
+  apt-get install linux-image-2.6-686-smp<br>
+  apt-get install linux-image-2.6-k7<br>
+  apt-get install linux-image-2.6-k7-smp<br>
+</p>
+<p>
+For the amd64 architecture, chose one of these kernels:
+</p>
+<p>
+  apt-get install linux-image-2.6-amd64-generic<br>
+  apt-get install linux-image-2.6-amd64-k8<br>
+  apt-get install linux-image-2.6-amd64-k8-smp<br>
+</p>
+<p>
+For the powerpc architecture, choose one of these kernels:
+</p>
+<p>
+  apt-get install linux-image-2.6-powerpc<br>
+  apt-get install linux-image-2.6-powerpc-smp<br>
+  apt-get install linux-image-2.6-powerpc64<br>
+</p>
+<p>
+For the sparc architecture, choose one of these kernels:
+</p>
+<p>
+  apt-get install linux-image-2.6-sparc64<br>
+  apt-get install linux-image-2.6-sparc64-smp<br>
+</p>
+<p>
+  (Note that users of 32 bit sparc systems are no longer supported by the
+  2.6 kernel.)
+</p>
+<p>
+For the alpha architecture, choose one of these kernels:
+</p>
+<p>
+  apt-get install linux-image-2.6-alpha-generic<br>
+  apt-get install linux-image-2.6-alpha-smp<br>
+</p>
+<p>
+For the ia64 architecture, choose one of these kernels:
+</p>
+<p>
+  apt-get install linux-image-2.6-itanium<br>
+  apt-get install linux-image-2.6-itanium-smp<br>
+  apt-get install linux-image-2.6-mckinley<br>
+  apt-get install linux-image-2.6-mckinley-smp<br>
+</p>
+<p>
+For the hppa architecture, choose one of these kernels:
+</p>
+<p>
+  apt-get install linux-image-2.6-parisc<br>
+  apt-get install linux-image-2.6-parisc-smp<br>
+  apt-get install linux-image-2.6-parisc64<br>
+  apt-get install linux-image-2.6-parisc64-smp<br>
+</p>
+<p>
+For the s390 architecture, choose one of these kernels:
+</p>
+<p>
+  apt-get install linux-image-2.6-s390<br>
+  apt-get install linux-image-2.6-s390x<br>
+</p>
+<p>
+For the arm architecture, choose one of these kernels:
+</p>
+<p>
+  apt-get install linux-image-2.6-footbridge<br>
+  apt-get install linux-image-2.6-ixp4xx<br>
+  apt-get install linux-image-2.6-rpc<br>
+  apt-get install linux-image-2.6-s3c2410<br>
+</p>
+<p>
+For the m68k architecture, choose one of these kernels:
+</p>
+<p>
+  apt-get install linux-image-2.6-amiga<br>
+  apt-get install linux-image-2.6-atari<br>
+  apt-get install linux-image-2.6-bvme6000<br>
+  apt-get install linux-image-2.6-hp<br>
+  apt-get install linux-image-2.6-mac<br>
+  apt-get install linux-image-2.6-mvme147<br>
+  apt-get install linux-image-2.6-mvme16x<br>
+  apt-get install linux-image-2.6-q40<br>
+  apt-get install linux-image-2.6-sun3<br>
+</p>
+<p>
+Updated kernels are not yet available for the mips and mipsel
+architectures.
+</p>
+<p>
+Note that you may also need to upgrade third-party modules that are not
+included in the kernel package.
+</p>
+<p>
+Finally, reboot the system, taking care to boot the new 2.6.12 kernel with
+your bootloader.
+<br>
+
+<!-- footer -->
+<hr>
+<a href="http://validator.w3.org/check?uri=referer">
+    <img border="0" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01!" height="31" width="88"></a>
+    <a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img border="0" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!"
+     height="31" width="88"></a>
+
+
+</body></html>
+

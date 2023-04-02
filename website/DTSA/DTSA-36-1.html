@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+    <html><head><meta http-equiv="Content-Type" content="text/html; charset=iso8859-1">
+    <title>Debian testing security team - Advisory</title>
+    <link type="text/css" rel="stylesheet" href="../style.css">
+    <link rel="shortcut icon" href="http://www.debian.org/favicon.ico">
+    </head>
+    <body>
+    <div align="center">
+    <a href="http://www.debian.org/">
+
+     <img src="http://www.debian.org/logos/openlogo-nd-50.png" border="0" hspace="0" vspace="0" alt=""></a>
+    <a href="http://www.debian.org/">
+     <img src="http://www.debian.org/Pics/debian.png" border="0" hspace="0" vspace="0" alt="Debian Project"></a>
+    </div>
+    <br />
+    <table class="reddy" width="100%">
+    <tr>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+
+    <td rowspan="2" class="reddy">Debian testing security team - Advisory</td>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+    </tr>
+    <tr>
+    <td class="reddy">
+    <img src="http://www.debian.org/Pics/red-lowerleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+    <td class="reddy">
+
+    <img src="http://www.debian.org/Pics/red-lowerright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+    </tr>
+    </table>
+
+<!-- header -->
+<h2>DTSA-36-1</h2>
+<dl>
+<dt>Date Reported:</dt>
+<dd>May 22th, 2007</dd>
+<dt>Affected Package:</dt>
+<dd><a href='http://packages.debian.org/src:mydns'>mydns</a></dd>
+<dt>Vulnerability:</dt>
+<dd>multiple buffer overflows</dd>
+<dt>Problem-Scope:</dt>
+<dd>remote</dd>
+<dt>Debian-specific:</dt>
+<dd>No<br></dd>
+<dt>CVE:</dt>
+<dd>
+<a href='http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-2362'>CVE-2007-2362</a> 
+<br></dd>
+<br><dt>More information:</dt>
+<dd>Multiple buffer overflows in MyDNS allow remote attackers to cause a denial of &nbsp;<br>
+service (daemon crash) and possibly execute arbitrary code.&nbsp;<br>
+</dd>
+<br><dt>For the testing distribution (lenny) this is fixed in version 1:1.1.0-7.1lenny1</dt>
+<dt>For the unstable distribution (sid) this is fixed in version 1:1.1.0-8</dt>
+<br><dt>This upgrade is recommended if you use mydns.<dt>
+<br><dt>If you have the secure testing lines in your sources.list, you can update by running this command as root:</dt>
+
+<dd>apt-get update && apt-get upgrade</dd>
+<br>
+
+<br>
+<dt>To use the Debian testing security archive, add the following lines to your /etc/apt/sources.list:<dt>
+<br>
+<dd>deb http://security.debian.org/ testing/updates main contrib non-free</dd>
+<dd>deb-src http://security.debian.org/ testing/updates main contrib non-free</dd>
+<br>
+
+<!-- footer -->
+<hr>
+<a href="http://validator.w3.org/check?uri=referer">
+    <img border="0" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01!" height="31" width="88"></a>
+    <a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img border="0" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!"
+     height="31" width="88"></a>
+
+
+</body></html>
+

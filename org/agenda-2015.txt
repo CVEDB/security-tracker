@@ -1,0 +1,136 @@
+Agenda for Security Team Meeting
+--------------------------------
+
+Workflow
+========
+
+- Improvements needed for dsa-needed.txt, like more automatisation? The repo
+  with embargoed issues isn't used much, what can we do to improve that?
+
+- Is RT abandoned, do we still need to clean up old issues from the security
+  queues?
+
+- Draft new people, possible candidates
+
+- Opening up the security process further to allow maintainers of packages with
+  frequent issues to release updates themselves. Needs a more detailed workplan:
+  - Updates need to be reviewed/acked by sec team members
+
+  - Requires changes to dak to no longer require access to security-master,
+    e.g.  by using a mechanism similar to allowing a DM to upload and sending
+    error messages to the signer of the upload (already requested by Thijs)
+
+  - Requires changes to debian-security-announce
+
+- Fix up DSA candidates script to only present packages with open issues not in
+  dsa-needed and not tagged no-dsa
+  DONE -- raphael
+
+Tools
+=====
+
+- Compile a list of issues we want to see fixed
+
+- Make it simple to release packages for others to test, e.g. an aptable
+  security queue, what is needed to implement that?
+
+- How can we leverage autopkgtest for testing security updates in jessie?
+
+- Migrate to git during the weekend? Since most people are around and we'll be
+  actively using all tools anyway, we can fix all fallout right-away.
+
+- Move remaining cronjobs (daily DSA mail, external check) to the role account
+  - check-external: done
+  - dsa candidates: wip
+  - daily dsa: ?
+  - unknown packages: ?
+
+Tracker
+=======
+
+- Add a new status to differentiate between "no-dsa, if the maintainer wants
+  to fix in a point update go ahead" and "no-dsa, was ignored because it's
+  possible to backport" (this is e.g. needed to cover non-backportable issues
+  like CVE-2013-4148 et al. for KVM).
+
+- Check open bugs in the BTS, check bugs against security-tracker pseudo package
+
+- Support for consistency checks on source package names, e.g linux-2.6/linux
+  or all of the ruby packages, track package renames
+
+- Automatically add <end-of-life> tags for unsupported packages
+
+- Add a view "all unfixed bugs without a recorded bug" to simplify filing bugs
+
+- More systematic tracking of CVE requests?
+
+- Automating more tasks:
+  + dropping "NOTE: to be rejected" when an issue is marked as REJECTED
+  + script to automatically merge data/next-{oldstable-,}point-update.txt
+  + get an overview of newly reported bugs in the Debian BTS which have
+    tag security (if one submits a bug not over reportbug we do not get
+    a copy)?
+  + Automatically group/reorder unassigned CVE-$year-XXXX item to have
+    them in one place and get a better overview?
+
+
+Documentation
+=============
+
+- Work on proper documentation how people can contribute
+
+- Remove mentions of the "testing security team" since that doesn't
+  seem to exist anymore
+
+- Fix and upload harden-doc (securing debian manual)
+
+Distribution hardening
+======================
+
+- What new hardening features should we tackle for stretch?
+  + PIE on at least amd64 (i386)
+
+- systemd hardening features; identify a set of important packages
+
+- improve detection of hardened build flags, maybe write the flags used into an
+  ELF section? This way it could be more reliably checked whether correct flags
+  were used (e.g. for binaries using fortified source, but not using any of the
+  functions covered by it)
+
+- hidepid by default
+
+- Root-less Xorg
+
+jessie
+======
+
+- Discuss list of open problematic packages (if not resolved by then)
+  * Docker
+
+- Start getting required in place for jessie-security:
+  - buildds
+  - security-master
+  - etc.
+
+- Get more prominence/exposure for 'needrestart'?
+
+LTS
+===
+
+- Review; what is working well, how is it keeping up, we can we do to help?
+
+- What tool changes need to be made?
+
+  - Auto-adding <end-of-life> markers for new commits
+
+Others
+======
+
+- Distribute the new security team key on 
+
+- Add debian-security-support to wheezy
+
+- Check status of spu notifications and restore this if possible
+
+- Finetune DSA mails/template, e.g. add team@security.debian.org
+  as contact address (note contact address is in DSA template already)

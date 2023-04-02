@@ -1,0 +1,36 @@
+# List of packages whose maintainers let the LTS Team handle the LTS updates
+# without contacting them
+#
+# Each line should contain the source package name and a link to the
+# last communication attempt with the maintainers.
+#
+# The packages are sorted alphabetically
+#
+# all packages from Michael Gilbert
+# all packages from Jonas Smedegaard
+# all packages from Andreas Henriksson 
+# all packages from Michael Biebl (https://lists.debian.org/debian-lts/2018/01/msg00007.html)
+# all packages from Sam Hartman (https://lists.debian.org/debian-lts/2017/07/msg00134.html)
+bind9 https://www.mail-archive.com/search?l=debian-lts@lists.debian.org&q=subject:%22squeeze+update+of+bind9\%3F%22&o=newest&f=1
+exiv2 https://lists.debian.org/debian-lts/2018/01/msg00007.html
+firefox-esr https://lists.debian.org/debian-lts/2016/08/msg00052.html
+ghostscript https://lists.debian.org/debian-lts/2017/04/msg00030.html
+jbig2dec https://lists.debian.org/debian-lts/2017/04/msg00101.html
+libarchive https://lists.debian.org/debian-lts/2017/04/msg00015.html
+libgcrypt11 removed from Jessie, latest uploads only made by the security teams
+libtomcrypt https://lists.debian.org/debian-lts/2016/09/msg00044.html
+mercurial https://lists.debian.org/debian-lts/2017/12/msg00058.html
+nspr https://lists.debian.org/debian-lts/2016/09/msg00192.html
+nss https://lists.debian.org/debian-lts/2016/09/msg00192.html
+opencv no answer to https://lists.debian.org/debian-lts/2017/09/msg00028.html, all LTS uploads by LTS team
+openjpeg2 (private conversation, Mathieu would review patches)
+openssh no answer to https://lists.debian.org/debian-lts/2016/08/msg00102.html, all LTS uploads by LTS team
+php5 (once upon a time during Squeeze LTS)
+poppler no answer to https://lists.debian.org/debian-lts/2016/04/msg00128.html, all LTS uploads by LTS team
+quagga maintainer is DM and can not do a security upload, all LTS uploads by LTS team
+radare2 https://lists.debian.org/debian-lts/2017/02/msg00076.html
+ruby1.8 https://lists.debian.org/debian-lts/2017/12/msg00090.html
+ruby1.9.1 https://lists.debian.org/debian-lts/2017/12/msg00090.html
+ruby2.1 https://lists.debian.org/debian-lts/2017/12/msg00090.html
+tiff (once upon a time)
+tiff3 (once upon a time)

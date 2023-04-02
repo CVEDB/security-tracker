@@ -1,0 +1,125 @@
+#!/usr/bin/python3
+#
+# inject embedded code copy data into the secure-testing cve list
+#
+# Copyright (C) 2009 Michael S Gilbert 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+import os
+import sys
+import tempfile
+
+if ( len( sys.argv ) != 3 ):
+    sys.stderr.write( 'usage: %s <embedded code copies file> <cve list>\n' % sys.argv[0] )
+    sys.exit( 1 )
+
+todo_note = '\tTODO: check embedded %s code copy [- %s %s]\n'
+todo_note2 = '\tTODO: check original source code [- %s <unfixed>]; embedded by %s\n'
+fname_embed = sys.argv[1]
+fname_cve = sys.argv[2]
+
+if not os.path.exists( fname_embed ):
+    sys.stderr.write( 'error: embedded code copies file \'%s\' does not exist.\n' % fname_embed )
+    sys.exit( 1 )
+
+if not os.path.exists( fname_cve ):
+    sys.stderr.write( 'error: cve list file \'%s\' does not exist.\n' % fname_cve )
+    sys.exit( 1 )
+
+origlist = []
+embedlist = []
+typelist = []
+found_begin = False
+fembed = open( fname_embed , 'r' )
+line = fembed.readline()
+while line:
+    if found_begin:
+        if not ( line.startswith( '\t' ) or line.startswith( ' ' ) or line.startswith( '\n' ) ):
+            orig =  line.split( ' ' )[0].strip( ':\n' )
+        elif line.lstrip( ' \t' ).startswith( '-' ):
+            split = line.split( ' ' )
+            embedder = split[1].strip( ':' )
+            type = split[2].strip( '\n' )
+            if ( len( embedder ) != 0 ) and type in [ '<unfixed>' , '<removed>' , '<unknown>' , '<itp>' ]:
+                origlist.append( orig )
+                embedlist.append( embedder )
+                typelist.append( type )
+    else:
+        if line.startswith( '---BEGIN' ):
+            found_begin = True
+    line = fembed.readline()
+fembed.close()
+
+handle,fname_temp = tempfile.mkstemp()
+ftemp = open( fname_temp , 'w' )
+
+lines = []
+changed = False
+fcve = open( fname_cve , 'r' )
+line = fcve.readline()
+while line:
+
+    if not line.startswith( 'CVE' ):
+        lines.append( line )
+    else:
+        for n in range( 0 , len( lines ) ):
+            ftemp.write( lines[n] )
+            if lines[n].startswith( '\t- ' ):
+                package = lines[n].lstrip( '\t- ' ).split( ' ' )[0]
+
+                # inject TODOs for packages that embed affected versions
+                while package in origlist:
+                    found_entry = False
+                    index = origlist.index( package )
+                    for m in range( 0 , len( lines ) ):
+                        if lines[m].startswith( '\t- ' ):
+                            other_package = lines[m].lstrip( '\t- ' ).split( ' ' )[0]
+                            if ( other_package == embedlist[index] ):
+                                found_entry = True
+                        elif ( lines[m] == todo_note % ( package , embedlist[index] , typelist[index] ) ):
+                            found_entry = True
+                    if not found_entry:
+                        changed = True
+                        ftemp.write( todo_note % ( package , embedlist[index] , typelist[index] ) )
+                    origlist[index] = ''
+
+                # inject TODOs for original sources that are embeded in affected packages
+#                while package in embedlist:
+#                    index = embedlist.index( package )
+#                    found_entry = False
+#                    for m in range( 0 , len( lines ) ):
+#                        if lines[m].startswith( '\t- ' ):
+#                            other_package = lines[m].lstrip( '\t- ' ).split( ' ' )[0]
+#                            if ( other_package == origlist[index] ):
+#                                found_entry = True
+#                        elif ( lines[m] == todo_note2 % ( origlist[index] , package ) ):
+#                            found_entry = True
+#                    if not found_entry:
+#                        changed = True
+#                        ftemp.write( todo_note2 % ( origlist[index] , package ) )
+#                    embedlist[index] = ''
+
+        ftemp.write( line )
+        lines = []
+    line = fcve.readline()
+fcve.close()
+for n in range( 0 , len( lines ) ):
+    ftemp.write( lines[n] )
+ftemp.close()
+
+if changed:
+    mode = os.stat( fname_cve )[0]
+    os.system( 'cp %s %s' % ( fname_temp , fname_cve ) )
+    os.chmod( fname_cve , mode )
+os.system( 'rm %s' % fname_temp )

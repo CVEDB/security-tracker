@@ -1,0 +1,87 @@
+\documentclass{beamer}
+
+
+\mode<presentation>
+{
+}
+
+\usepackage[english]{babel}
+
+\title[] % (optional, use only with long paper titles)
+{Securing the testing distribution}
+
+\author[] % (optional, use only with lots of authors)
+{Joey ~Hess}
+
+\date[] % (optional, should be abbreviation of conference name)
+{DebConf5}
+
+\pgfdeclareimage[height=2cm]{debian-logo}{debian-swirl}
+\logo{\pgfuseimage{debian-logo}}
+
+\begin{document}
+
+\begin{frame}
+  \titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{The Debian testing distribution: insecure by design}
+	\begin{itemize}
+	\item
+		dependency hell
+	\item
+		unrelated release critical bugs can block security fixes
+	\item
+		built in "testing" delays
+	\item
+		autobuilder lag
+	\item
+		based on unstable, which has no security team
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{How Debian developers can help}
+	\begin{itemize}
+	\item
+		include CVE ids in changeogs and bug reports
+	\item
+		get CVE ids asigned for security holes that lack ids
+	\item
+		don't hide security fixes
+	\item
+		respond quickly to security bugs (or be NMUed)
+	\item
+		communicate with the team
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{A rough comparison of stable and testing}
+	112 DSAs issued between January and May 2005
+	\begin{itemize}
+	\item
+		56 (50\%) fixed in stable first
+	\item
+		37 (33\%) fixed in testing first
+	\item
+		19 (17\%) did not affect testing
+	\item
+		XXX (XX\%) affected stable with DSA
+	\item
+		XXX (XX\%) did not affect stable
+	\end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Links}
+  	\begin{itemize}
+		\item
+			Testing Security Team: http://secure-testing.alioth.debian.org/
+		\item
+			Tracking page: http://newraff.debian.org/~joeyh/testing-security.html
+	\end{itemize}
+\end{frame}
+
+\end{document}

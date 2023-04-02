@@ -1,0 +1,26 @@
+This is more a TODO list/work in progress to improve documentation
+
+Mail
+----
+
+- Specify public/private
+
+What each list is for:
+----------------------
+
+- team@security.debian.org / security@debian.org (security team contact)
+- debian-security@lists.debian.org (public discussion list)
+- debian-security@debian.org seems to be redirected to debian-private@lists.debian.org
+- debian-security-tracker@lists.debian.org (security tracker discussion list)
+- (and more)
+- consolidate lists? (which are needed? explicit names, e.g., -public/-private)
+- RT? (incoming queue for non encrypted mails)
+
+IRC Channel
+-----------
+
+We hang-out in the #debian-security channel on OFTC
+(https://www.oftc.net/), stop by if you'd like. We can also add you to
+the Alioth project so you have SVN write permission, and you can test
+drive it on the testing issues for however long you like to get an idea
+or feel comfortable (and hey, it really helps!).

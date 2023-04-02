@@ -1,0 +1,20 @@
+source: phpgroupware
+date: September 13th, 2007
+author: Steffen Joeris
+vuln-type: cross scripting vulnerability
+problem-scope: remote
+debian-specifc: no
+cve: CVE-2007-4048
+vendor-advisory:
+testing-fix: 0.9.16.011-3lenny2
+sid-fix: 2.5.1-6.1
+upgrade: apttitude upgrade
+
+It was discovered that there is a cross-site scripting vulnerability
+that allows remote attackers to inject arbitrary web script or HTML.
+
+CVE-2007-4048
+
+Cross-site scripting (XSS) vulnerability in index.php in phpSysInfo 
+2.5.4-dev and earlier allows remote attackers to inject arbitrary web 
+script or HTML via the PATH_INFO. 

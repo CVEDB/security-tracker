@@ -1,0 +1,15 @@
+sync mozilla/2:1.7.8-1sarge2
+sync gal2.4/2.4.3-1.0etch1
+sync evolution-data-server/1.2.3-1etch1
+sync evolution/2.2.3-2etch1
+sync vim/1:6.3-085+0.0etch1
+sync bluez-utils/2.19-0.1etch1
+sync bluez-libs/2.19-0.1etch1
+sync maildrop/1.5.3-1.1etch1
+sync pcre3/6.3-0.1etch1
+sync mozilla-firefox/1.0.4-2sarge3
+sync centericq/4.20.0-8etch1
+sync clamav/0.86.2-4etch1
+sync ekg/1:1.5+20050808+1.6rc3-0etch1
+sync gaim/1:1.4.0-5etch2
+sync kismet/2005.08.R1-0.1etch1

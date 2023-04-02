@@ -1,0 +1,237 @@
+Issues affecting PHP 4 and PHP 5:
+
+41  PHP 5 sqlite_udf_decode_binary() Buffer Overflow Vulnerability
+#TODO(medium) -> for PHP5, php4 uses a seperate php4-sqlite package.
+[MOPB-41-php5.diff]
+
+34  PHP mail() Header Injection Through Subject and To Parameters
+#TODO(medium) -> needs to be fixed, CVE-2007-1718 (php4 & php5, header
+injection possible via some MTAs when set to process the headers for
+recipients), Sarge's php4 not affected
+[MOPB-34-php5.diff]
+
+30  PHP _SESSION unset() Vulnerability
+#TODO(low) -> hard to trigger remotely, CVE-2007-1700. (php4 & php5, code execution)
+[MOPB-30-php5.diff]
+
+26  PHP mb_parse_str() register_globals Activation Vulnerability
+#TODO(medium) -> functionally enables register_globals for any future requests, CVE-2007-1583 (php4 & php5, enables stealth register_globals for life of process)
+
+22  PHP session_regenerate_id() Double Free Vulnerability
+#TODO(medium) -> locally exploitable to gain access to process memory, hard to do remotely, CVE-2007-1521 (php4 & php5, code execution)
+[MOPB-22-php5.diff]
+
+10  PHP php_binary Session Deserialization Information Leak  Vulnerability
+#TODO(low) -> Can only leak 127 bytes of data, CVE-2007-1380 (php4 & php5, heap leak)
+Check, to which extent this was covered by our backports of 5.2.1 patches
+[MOPB-10-php5.diff]
+
+
+
+Issues affecting PHP 4 only:
+
+35  PHP 4 zip_entry_read() Integer Overflow Vulnerability
+#TODO(medium) -> needs to be fixed, CVE-2007-1777 (php4, remote code execution)
+[MOPB-35-php4.diff]
+
+32  PHP 4.4.5/4.4.6 session_decode() Double Free Vulnerability (U) 
+TODO(medium) -> needs to be fixed in php/etch and php/sarge (remote code execution)
+[MOPB-32-php4.diff]
+
+04  PHP 4 unserialize() ZVAL Reference Counter Overflow
+TODO (php4 only, gain execute control)
+[MOPB-04-php4.diff]
+
+
+
+Issues affecting PHP 5 only:
+
+45  PHP ext/filter Email Validation Vulnerability
+TODO(low) -> possible email header injections when coupled with other problems (php5 5.2.0, 5.2.1)
+[MOPB-45-php5.diff]
+
+44  PHP 5.2.0 Memory Manager Signed Comparision Vulnerability
+#TODO(medium) -> remotely exploitable via SOAP interfaces, CVE-2007-1889 (php5 5.2.0 only)
+
+42  PHP 5 php_stream_filter_create() Off By One Vulnerablity
+#TODO(medium) -> needs to be fixed, CVE-2007-1824 (php5, remote code execution, though haven't reproduced it)
+[MOPB-42-php5.diff]
+
+23  PHP 5 Rejected Session Identifier Double Free Vulnerability
+#TODO(medium) -> locally exploitable to gain access to process memory, hard to do remotely, CVE-2007-1522. (php5 5.2.0+, code execution)
+
+19 PHP ext/filter Space Trimming Buffer Underflow Vulnerability
+#TODO(medium) -> for PHP5. CVE-2007-1453 (php5 5.2.0 only, code execution on big endian)
+
+18  PHP ext/filter HTML Tag Stripping Bypass Vulnerability
+#TODO(medium) -> for PHP5. CVE-2007-1453 (php5 5.2.0 only, can avoid filters)
+
+17  PHP ext/filter FDF Post Bypass Vulnerability
+#TODO(low) -> ...or possibly "broken as designed". CVE-2007-1452, (php5 5.2.0 only, can avoid filters)
+
+16  PHP zip:// URL Wrapper Buffer Overflow Vulnerability
+#TODO(medium) -> possible remote data can result in code execution in 5.2.0 which uses the zip handler, CVE-2007-1399. (php5 5.2.0 only, code execution)
+
+14  PHP substr_compare() Information Leak Vulnerability
+#TODO(low) -> corner-case where length+offset > INT_MAX, CVE-2007-1375 (php5, heap leak)
+[MOPB-14-php5.diff]
+
+
+
+
+
+Done or resolved:
+
+
+43  PHP msg_receive() Memory Allocation Integer Overflow Vulnerabilty
+#N/A -> Only triggerable by malicious script, CVE-2007-1890 (php4 & php5, local code execution, possibly FreeBSD only)
+
+40  PHP imap_mail_compose() Boundary Stack Buffer Overflow Vulnerability
+#Fixed in DSA-1264 and the respective PHP4/PHP5 packages, dupe CVE-2007-0906/CVE-2007-1825
+
+39  PHP str_replace() Memory Allocation Integer Overflow Vulnerability
+#Fixed in DSA-1264 and the respective PHP4/PHP5 packages, dupe CVE-2007-0906/CVE-2007-1885
+
+38  PHP printf() Family 64 Bit Casting Vulnerabilities
+#Fixed in DSA-1264 and the respective PHP4/PHP5 packages, dupe CVE-2007-0909/CVE-2007-1884
+
+37  PHP iptcembed() Interruption Information Leak Vulnerability
+#N/A -> Only triggerable by malicious script, CVE-2007-1883 (php4 & php5, local code execution)
+
+36  PHP session.save_path open_basedir Bypass Vulnerability
+#N/A -> open_basedir bypasses not supported, CVE-2007-1461
+
+33  PHP mail() Message ASCIIZ Byte Truncation
+#N/A -> This is a bug, but not security-relevant, CVE-2007-1717 (php4 & php5)
+
+31  PHP _SESSION Deserialization Overwrite Vulnerability
+#N/A -> register_globals not supported, already fixed in DSA-1264, dupe CVE-2007-0910/CVE-2007-1701 (php4 & php5, very hard to trigger remotely, code execution)
+
+29  PHP 5.2.1 unserialize() Information Leak Vulnerability
+#N/A -> Only affects PHP 5.2.1, CVE-2007-1649 (heap leak via broken "S" unserializer, which should maybe be removed from 5.2.1, since it is only for future compatibility and is totally broken?)
+[MOPB-29-php5.diff]
+
+28  PHP hash_update_file() Already Freed Resource Access Vulnerability
+#N/A -> Only triggerable by malicious script, CVE-2007-1581 (php5, local malicious stream handler leads to code execution)
+
+27  PHP ext/gd Already Freed Resource Access Vulnerability
+#N/A -> Only triggerable by malicious script, CVE-2007-1582 (php4 & php5, local malicious error handler leads to code execution)
+
+25  PHP header() Space Trimming Buffer Underflow Vulnerability
+#Fixed in Etch as part of the 5.2.1 backport, dupe CVE-2007-0907/CVE-2007-1584
+
+24  PHP array_user_key_compare() Double DTOR Vulnerability
+#N/A -> Only triggerable by malicious script, CVE-2007-1484 (php4 & php5, code execution)
+[MOPB-24-php5.diff]
+
+21  PHP compress.bzip2:// URL Wrapper safemode and open_basedir Bypass Vulnerability
+#N/A -> Safemode and open_basedir bypasses not supported, CVE-2007-1461
+
+20  PHP zip:// URL Wrapper safemode and open_basedir Bypass Vulnerability
+#N/A -> Safemode and open_basedir bypasses not supported, CVE-2007-1460
+
+15  PHP shmop Functions Resource Verification Vulnerability
+#N/A -> Only triggerable by malicious script, could be used to read/write arbitrary memory, CVE-2007-1376 (php4 & php5, arbitrary memory leakage)
+[MOPB-15-php5.diff]
+
+13  PHP 4 Ovrimos Extension Multiple Vulnerabilities
+#N/A -> Ovrimos support not provided in any debian php packages, CVE-2007-1379, CVE-2007-1378
+
+12  mod_security POST Rules Bypass Vulnerability
+#N/A -> applies to modsecurity, not packaged for sarge/etch/(sid?), CVE-2007-1359.
+
+11  PHP WDDX Session Deserialization Information Leak Vulnerability
+#Fixed in DSA-1264. CVE-2007-0908 (php4 & php5, controllable stack leak)
+
+09  PHP wddx_deserialize() String Append Buffer Overflow Vulnerability
+#N/A -> Only applies to a development version in CVS, not a shipped release, CVE-2007-1381.
+
+08  PHP 4 phpinfo() XSS Vulnerability (Deja-vu)
+N/A -> phpinfo() is a debug function, not be exposed to applications (php4 4.4.3 through 4.4.6 only, phpinfo XSS)
+
+07  Zend Platform ini_modifier Local Root Vulnerability (B)
+N/A -> Only affects the Zend platform
+
+06  Zend Platform Insecure File Permission Local Root Vulnerability
+N/A -> Only affects the Zend platform
+
+05  PHP unserialize() 64 bit Array Creation Denial of Service  Vulnerability
+#Fixed in DSA-1264. CVE-2007-0988 (php4 & php5, limited-time 100% CPU DoS)
+
+03  PHP Variable Destructor Deep Recursion Stack Overflow
+#N/A -> Applications need to impose sanity checks for maximum recursion, CVE-2007-1285 (php4 & php5, crash only)
+
+02  PHP Executor Deep Recursion Stack Overflow
+#N/A -> Applications need to impose sanity checks for maximum recursion, CVE-2006-1549 (php4 & php5, crash only)
+
+01  PHP 4 Userland ZVAL Reference Counter Overflow Vulnerability
+#N/A -> Only triggerable by malicious script, CVE-2007-1383 (php4 only, gain execute control)
+
+
+
+
+(Comments starting with # indicate that information has been fed to the tracker)
+(Comments starting with TOFIX indicate that a patch has been created or extracted)
+
+
+# php4 checklist
+
+   Sarge Etch
+41   a    a <- seperate source package php4-sqlite
+35   T    T
+34   /    t
+32   T    T 
+30   /    /
+26   a    a
+22   t    t 
+10   T    T <- seemed already fixed but this completes the patch
+04   T    T
+
+? = more info
+x = fix needed
+* = extracted
+a = patch generated and commited to SVN
+t = didn't seem affected, but patch makes sense
+T = code tested
+/ = not affected
+
+# PHP5 checklist....
+MOPB   Etch, Unstable  Dapper, Edgy, Feisty, Gutsy       PATCH
+10      p     p[3]      T       T     T       -            *
+14      X     T         T       T     T       -            *
+15      i     T         T       T     -       -            *
+16      p     p         -       -     -       -
+17      -     -         -       -     -       -
+18      X     T         -       -     -       -
+19      X     T         -       -     -       -
+22      X     T         T       T     T       -            *
+23      X     T[5]      X       X     X       -            ?
+24      i     i         T       T     T       X            *
+26      X     T         T       T     T       -            *
+29      -     -         -       -     T       -            *
+30      -     a[4]      T       T     -       -            *
+34      X     a         T       T     T       -            *
+41      X     T         T       T     T       -            ![1]
+42      X     a         T       T     -       -            *
+44      X     a         -       -     -       -
+45      X     T         -       -     T       -            ![2]
+
+* = patch extracted from upstream
+? = no upstream patch found
+! = patch created
+
+X = fixed desired
+a = patch applied
+p = previously fixed
+T = code tested
+- = fix n/a
+i = fix skipped
+
+[1] but the fix in php5 is not right, the call (not the SQLite API) needs
+    to be changed.  For references, here is the upstream "fix":
+    http://cvs.php.net/viewvc.cgi/php-src/ext/sqlite/libsqlite/src/encode.c?r1=1.5.4.1&r2=1.5.4.1.2.1&pathrev=PHP_5_2
+[2] this needs a CVE assigned
+[3] previously fixed, but the patch adds another check we should have too.
+[4] could not reproduce this problem
+[5] the first hunk of the patch for mopb 22 fixes this.
+

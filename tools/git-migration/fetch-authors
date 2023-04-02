@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+svn log --xml  svn://svn.debian.org/svn/secure-testing \
+    | sed '/<author>/! d; s,<author>,,; s,</author>,,' > authors
+sort authors | uniq > authors.uniq
+cat authors.uniq | \
+    while read a; do
+        /srv/home/users/carnil/scripts/AUTHOR $a >> AUTHORS.txt
+    done

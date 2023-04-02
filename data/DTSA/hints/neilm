@@ -1,0 +1,14 @@
+# pending builds
+
+sync cgiwrap/3.9-3.0etch1
+sync php4/4:4.3.10-16etch1
+sync clamav/0.86.2-4etch2
+sync mailutils/1:0.6.90-2.1etch1
+sync uim/1:0.4.7-2.0etch1
+sync centericq/4.21.0-6.0etch1
+sync inkscape/0.43-0.0etch1
+sync smb4k/0.6.4-0.0etch1
+sync trackballs/1.1.1-0.0etch1
+sync trackballs/1.1.1-0.0etch1
+sync fuse/2.3.0-4.2etch1
+sync gpdf/2.10.0-1+etch1

@@ -1,0 +1,173 @@
+#!/usr/bin/perl
+#
+# Compare the Debian list of CVEs with the NVD list of CVEs using CPE
+# ids, to see if the set of affected packages match.
+
+use warnings;
+use strict;
+
+use XML::Simple;
+use Data::Dumper;
+use Getopt::Std;
+
+use vars qw(%opts $debug %cpealiases %cpemap %cperevmap %cvemap
+ %reportedmissing);
+
+$| = 1;
+
+getopts('d', \%opts);
+$debug = exists $opts{'d'} ? 1 : 0;
+
+cpe_load_aliases("data/CPE/aliases");
+cpe_load_list("data/CPE/list");
+
+open (my $fh, "<", "data/CVE/list") || die;
+my $cve;
+while (<$fh>) {
+    chomp;
+    $cve = $1 if (m/^(CVE-\S+)\s*/);
+    s/^(\s+)\[\S+\] /$1/; # Trim away distribution name
+    if ( m/^\s+- (\S+)\S*/
+#         && ! m/<not-affected>/
+       ) {
+        my $srcpkg = $1;
+        unless (exists $cpemap{$srcpkg}) {
+            my $cpe = "missing-cpe-for-$srcpkg";;
+            cpe_map_debiansrc($cpe, $srcpkg);
+        }
+        if (exists $cvemap{$cve}) {
+            push(@{$cvemap{$cve}}, $srcpkg);
+        } else {
+            $cvemap{$cve} = [$srcpkg];
+        }
+    }
+}
+close $fh;
+
+#
+# Fetched from https://nvd.nist.gov/download.aspx
+#
+for my $year (reverse 2002 .. (gmtime())[5]+1900) {
+    my $cvelist = "nvdcve-2.0-$year.xml";
+    print STDERR "Loading $cvelist\n" if $debug;
+    my $ref = XMLin("data/nvd2/" . $cvelist);
+    for my $cve (sort {$b cmp $a} keys %{$ref->{entry}}) {
+        print STDERR "Checking $cve\n" if $debug;
+        my $entry = $ref->{entry}->{$cve};
+
+        my %info;
+        my @debiancpe = get_debian_cpe($cve);
+        for my $cpe (@debiancpe) {
+            $info{cpe_expand_product_alias($cpe)} = 1;
+        }
+
+        my @products;
+        if (exists $entry->{'vuln:vulnerable-software-list'}->{'vuln:product'}) {
+            if ("ARRAY" eq ref $entry->{'vuln:vulnerable-software-list'}->{'vuln:product'}) {
+                @products = @{$entry->{'vuln:vulnerable-software-list'}->{'vuln:product'}};
+            } else {
+                @products = ($entry->{'vuln:vulnerable-software-list'}->{'vuln:product'});
+            }
+        }
+        unless (1 || @products) {
+            print STDERR Dumper($entry);
+        }
+        for my $cpe (@products) {
+            if (exists $info{cpe_expand_product_alias(cpe_product($cpe))}) {
+                $info{cpe_expand_product_alias(cpe_product($cpe))} += 2;
+            } else {
+                $info{cpe_expand_product_alias(cpe_product($cpe))} = 2;
+            }
+        }
+        for my $cpe (sort keys %info) {
+            if (1 == $info{$cpe}) {
+                my %shortlist;
+                map { $shortlist{cpe_product($_)} = 1 } @products;
+                my $cpelist = join(", ", keys %shortlist);
+                print STDERR "warning: $cve in Debian refer to $cpe, while NVD do not (found $cpelist).\n"
+            } elsif (2 == $info{$cpe}) {
+                if (exists $cperevmap{$cpe}) {
+                    print STDERR "warning: $cve in NVD is not referring to $cpe found in Debian.\n"
+                }
+
+            } elsif (3 == $info{$cpe}) {
+            }
+        }
+    }
+    print STDERR "Done loading $cvelist\n" if $debug;
+}
+
+for my $missing (sort { $reportedmissing{$a} <=> $reportedmissing{$b} }
+                 keys %reportedmissing) {
+    my $count = $reportedmissing{$missing};
+    print STDERR "error: missing CPE ID for $missing ($count)\n";
+}
+
+sub get_debian_cpe {
+    my ($cve) = shift;
+    my %cpe;
+    for my $binpkg (@{$cvemap{$cve}}) {
+        if (exists $cpemap{$binpkg}) {
+            $cpe{$cpemap{$binpkg}} = 1;
+        } else {
+            $reportedmissing{$binpkg} = exists $reportedmissing{$binpkg} ?
+                $reportedmissing{$binpkg} + 1 : 1;
+        }
+    }
+    return sort keys %cpe;
+}
+
+sub cpe_product {
+    my $cpe = shift;
+    return join(":", (split(/:/, $cpe))[0..3]);
+}
+
+sub cpe_map_debiansrc {
+    my ($cpe, $srcpkg) = @_;
+    if ($cpe) {
+        $cpemap{$srcpkg} = $cpe;
+        $cperevmap{$cpe} = $srcpkg;
+    }
+}
+
+sub cpe_load_list {
+    my $filename = shift;
+    open(my $fh, "<", $filename) ||
+        die "unable to load CPE list from $filename";
+    while (<$fh>) {
+        chomp;
+        s/#.*$//; # Remove comments
+        my ($srcpkg, $cpe) = split(/;/);
+        $cpe = cpe_expand_product_alias($cpe);
+        cpe_map_debiansrc($cpe, $srcpkg);
+    }
+    close $fh;
+}
+sub cpe_load_aliases {
+    my $filename = shift;
+    open (my $fh, "<", $filename) || die;
+    my $lastcpe = "";
+    while (<$fh>) {
+        chomp;
+        s/#.*$//; # Remove comments
+        unless ($_) {
+            $lastcpe = "";
+            next;
+        }
+        if ($lastcpe) {
+            $cpealiases{$_} = $lastcpe;
+        } else {
+            $cpealiases{$_} = $_;
+            $lastcpe = $_;
+        }
+    }
+    close ($fh);
+}
+sub cpe_expand_product_alias {
+    my $cpe = shift;
+    my $retval = $cpe;
+    if (defined $cpe && exists $cpealiases{$cpe}) {
+        $retval = $cpealiases{$cpe};
+    }
+    return $retval;
+}

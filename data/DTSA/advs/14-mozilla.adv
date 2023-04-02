@@ -1,0 +1,65 @@
+source: mozilla
+date: September 13th, 2005
+author: Joey Hess
+vuln-type: several
+problem-scope: remote
+debian-specifc: no
+cve: CVE-2004-0718 CVE-2005-1937 CVE-2005-2260 CVE-2005-2261 CVE-2005-2263 CVE-2005-2265 CVE-2005-2266 CVE-2005-2268 CVE-2005-2269 CVE-2005-2270
+testing-fix: 2:1.7.8-1sarge2
+sid-fix: 2:1.7.10-1
+upgrade: apt-get install mozilla
+
+Several problems have been discovered in Mozilla. Since the usual praxis of
+backporting apparently does not work for this package, this update is
+basically version 1.7.10 with the version number rolled back, and hence still
+named 1.7.8.  The Common Vulnerabilities and Exposures project identifies the
+following problems:
+
+CVE-2004-0718, CVE-2005-1937
+
+    A vulnerability has been discovered in Mozilla that allows remote
+    attackers to inject arbitrary Javascript from one page into the
+    frameset of another site.
+
+CVE-2005-2260
+
+    The browser user interface does not properly distinguish between
+    user-generated events and untrusted synthetic events, which makes
+    it easier for remote attackers to perform dangerous actions that
+    normally could only be performed manually by the user.
+
+CVE-2005-2261
+
+    XML scripts ran even when Javascript disabled.
+
+CVE-2005-2263
+
+    It is possible for a remote attacker to execute a callback
+    function in the context of another domain (i.e. frame).
+
+CVE-2005-2265
+
+    Missing input sanitising of InstallVersion.compareTo() can cause
+    the application to crash.
+
+CVE-2005-2266
+
+    Remote attackers could steal sensitive information such as cookies
+    and passwords from web sites by accessing data in alien frames.
+
+CVE-2005-2268
+
+    It is possible for a Javascript dialog box to spoof a dialog box
+    from a trusted site and facilitates phishing attacks.
+
+CVE-2005-2269
+
+    Remote attackers could modify certain tag properties of DOM nodes
+    that could lead to the execution of arbitrary script or code.
+
+CVE-2005-2270
+
+    The Mozilla browser family does not properly clone base objects,
+    which allows remote attackers to execute arbitrary code.
+
+Note that this is the same update contained in DSA-810-1 for Debian stable.

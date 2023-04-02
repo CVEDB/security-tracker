@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+import pwd
+import re
+import sys
+import tempfile
+import urllib
+import warnings
+
+from jinja2 import Template
+
+
+def get_full_name():
+    full_name = os.getenv("DEBFULLNAME")
+    if full_name:
+        return full_name
+    return pwd.getpwuid(os.getuid()).pw_gecos.split(",")[0]
+
+
+try:
+    import rdflib
+except ImportError:
+    warnings.warn("python-rdflib not installed; will fall back to PTS email address")
+
+    def get_maintainers(pkg):
+        return u"{}@packages.debian.org".format(pkg)
+else:
+    def get_maintainers(pkg):
+
+        # RDF object and predicate references used on PTS
+        project = rdflib.term.URIRef(
+            u"http://packages.qa.debian.org/{}#project".format(pkg)
+        )
+        has_contributor = rdflib.term.URIRef(u"http://schema.org/contributor")
+        is_named = rdflib.term.URIRef(u"http://xmlns.com/foaf/0.1/name")
+        is_same_as = rdflib.term.URIRef(u"http://www.w3.org/2002/07/owl#sameAs")
+
+        maint = []
+
+        graph = rdflib.Graph()
+        try:
+            graph.parse(
+                "https://packages.qa.debian.org/{}/{}.rdf".format(
+                    re.match("((?:lib)?.)", pkg).group(1), pkg
+                )
+            )
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                raise ValueError("unknown package '{}'".format(pkg))
+            raise
+        for contrib in graph[project:has_contributor]:
+            names = [n for n in graph[contrib:is_named]]
+            addresses = [
+                urllib.parse.unquote(m.group(1))
+                for m in map(
+                    re.compile(
+                        r"http://webid\.debian\.net/maintainers/(.*)#agent$"
+                    ).match,
+                    graph[contrib:is_same_as],
+                )
+                if m
+            ]
+            if not names or not addresses:
+                warnings.warn("found contributor missing name and/or address")
+                continue
+            address = addresses[0]
+            if "@" not in address:
+                address += "@debian.org"
+            maint.append(u'"{}" <{}>'.format(names[0], address))
+
+        return u", ".join(maint)
+
+# Parse command line
+parser = argparse.ArgumentParser(description="Get in touch with package maintainers")
+parser.add_argument("--force", action="store_true", help="Ignore safety checks")
+parser.add_argument(
+    "--lts", action="store_true", help="Act as a member of the LTS team"
+)
+parser.add_argument(
+    "--no-dsa",
+    dest="no_dsa",
+    action="store_true",
+    help="Say that issues are low severity (no need for DSA/DLA)",
+)
+parser.add_argument(
+    "--minor",
+    dest="minor_issues",
+    action="store_true",
+    help="Say that issues are low severity and someone will work on them (LTS team only)",
+)
+parser.add_argument(
+    "--mailer",
+    action="store",
+    default="mutt -H {}",
+    help="Command executed. Must contain {} to be replaced "
+    "by the filename of the draft contact mail",
+)
+parser.add_argument("package")
+parser.add_argument("cve", nargs="*")
+args = parser.parse_args()
+
+cc = "debian-lts@lists.debian.org" if args.lts else "team@security.debian.org"
+team = "lts" if args.lts else "sec"
+model = "no-dsa" if args.no_dsa else "update-planned"
+minor = "-minor" if args.minor_issues and args.lts else ""
+template_file = "templates/{}-{}{}.txt".format(team, model, minor)
+
+# Basic check
+instructions = "packages/{}.txt".format(args.package)
+if os.path.exists(instructions) and not args.force:
+    print("Have a look at {}".format(instructions))
+    print("If you still want to run this script, run it with --force.")
+    sys.exit(1)
+
+# Check if we should contact maintainers
+dontcall = "data/packages/lts-do-not-call"
+if args.lts and not args.force:
+    with open(dontcall) as f:
+        for line in f:
+            if line[0] == "#":
+                continue
+            if not line.strip():
+                continue
+            if line.split()[0] == args.package:
+                print("Maintainer(s) may not be contacted for LTS issues.")
+                print("Reason: {}".format(" ".join(line.split()[1:])))
+                print("If you still want to run this script, run it with --force.")
+                sys.exit(1)
+
+# Generate the context
+
+# XXX: Once that 761859 is fixed, improve the logic here to:
+# - retrieve the current list of CVE dynamically
+# - check whether we should use the no-dsa variant of the template
+# - check whether we have an open bug report, in which case we should
+#   include it in the recipients of the mail
+
+context = {
+    "package": args.package,
+    "sender": get_full_name(),
+    "cve": args.cve,
+    "to": get_maintainers(args.package),
+    "cc": cc,
+    "uploaders": "",
+}
+
+# Generate the mail
+with open(template_file) as f:
+    template = Template(f.read())
+
+fd, filename = tempfile.mkstemp(prefix="contact-maintainers", suffix=".txt")
+draft = os.fdopen(fd, "wb")
+draft.write(template.render(context).encode("utf-8"))
+draft.close()
+
+os.system(args.mailer.format(filename))
+os.unlink(filename)

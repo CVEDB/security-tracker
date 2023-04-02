@@ -1,0 +1,93 @@
+Providing security updates for Debian's "testing" distribution.
+
+
+Goals
+
+The initial goals of the Debian testing security team will be to:
+
+ - Provide timely security updates for testing, with fixes being made
+   available no more than four days after a DSA is released.
+ - Work with maintainers to include security fixes from unstable
+   that do not have DSAs.
+ - Maintain a public database and statistics about the current state of
+   security in testing.
+
+
+Existing infrastructure
+
+The main infrastructure we have that could be useful in preparing testing
+security updates is the testing-proposed-updates queue. Thanks to the recent
+work on the sarge release, t-p-u is functional for all (or almost all)
+arches.
+
+There is also all the work of the security team, with DSAs, relationships
+with upstream security sources, etc.
+
+There is the Debian BTS, which contains some but not all details about
+security holes in Debian. Some security holes are not made public until a
+DSA is released, and some are silently fixed in a new upstream release
+uploaded to unstable. The BTS has some issues with keeping track of which
+bugs apply to testing, though its developers have been working on solving
+this problem for a while.
+
+We plan to take advantage of as much of the existing infrastructure as we
+can, but we recognise that using some of it would require work from others
+(ftp admins, security team, BTS admins), that we cannot require be done. We
+plan to be able to function without needing these project resources, though
+they could probably make the job easier.
+
+
+Proposed infrastructure and processes
+
+
+
+This is how things will work for the first phase of the team's activity.
+Once the team is proven to work and there is demand, things can be better
+integrated back into Debian. We hope that eventually our updates will be
+available on security.debian.org the same as stable security updates.
+
+There will be an apt repository for testing security updates, similar to
+security.debian.org. Uploads to this repository will be made only by
+members of the testing security team, will be GPG signed in the usual way,
+and will be accompanied a DTSA (Debian Testing Security Advisory), posted
+to our web site, and to a mailing list.
+
+In the very early stages, this will only include security updates for the
+i386 architecture. Security updates for other architectures will be added
+after we work out an autobuilder system (hopefully by using Debian's
+existing t-p-u autobuilders). 
+
+There will be an issue tracking system, which will be integrated with the
+Debian BTS, so we can flag bugs as security issues for testing, and keep
+track of when they are fixed in unstable, and in testing.
+
+All security updates will be built against the packages in testing, and
+will be versioned to be an upgrade from the version of the package in
+testing, and also as an upgrade from any unfixed version in unstable. Once
+the security hole is fixed in unstable and reaches testing using normal
+channels, the package can be removed from secure-testing.debian.net.
+
+Unlike security updates to package in stable, we will most often not
+backport fixes to the versions of packages in testing. More often we will
+simply take the fixed package from unstable, recompile it if necessary, and
+qualify it for the testing distribution. This may involve upgrading to new
+upstream releases, and so there's a chance our updates will introduce new
+bugs. We feel this is not as bad as unfixed security holes, and as a small
+team with limited manpower, this is a useful shortcut. We will make sure
+that out users realise that using our security updates can expose them to
+upgrade bugs.
+
+
+Team organisation
+
+The team will consist entirely of Debian developers. Unless a member of the
+Debian security team joins the Debian testing security team, none of us
+will have any privileged information about future security announcements.
+So we will not be able to fix problems instantaneously, but we hope to get
+all issues fixed within four days of the DSA, and most issues fixed
+somewhat faster. Any Debian developer who has experience with security
+issues is welcome to join the team.
+
+The current team members:
+	Joey Hess
+	<er, someone else please add your name here>

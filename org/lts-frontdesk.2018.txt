@@ -1,0 +1,66 @@
+Presentation
+------------
+
+The LTS frontdesk handles:
+
+ * CVE triaging:
+   https://wiki.debian.org/LTS/Development#Triage_new_security_issues
+
+ * Making sure that queries on debian-lts@lists.debian.org get an answer.
+
+Who is in charge ?
+------------------
+
+From 01-01 to 07-01:Chris Lamb <chris@chris-lamb.co.uk>
+From 08-01 to 14-01:Markus Koschany <apo@debian.org>
+From 15-01 to 21-01:Guido Günther <agx@sigxcpu.org>
+From 22-01 to 28-01:Thorsten Alteholz <debian@alteholz.de>
+From 29-01 to 04-02:Ola Lundqvist <opal@debian.org>
+From 05-02 to 11-02:Markus Koschany <apo@debian.org>
+From 12-02 to 18-02:Antoine Beaupré <anarcat@orangeseeds.org>
+From 19-02 to 25-02:Chris Lamb <chris@chris-lamb.co.uk>
+From 26-02 to 04-03:Antoine Beaupré <anarcat@orangeseeds.org>
+From 05-03 to 11-03:Chris Lamb <chris@chris-lamb.co.uk>
+From 12-03 to 18-03:Thorsten Alteholz <debian@alteholz.de>
+From 19-03 to 25-03:Markus Koschany <apo@debian.org>
+From 26-03 to 01-04:Ola Lundqvist <opal@debian.org>
+From 02-04 to 08-04:Chris Lamb <chris@chris-lamb.co.uk>
+From 09-04 to 15-04:Antoine Beaupré <anarcat@orangeseeds.org>
+From 16-04 to 22-04:Markus Koschany <apo@debian.org>
+From 23-04 to 29-04:Thorsten Alteholz <debian@alteholz.de>
+From 30-04 to 06-05:Thorsten Alteholz <debian@alteholz.de>
+From 07-05 to 13-05:Ola Lundqvist <opal@debian.org>
+From 14-05 to 20-05:Chris Lamb <chris@chris-lamb.co.uk>
+From 21-05 to 27-05:Markus Koschany <apo@debian.org>
+From 28-05 to 03-06:Antoine Beaupré <anarcat@orangeseeds.org>
+From 04-06 to 10-06:Chris Lamb <chris@chris-lamb.co.uk>
+From 11-06 to 17-06:Thorsten Alteholz <debian@alteholz.de>
+From 18-06 to 24-06:Markus Koschany <apo@debian.org>
+From 25-06 to 01-07:Thorsten Alteholz <debian@alteholz.de>
+From 02-07 to 08-07:
+From 09-07 to 15-07:Markus Koschany <apo@debian.org>
+From 16-07 to 22-07:Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+From 23-07 to 29-07:Chris Lamb <chris@chris-lamb.co.uk>
+From 30-07 to 05-08:Thorsten Alteholz <debian@alteholz.de>
+From 06-08 to 12-08:Chris Lamb <chris@chris-lamb.co.uk>
+From 13-08 to 19-08:Markus Koschany <apo@debian.org>
+From 20-08 to 26-08:Chris Lamb <chris@chris-lamb.co.uk>
+From 27-08 to 02-09:Markus Koschany <apo@debian.org>
+From 03-09 to 09-09:Chris Lamb <chris@chris-lamb.co.uk>
+From 10-09 to 16-09:Thorsten Alteholz <debian@alteholz.de>
+From 17-09 to 23-09:Ola Lundqvist <opal@debian.org>
+From 24-09 to 30-09:Markus Koschany <apo@debian.org>
+From 01-10 to 07-10:Chris Lamb <chris@chris-lamb.co.uk>
+From 08-10 to 14-10:Markus Koschany <apo@debian.org>
+From 15-10 to 21-10:Chris Lamb <chris@chris-lamb.co.uk>
+From 22-10 to 28-10:Thorsten Alteholz <debian@alteholz.de>
+From 29-10 to 04-11:Markus Koschany <apo@debian.org>
+From 05-11 to 11-11:Chris Lamb <chris@chris-lamb.co.uk>
+From 12-11 to 18-11:Ola Lundqvist <opal@debian.org>
+From 19-11 to 25-11:Markus Koschany <apo@debian.org>
+From 26-11 to 02-12:Thorsten Alteholz <debian@alteholz.de>
+From 03-12 to 09-12:Chris Lamb <chris@chris-lamb.co.uk>
+From 10-12 to 16-12:Ola Lundqvist <opal@debian.org>
+From 17-12 to 23-12:Markus Koschany <apo@debian.org>
+From 24-12 to 30-12:Markus Koschany <apo@debian.org>
+From 31-12 to 06-01:Markus Koschany <apo@debian.org>

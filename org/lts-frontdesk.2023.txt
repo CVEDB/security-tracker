@@ -1,0 +1,52 @@
+From 02-01 to 08-01:Sylvain Beucler <beuc@beuc.net>
+From 09-01 to 15-01:Thorsten Alteholz <squeeze-lts@alteholz.de>
+From 16-01 to 22-01:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 23-01 to 29-01:Anton Gladky <gladky.anton@gmail.com>
+From 30-01 to 05-02:Chris Lamb <chris@chris-lamb.co.uk>
+From 06-02 to 12-02:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 13-02 to 19-02:Markus Koschany <markus@koschany.net>
+From 20-02 to 26-02:Ola Lundqvist <ola@inguza.com>
+From 27-02 to 05-03:Sylvain Beucler <beuc@beuc.net>
+From 06-03 to 12-03:Thorsten Alteholz <squeeze-lts@alteholz.de>
+From 13-03 to 19-03:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 20-03 to 26-03:Anton Gladky <gladky.anton@gmail.com>
+From 27-03 to 02-04:Chris Lamb <chris@chris-lamb.co.uk>
+From 03-04 to 09-04:Sylvain Beucler <beuc@beuc.net>
+From 10-04 to 16-04:Markus Koschany <markus@koschany.net>
+From 17-04 to 23-04:Ola Lundqvist <ola@inguza.com>
+From 24-04 to 30-04:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 01-05 to 07-05:Thorsten Alteholz <squeeze-lts@alteholz.de>
+From 08-05 to 14-05:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 15-05 to 21-05:Anton Gladky <gladky.anton@gmail.com>
+From 22-05 to 28-05:Chris Lamb <chris@chris-lamb.co.uk>
+From 29-05 to 04-06:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 05-06 to 11-06:Markus Koschany <markus@koschany.net>
+From 12-06 to 18-06:Ola Lundqvist <ola@inguza.com>
+From 19-06 to 25-06:Sylvain Beucler <beuc@beuc.net>
+From 26-06 to 02-07:Thorsten Alteholz <squeeze-lts@alteholz.de>
+From 03-07 to 09-07:
+From 10-07 to 16-07:
+From 17-07 to 23-07:
+From 24-07 to 30-07:
+From 31-07 to 06-08:
+From 07-08 to 13-08:
+From 14-08 to 20-08:
+From 21-08 to 27-08:
+From 28-08 to 03-09:
+From 04-09 to 10-09:
+From 11-09 to 17-09:
+From 18-09 to 24-09:
+From 25-09 to 01-10:
+From 02-10 to 08-10:
+From 09-10 to 15-10:
+From 16-10 to 22-10:
+From 23-10 to 29-10:
+From 30-10 to 05-11:
+From 06-11 to 12-11:
+From 13-11 to 19-11:
+From 20-11 to 26-11:
+From 27-11 to 03-12:
+From 04-12 to 10-12:
+From 11-12 to 17-12:
+From 18-12 to 24-12:
+From 25-12 to 31-12:

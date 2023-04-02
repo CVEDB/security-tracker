@@ -1,0 +1,86 @@
+#!/bin/sh
+
+####################
+#    Copyright (C) 2011 by Raphael Geissert <geissert@debian.org>
+#
+#
+#    This file is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This file is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this file.  If not, see <https://www.gnu.org/licenses/>.
+####################
+
+set -eu
+
+list=data/CVE/list
+
+[ -f $list ] || {
+    echo "error: $list doesn't exist" >&2
+    exit 1
+}
+
+verbose=false
+if [ "${1:-}" = "--verbose" ]; then
+    verbose=true
+    shift
+fi
+
+regex='*'
+if [ -n "${1:-}" ]; then
+    regex="${1:-}"
+fi
+
+condition=RESERVED
+case "$(basename "$0")" in
+    reserved-*)
+	condition=RESERVED
+    ;;
+    rejected-*)
+	condition=REJECTED
+    ;;
+esac
+
+condition_seen=false
+wanted=false
+cve=
+while read line; do
+    case $line in
+	CVE-$regex)
+	    cve="$line"
+	    condition_seen=false
+	    wanted=true
+	;;
+	CVE-*)
+	    cve="$line"
+	    condition_seen=false
+	    wanted=false
+	;;
+	*$condition)
+	    condition_seen=true
+	;;
+	*)
+	    if ! $condition_seen || ! $wanted; then
+		continue
+	    fi
+	    if [ "$cve" ]; then
+		if $verbose; then
+		    printf "%s\n" "$cve"
+		else
+		    printf "%s\n" "$(printf '%s' "$cve" | cut -d\  -f1)"
+		fi
+		cve=
+	    fi
+	    if $verbose; then
+		printf "\t%s\n" "$line"
+	    fi
+	;;
+    esac
+done < "$list"

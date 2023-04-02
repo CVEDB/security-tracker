@@ -1,0 +1,65 @@
+Presentation
+------------
+
+The LTS frontdesk handles:
+
+ * CVE triaging:
+   https://wiki.debian.org/LTS/Development#Triage_new_security_issues
+
+ * Making sure that queries on debian-lts@lists.debian.org get an answer.
+
+Who is in charge ?
+------------------
+
+From 06-01 to 12-01:Chris Lamb <chris@chris-lamb.co.uk>
+From 13-01 to 19-01:Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+From 20-01 to 26-01:Thorsten Alteholz <debian@alteholz.de>
+From 27-01 to 02-02:Ola Lundqvist <ola@inguza.com>
+From 03-02 to 09-02:Chris Lamb <chris@chris-lamb.co.uk>
+From 10-02 to 16-02:Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+From 17-02 to 23-02:Thorsten Alteholz <debian@alteholz.de>
+From 24-02 to 01-03:Ola Lundqvist <ola@inguza.com>
+From 02-03 to 08-03:Chris Lamb <chris@chris-lamb.co.uk>
+From 09-03 to 15-03:Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+From 16-03 to 22-03:Thorsten Alteholz <debian@alteholz.de>
+From 23-03 to 29-03:Abhijith PA <abhijith@debian.org>
+From 30-03 to 05-04:Ola Lundqvist <ola@inguza.com>
+From 06-04 to 12-04:Chris Lamb <chris@chris-lamb.co.uk>
+From 13-04 to 19-04:Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+From 20-04 to 26-04:Thorsten Alteholz <debian@alteholz.de>
+From 27-04 to 03-05:Ola Lundqvist <ola@inguza.com>
+From 04-05 to 10-05:Chris Lamb <chris@chris-lamb.co.uk>
+From 11-05 to 17-05:Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+From 18-05 to 24-05:Thorsten Alteholz <debian@alteholz.de>
+From 25-05 to 31-05:Abhijith PA <abhijith@debian.org>
+From 01-06 to 07-06:Abhijith PA <abhijith@debian.org>
+From 08-06 to 14-06:Chris Lamb <chris@chris-lamb.co.uk>
+From 15-06 to 21-06:Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+From 22-06 to 28-06:Thorsten Alteholz <debian@alteholz.de>
+From 29-06 to 05-07:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 06-07 to 12-07:Chris Lamb <chris@chris-lamb.co.uk>
+From 13-07 to 19-07:Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+From 20-07 to 26-07:Thorsten Alteholz <debian@alteholz.de>
+From 27-07 to 02-08:Abhijith PA <abhijith@debian.org>
+From 03-08 to 09-08:Abhijith PA <abhijith@debian.org>
+From 10-08 to 16-08:Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+From 17-08 to 23-08:Chris Lamb <chris@chris-lamb.co.uk>
+From 24-08 to 30-08:Thorsten Alteholz <debian@alteholz.de>
+From 31-08 to 06-09:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 07-09 to 13-09:Chris Lamb <chris@chris-lamb.co.uk>
+From 14-09 to 20-09:Mike Gabriel <mike.gabriel@das-netzwerkteam.de>
+From 21-09 to 27-09:Thorsten Alteholz <debian@alteholz.de>
+From 28-09 to 04-10:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 05-10 to 11-10:Abhijith PA <abhijith@debian.org>
+From 12-10 to 18-10:Chris Lamb <chris@chris-lamb.co.uk>
+From 19-10 to 25-10:Thorsten Alteholz <debian@alteholz.de>
+From 26-10 to 01-11:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 02-11 to 08-11:Chris Lamb <chris@chris-lamb.co.uk>
+From 09-11 to 15-11:Thorsten Alteholz <debian@alteholz.de>
+From 16-11 to 22-11:Roberto C. Sánchez <roberto@debian.org>
+From 23-11 to 29-11:Abhijith PA <abhijith@debian.org>
+From 30-11 to 06-12:Thorsten Alteholz <debian@alteholz.de>
+From 07-12 to 13-12:Chris Lamb <chris@chris-lamb.co.uk>
+From 14-12 to 20-12:Roberto C. Sánchez <roberto@debian.org>
+From 21-12 to 27-12:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 28-12 to 03-01:Utkarsh Gupta <guptautkarsh2102@gmail.com>

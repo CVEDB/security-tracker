@@ -1,0 +1,14 @@
+source: bcfg2
+date: February 1st, 2007
+author: Neil McGovern
+vuln-type: programming error
+problem-scope: local
+debian-specifc: yes
+testing-fix: 0.8.6.1-1.1etch1
+sid-fix: 0.8.7.3-1
+upgrade: apt-get install bcfg2
+
+Incorrect permissions for the bcfg2 configuration file could lead to password
+disclosure to unprivileged users.
+
+Please note that bcfg2 is not present in sarge.

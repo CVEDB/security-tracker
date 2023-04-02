@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# Wire up the security-tracker-bin submodule in security-tracker (the data)
+#
+# For the moment we create compat symlinks so everything stays in place.
+# In the long run we should be able to get rid of most of them.
+#
+# This will be run only once when migrating from svn to git
+
+set -e
+
+SUBMODULE=security-tracker-bin
+
+# From salsa
+#git submodule add ../${SUBMODULE}
+# Local copy for testing
+git submodule add file://$PWD/../$SUBMODULE
+
+git submodule update
+for d in bin check-external lib static templates tools website; do
+    rm -f $d
+    ln -s $SUBMODULE/$d $d
+done
+
+make check-syntax

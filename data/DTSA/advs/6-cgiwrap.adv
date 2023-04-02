@@ -1,0 +1,26 @@
+source: cgiwrap
+date: August 28th, 2005
+author: Neil McGovern
+vuln-type: multiple vulnerabilities
+problem-scope: remote
+debian-specific: no
+cve: 
+testing-fix: 3.9-3.0etch1
+sid-fix: 3.9-3.1
+upgrade: apt-get upgrade
+
+Javier Fernández-Sanguino Peña discovered various vulnerabilities in cgiwrap:
+
+Minimum UID does not include all system users
+
+  The CGIwrap program will not seteuid itself to uids below the 'minimum' uid
+  to prevent scripts from being misused to compromise the system. However,
+  the Debian package sets the minimum uid to 100 when it should be 1000.
+
+CGIs can be used to disclose system information
+
+  The cgiwrap (and php-cgiwrap) package installs some debugging CGIs
+  (actually symbolink links, which link to cgiwrap and are called 'cgiwrap'
+  and 'nph-cgiwrap' or link to php-cgiwrap). These CGIs should not be
+  installed in production environments as they disclose internal and
+  potentially sensible information.

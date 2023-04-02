@@ -1,0 +1,23 @@
+source: zziplib
+date: September 4th , 2007
+author: Nico Golde
+vuln-type: buffer overflow
+problem-scope: remote
+debian-specifc: no
+cve: CVE-2007-1614
+vendor-advisory:
+testing-fix: 0.12.83-8lenny1
+sid-fix: 0.13.49-0
+upgrade: apt-get upgrade
+
+The zziplib library is prone to a stack-based buffer overflow
+which might allow remote attackers to execute arbitrary code
+or denial of service (application crash) via a long file name.
+
+CVE-2007-1614
+
+Stack-based buffer overflow in the zzip_open_shared_io function
+in zzip/file.c in ZZIPlib Library before 0.13.49 allows
+user-assisted remote attackers to cause a denial of service
+(application crash) or execute arbitrary code via a long
+filename.

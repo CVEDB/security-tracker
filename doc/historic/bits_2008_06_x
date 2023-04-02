@@ -1,0 +1,146 @@
+Hi fellow developers,
+
+It's been some time since our last email. Much has happened since then
+with regards to the security support of Debian's testing distribution.
+
+
+General security support for testing
+------------------------------------
+
+The Debian Testing Security team is very near to providing full
+security support for the testing distribution. At the time of the last
+email, two blockers for full security support were present. However,
+we now are able to process embargoed issues (more on that below), so
+we are happy to announce that only one blocker remains. The only
+remaining blocker for full security support at this point is the
+kernel.  We are talking to the kernel security team about providing
+testing-security support, but at the moment this task lacks
+manpower. If you are willing to work on this, please feel free to
+contact us. Otherwise, in terms of security at this point we recommend
+using the stable kernel or if that is not an option, the unstable
+kernel.  Also, we would like to state that packages that are not
+security supported for stable are likewise unsupported for
+testing. This list includes all packages in contrib and non-free, as
+well as the ones that are marked unsupported (for example,
+kfreebsd). The maintainers are solely responsible for security and
+there won't be any DTSAs for such packages.
+
+
+Security status of the current testing distribution (lenny)
+-----------------------------------------------------------
+
+With some pride we can say that testing has never been in such good
+shape security wise. The tracker reflects very accurately the current
+known security issues in the testing distribution[0]. Our new
+announcement emails[1] provide a notification for users whenever a new
+security fix reaches testing, whether through migration from unstable
+or DTSA for testing-security. Also fewer packages are getting removed
+from testing because of security issues.
+
+In order to reach a wider audience with security updates for testing
+and due to the beta1 release of the lenny installer including the
+testing-security repository in the apt-sources, this new mailing list
+was created. We highly recommend that every user who runs Debian
+testing and is concerned about security subscribes[1] to this list
+
+Note: this list is a replacement of the old secure-testing-announce
+list hosted on alioth which has been removed.
+
+
+Security status of the next testing distribution (lenny+1)
+----------------------------------------------------------
+
+After the release of lenny, there will probably be no security support
+for the new testing distribution for some time. It is not clear yet
+how long this state will last. Users of testing who need security
+support are advised to change their sources.list entries from
+"testing" to "lenny" now and only switch to lenny+1 after the begin of
+its security support is announced. There will be another announcement
+with more details well before the release of lenny.
+
+
+Embargoed issues and access to wider security information
+---------------------------------------------------------
+
+Parts of the Testing Security Team have been added to the
+team@security.debian.org alias and are thus also subscribed to the
+vendor-sec mailing list where embargoed security issues are
+coordinated and discussed between Linux vendors before being released
+to the public. The embargoed security queue on security-master will be
+used to prepare DTSAs for such issues. This is a major change as the
+Testing Security Team was not able to prepare updates for security
+issues under embargo before. If a DTSA was prepared for an embargoed
+issue in your package, you will either be contacted by us before the
+release or you will be notified through the BTS. Either way, you will
+most likely get an RC bug against your package including the patch
+used for the DTSA. This way you can prepare updates for unstable and
+the current unfixed unstable package does not migrate to testing,
+where it would overwrite the DTSA.
+
+
+Freeze of lenny coming up
+-------------------------
+
+With the lenny release approaching, the Debian release team will at
+some stage freeze the testing archive. This means it is even more
+important to stay in close contact with the Debian Testing Security
+team to coordinate security updates for the testing distribution. If
+one of your packages is affected by an unembargoed security issue,
+please contact us through the public list of the team[2] and fix the
+issue in unstable with high urgency. Please send as much information
+as possible, including patches, ways to reproduce the issue and
+further descriptions. If we ask you to prepare a DTSA, please follow
+the instructions on the testing-security webpage[3] and go ahead with
+the upload.  If your package is affected by an embargoed issue, email
+the private list[4] and if we should ask you to upload a DTSA, use the
+embargoed upload queue (which is the same than for stable/oldstable).
+
+
+Handling of security in the unstable distribution
+-------------------------------------------------
+
+First of all, unstable does not have official security support. The
+illusion that the Debian Testing Security team also officially
+supports unstable is not true. Security issues in unstable, especially
+when the package is not in testing, are not regarded as high urgency
+and are only dealt with when there is enough spare time.
+
+However, it is true that most of our security updates migrate through
+unstable to prevent doubled workload. For this purpose, we urge every
+maintainer to upload their security fixes with high urgency and
+mention the CVE ids (if given) in their changelogs.  Because we let
+fixes migrate, it often happens that we NMU packages. An up to date
+list of NMUs done by the security team can be found in our
+repository[5]. These NMUs are done as the need arises and do not
+always follow the given NMU rules, because security updates are
+treated with higher urgency. 
+
+
+Call for new members:
+---------------------
+
+The team is still looking for new members. If you are interested in
+joining the Debian Testing Security team, please speak up and either
+write to the public mailing list[2] or approach us on the internal
+mailing list[6]. Note that you do not have to be a DD for all tasks.
+Check out our call for help[7] for more information about the tasks
+and the requirements if you want to join the team. We also look for
+people with experienced knowledge regarding the kernel. We would like
+to start security support for the kernel packages in testing and
+prepare DTSAs for the unembargoed kernel issues. For this task, it
+would be good to have one or two designated people in the Debian
+Testing Security team to only concentrate on this task. If you are
+interested, please speak up.
+
+
+Yours,
+Testing Security 
+
+[0]: http://security-tracker.debian.net/tracker/status/release/testing
+[1]: http://lists.debian.org/debian-testing-security-announce
+[2]: secure-testing-team@lists.alioth.debian.org
+[3]: http://testing-security.debian.net/uploading.html
+[4]: team@security.debian.org
+[5]: http://svn.debian.org/wsvn/secure-testing/data/NMU/list?op=file&rev=0&sc=0
+[6]: team@testing-security.debian.net
+[7]: http://lists.debian.org/debian-devel-announce/2008/03/msg00007.html

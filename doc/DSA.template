@@ -1,0 +1,30 @@
+From: $DEBFULLNAME <$DEBEMAIL>
+To: debian-security-announce@lists.debian.org
+Subject: [SECURITY] [DSA $DSAID] $PACKAGE security update
+
+-------------------------------------------------------------------------
+Debian Security Advisory DSA-$DSAID                   security@debian.org
+https://www.debian.org/security/                 $SPACEDDEBFULLNAME
+$SPACEDDATE                https://www.debian.org/security/faq
+-------------------------------------------------------------------------
+
+Package        : $PACKAGE
+CVE ID         : $CVE
+Debian Bug     : $BUGNUM
+
+$TEXT
+
+For the stable distribution ($STABLE), this problem has been fixed in
+version $$STABLE_VERSION.
+
+We recommend that you upgrade your $PACKAGE packages.
+
+For the detailed security status of $PACKAGE please refer to
+its security tracker page at:
+https://security-tracker.debian.org/tracker/$PACKAGE
+
+Further information about Debian Security Advisories, how to apply
+these updates to your system and frequently asked questions can be
+found at: https://www.debian.org/security/
+
+Mailing list: debian-security-announce@lists.debian.org

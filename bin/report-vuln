@@ -1,0 +1,258 @@
+#!/usr/bin/env python3
+#
+# generate bug report content/mail for a given package name and a
+# number of CVE ids
+#
+# To invoke the mailer right away:
+#
+# $HOME/debian/git/security-tracker/bin/report-vuln -M <pkg> <CVE>
+#
+# export http_proxy if you need to use an http proxy to report bugs
+
+import argparse
+from tempfile import NamedTemporaryFile
+import os
+import re
+import sys
+from urllib.parse import urlencode
+from urllib.request import urlopen
+from textwrap import wrap
+
+temp_id = re.compile('(?:CVE|cve)\-[0-9]{4}-XXXX')
+
+def description_from_list(id, pkg='', skip_entries=0):
+    import setup_paths
+    import bugs
+    import debian_support
+    is_temp = temp_id.match(id)
+    skipped = 0
+
+    for bug in bugs.CVEFile(debian_support.findresource(
+            *"data CVE list".split())):
+        if bug.name == id or (is_temp and not bug.isFromCVE()):
+            if pkg != '':
+                matches = False
+                for n in bug.notes:
+                    if n.package == pkg and str(n.urgency) != 'unimportant':
+                        matches = True
+                        break
+                if not matches:
+                    continue
+            if skipped < skip_entries:
+                skipped += 1
+                continue
+            return bug.description
+
+def gen_index(ids):
+    ret = ''
+    for cnt, id in enumerate(ids):
+        if temp_id.match(id):
+            continue
+        ret += '\n[' + str(cnt) + '] https://security-tracker.debian.org/tracker/' + id + '\n'
+        ret += '    https://www.cve.org/CVERecord?id=' + id
+
+    return ret
+
+def http_get(id):
+    param = urlencode({'name' : id})
+    resp = ''
+    try:
+        f = urlopen('https://cve.mitre.org/cgi-bin/cvename.cgi?%s' % param)
+        resp = f.read()
+    except Exception as e:
+        error('on doing HTTP request' + str(e))
+
+    f.close()
+
+    return resp
+
+# this is a hack that parses the cve id description from mitre
+def get_cve(id):
+    desc = False
+    r = re.compile('.*<th\ colspan=.*>Description<.*')
+    tag = re.compile('.*</?tr>.*')
+    reserved = re.compile(r'\*+\s+(<A HREF=.*>)?RESERVED(</A>)?\s+\*+')
+    ret = ''
+    resp = http_get(id)
+
+    for line in resp.decode('utf-8').rsplit('\n'):
+        if r.match(line):
+            desc = True
+            continue
+
+        if desc and reserved.search(line):
+            break
+
+        if tag.match(line) and desc:
+            continue
+
+        if desc and '<td colspan="2">' in line:
+            line = re.sub('.*<td colspan="2">', '', line)
+            for line in wrap(line):
+                ret += '| ' + line + '\n'
+            continue
+
+        if desc and '</td>' in line:
+            break
+
+        if desc and line != '':
+            ret = ret + '\n| ' + line
+
+    if ret == '':
+        ret = description_from_list(id)
+
+    if not ret:
+        ret = 'No description was found (try on a search engine)'
+
+    return ret + '\n'
+
+def gen_text(pkg, cveid, blanks=False, severity=None, affected=None, cc=False, cclist=None, src=False, mh=False):
+    vuln_suff = 'y'
+    cve_suff = ''
+    time_w = 'was'
+    temp_id_cnt = 0
+    ret = ''
+
+
+    if mh:
+        ret += '''To: submit@bugs.debian.org
+Subject: %s: %s
+
+''' % (pkg, ' '.join(cveid))
+
+    if len(cveid) > 1:
+        cve_suff = 's'
+        vuln_suff = 'ies'
+        time_w = 'were'
+
+    if src:
+        ret += 'Source: %s\n' % (pkg)
+    else:
+        ret += 'Package: %s\n' % (pkg)
+
+    if affected is None:
+        if blanks:
+           ret += "Version: FILLINAFFECTEDVERSION\n"
+    else:
+        ret += "Version: %s\n" % affected
+    if cc and len(cclist) > 0:
+        ret += "X-Debbugs-CC: %s\n" % " ".join(cclist)
+    ret += '''Severity: %s
+Tags: security
+
+Hi,
+
+The following vulnerabilit%s %s published for %s.\n
+''' % (severity, vuln_suff, time_w, pkg)
+
+    for cnt, cve in enumerate(cveid):
+        if not temp_id.match(cve):
+            ret += cve + '[' + str(cnt) + ']:\n'
+            ret += get_cve(cve) + '\n'
+        else:
+            ret += 'Issue without CVE id #%d [%d]:\n' % (temp_id_cnt, cnt)
+            desc = description_from_list(cve, pkg, temp_id_cnt)
+            if desc:
+                ret += desc + '\n\n'
+            else:
+                ret += 'No description has been specified\n\n'
+            temp_id_cnt += 1
+
+    ret += '''If you fix the vulnerabilit%s please also make sure to include the
+CVE (Common Vulnerabilities & Exposures) id%s in your changelog entry.
+
+For further information see:\n''' % (vuln_suff, cve_suff)
+    ret += gen_index(cveid) + '\n'
+
+    if temp_id_cnt > 0:
+        ret += '\nhttps://security-tracker.debian.org/tracker/source-package/%s\n' % (pkg)
+        ret += '(issues without CVE id are assigned a TEMP one, but it may change over time)\n'
+
+    if not blanks:
+        ret += '\nPlease adjust the affected versions in the BTS as needed.\n'
+
+    return ret
+
+def error(msg):
+    print('error: ' + msg, file=sys.stderr)
+    sys.exit(1)
+
+class NegateAction(argparse.Action):
+    '''add a toggle flag to argparse
+
+    this is similar to 'store_true' or 'store_false', but allows
+    arguments prefixed with --no to disable the default. the default
+    is set depending on the first argument - if it starts with the
+    negative form (define by default as '--no'), the default is False,
+    otherwise True.
+    '''
+
+    negative = '--no'
+
+    def __init__(self, option_strings, *args, **kwargs):
+        '''set default depending on the first argument'''
+        default = not option_strings[0].startswith(self.negative)
+        super(NegateAction, self).__init__(option_strings, *args,
+                                           default=default, nargs=0, **kwargs)
+
+    def __call__(self, parser, ns, values, option):
+        '''set the truth value depending on whether
+        it starts with the negative form'''
+        setattr(ns, self.dest, not option.startswith(self.negative))
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--no-blanks', '--blanks', dest='blanks', action=NegateAction,
+                        help='include blank fields to be filled (default: %(default)s)')
+    parser.add_argument('--affected', help='affected version (default: unspecified)')
+    parser.add_argument('--severity', default='grave', help='severity (default: %(default)s)')
+    parser.add_argument('--cc', '--no-cc', dest='cc', action=NegateAction,
+                        help='add X-Debbugs-CC header to')
+    parser.add_argument('--cc-list', dest='cclist', default=['team@security.debian.org',],
+                        help='list of addresses to add in CC (default: %(default)s)')
+    parser.add_argument('--src', action="store_true", help='report against source package')
+    parser.add_argument('-m', '--mail-header', action="store_true", help='generate a mail header')
+    parser.add_argument('-M', '--mail', action="store_true", help='invoke mailer right aways')
+    parser.add_argument('--mailer', action='store', default='mutt -H {}',
+                        help='Command executed. Must contain {} to be replaced '
+                        'by the filename of the draft bugreport')
+    parser.add_argument('pkg', help='affected package')
+    parser.add_argument('cve', nargs='+', help='relevant CVE for this source package, may be used multiple time if the issue has multiple CVEs')
+    args = parser.parse_args()
+
+    blanks = args.blanks
+    pkg = args.pkg
+    cve = args.cve
+
+    # check for valid parameters
+    p = re.compile('^[0-9a-z].*')
+    c = re.compile('(CVE|cve)\-[0-9]{4}-[0-9]{4,}')
+
+    if not p.match(pkg):
+        error(pkg + ' does not seem to be a valid source package name')
+
+    for arg in cve:
+        if not c.match(arg) and not temp_id.match(arg):
+            error(arg + ' does not seem to be a valid CVE id')
+
+    text = gen_text(pkg, cve,
+                    affected=args.affected,
+                    blanks=args.blanks,
+                    severity=args.severity,
+                    cc=args.cc,
+                    cclist=args.cclist,
+                    src=args.src,
+                    mh=args.mail_header or args.mail)
+
+    if args.mail:
+        with NamedTemporaryFile(prefix='report-vuln', suffix='.txt') as bugmail:
+            bugmail.write(text.encode())
+            bugmail.flush()
+            os.system(args.mailer.format(bugmail.name))
+    else:
+        print(text)
+
+
+if __name__ == '__main__':
+    main()

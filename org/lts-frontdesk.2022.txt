@@ -1,0 +1,65 @@
+Presentation
+------------
+
+The LTS frontdesk handles:
+
+ * CVE triaging:
+   https://wiki.debian.org/LTS/Development#Triage_new_security_issues
+
+ * Making sure that queries on debian-lts@lists.debian.org get an answer.
+
+Who is in charge ?
+------------------
+
+From 03-01 to 09-01:Chris Lamb <chris@chris-lamb.co.uk>
+From 10-01 to 16-01:Sylvain Beucler <beuc@beuc.net>
+From 17-01 to 23-01:Thorsten Alteholz <debian@alteholz.de>
+From 24-01 to 30-01:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 31-01 to 06-02:Sylvain Beucler <beuc@beuc.net>
+From 07-02 to 13-02:Thorsten Alteholz <squeeze-lts@alteholz.de>
+From 14-02 to 20-02:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 21-02 to 27-02:Anton Gladky <gladky.anton@gmail.com>
+From 28-02 to 06-03:Chris Lamb <chris@chris-lamb.co.uk>
+From 07-03 to 13-03:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 14-03 to 20-03:Markus Koschany <markus@koschany.net>
+From 21-03 to 27-03:Ola Lundqvist <ola@inguza.com>
+From 28-03 to 03-04:Sylvain Beucler <beuc@beuc.net>
+From 04-04 to 10-04:Thorsten Alteholz <squeeze-lts@alteholz.de>
+From 11-04 to 17-04:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 18-04 to 24-04:Anton Gladky <gladky.anton@gmail.com>
+From 25-04 to 01-05:Chris Lamb <chris@chris-lamb.co.uk>
+From 02-05 to 08-05:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 09-05 to 15-05:Markus Koschany <markus@koschany.net>
+From 16-05 to 22-05:Ola Lundqvist <ola@inguza.com>
+From 23-05 to 29-05:Sylvain Beucler <beuc@beuc.net>
+From 30-05 to 05-06:Thorsten Alteholz <squeeze-lts@alteholz.de>
+From 06-06 to 12-06:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 13-06 to 19-06:Anton Gladky <gladky.anton@gmail.com>
+From 20-06 to 26-06:Chris Lamb <chris@chris-lamb.co.uk>
+From 27-06 to 03-07:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 04-07 to 10-07:Markus Koschany <markus@koschany.net>
+From 11-07 to 17-07:Ola Lundqvist <ola@inguza.com>
+From 18-07 to 24-07:Sylvain Beucler <beuc@beuc.net>
+From 25-07 to 31-07:Thorsten Alteholz <squeeze-lts@alteholz.de>
+From 01-08 to 07-08:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 08-08 to 14-08:Anton Gladky <gladky.anton@gmail.com>
+From 15-08 to 21-08:Chris Lamb <chris@chris-lamb.co.uk>
+From 22-08 to 28-08:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 29-08 to 04-09:Markus Koschany <markus@koschany.net>
+From 05-09 to 11-09:Ola Lundqvist <ola@inguza.com>
+From 12-09 to 18-09:Sylvain Beucler <beuc@beuc.net>
+From 19-09 to 25-09:Thorsten Alteholz <squeeze-lts@alteholz.de>
+From 26-09 to 02-10:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 03-10 to 09-10:Anton Gladky <gladky.anton@gmail.com>
+From 10-10 to 16-10:Chris Lamb <chris@chris-lamb.co.uk>
+From 17-10 to 23-10:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 24-10 to 30-10:Markus Koschany <markus@koschany.net>
+From 31-10 to 06-11:Ola Lundqvist <ola@inguza.com>
+From 07-11 to 13-11:Sylvain Beucler <beuc@beuc.net>
+From 14-11 to 20-11:Thorsten Alteholz <squeeze-lts@alteholz.de>
+From 21-11 to 27-11:Utkarsh Gupta <guptautkarsh2102@gmail.com>
+From 28-11 to 04-12:Anton Gladky <gladky.anton@gmail.com>
+From 05-12 to 11-12:Chris Lamb <chris@chris-lamb.co.uk>
+From 12-12 to 18-12:Emilio Pozuelo Monfort <pochu27@gmail.com>
+From 19-12 to 25-12:Markus Koschany <markus@koschany.net>
+From 26-12 to 01-01:Ola Lundqvist <ola@inguza.com>

@@ -1,0 +1,137 @@
+NOTE: THIS DOES NOT DESCRIBE THE CURRENT IMPLEMENTATION
+
+# Layout of major internal data structures
+
+Most data structures use named tuples, as provided by
+collections.namedtuples.
+
+Due to the way unpickling works, you need to import the "parsers"
+package.
+
+The data structures described here are supposed to be fairly stable,
+except for the addition of additional attributes and changes in the
+internal order of named tuples (so you really should not rely on
+that).
+
+# Source packages
+
+The dictionary returned by sectracker.parsers.sourcepackages()
+contains the source package name as the key, and as values named
+tuples with the following field:
+
+* pkg.name: the name of the source package
+
+* pkg.version: the source version
+
+* pkg.binary: a list of binary package names compiled from this source
+  package
+
+# Individual bug information
+
+The data/*/list files are parsed as lists of bugs.  A line which does
+not start with whitespace is called a "header", and the following
+intended lines are called "annotations".
+
+The top-level named tuple contains two elements:
+
+* list: the list of bug objects (see below)
+
+* messages: the list of messages from the parser (see below)
+
+All lists are sorted by file position of the contained objects.
+
+## bug objects
+
+* bug.file: path to the file containing this bug
+
+* bug.header: header object (see below)
+
+* bug.annotations: list of all annotations of this bug (see below)
+
+## header objects
+
+* header.line: line number
+
+* header.name: bug name (auto-generated for temporary issues)
+
+* header.description: string, can be empty or None
+
+## message objects
+
+* msg.file: file name
+
+* msg.line: line number
+
+* msg.level: "error" or "warning"
+
+* msg.contents: free-text message
+
+## Errors 
+
+## annotation objects
+
+All annotation objects have these fields:
+
+* ann.line: the line number
+
+* ann.type: code value to determine the  structure
+
+Additional fields are described below, depending on the ann.type
+value.
+
+### types "NOT-FOR-US", "NOTE", "TODO"
+
+* ann.description: user-supplied string
+
+### types "RESERVED", "REJECTED"
+
+These act just as flags; no additional data is present.
+
+### type "xref"
+
+* ann.bugs: list of bugs being referenced
+
+### type "package"
+
+* ann.release: applicable release, or None for unstable
+
+* ann.package: name of the package
+
+* ann.kind: one of "fixed" (version was supplied), "unfixed", "removed",
+  "itp", "no-dsa", "not-affected", "undetermined"
+
+* ann.version: fixed version number, or "None" for unfixed/not applicable
+
+* ann.urgency: one of None, undetermined, low, medium, high
+
+* ann.debian_bugs: set of numbers of Debian bugs
+
+* ann.description: free-text information, or None if not applicable
+
+# Derived vulnerability information
+
+sectracker.analyzers.fixedversions() computes fixed versions for
+bug/package pairs.  These are returned in a list of vulnerability
+objects:
+
+* vuln.bug: name of the bug (potentially auto-generated)
+
+* vuln.package: name of the package
+
+* vuln.fixed: fixed version in unstable (a string), or None (no fix
+  available) or True (all versions fixed)
+
+* vuln.fixed_other: a tuple, containing other fixed versions (which
+  are less than the unfixed unstable version, but nevertheless known
+  not to be vulnerable)
+
+In itself, this data is not very illuminating, but comparision with
+other information sources can be used to detect vulnerable installed
+packages, generate bug and distribution overview pages etc.
+
+This computation is in a separate pass because packages are sometimes
+propagated between releases/distributions in the Debian archive.  The
+returned data only contains plain versions, disregarding the source,
+so further processing can correctly handle package propagation (in the
+sense that if a bug was fixed in one place, all propagated copies are
+also fixed).

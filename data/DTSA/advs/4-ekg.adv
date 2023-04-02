@@ -1,0 +1,40 @@
+source: ekg
+date: August 28th, 2005
+author: Joey Hess
+vuln-type: multiple vulnerabilities
+problem-scope: local and remote
+debian-specific: no
+cve: CVE-2005-1916 CVE-2005-1851 CVE-2005-1850 CVE-2005-1852 CVE-2005-2448
+testing-fix: 1:1.5+20050808+1.6rc3-0etch1
+sid-fix: 1:1.5+20050808+1.6rc3-1
+upgrade: apt-get install libgadu3 ekg
+
+Multiple vulnerabilities were discovered in ekg:
+
+CVE-2005-1916
+
+  Eric Romang discovered insecure temporary file creation and arbitrary
+  command execution in a contributed script that can be exploited by a local
+  attacker.
+
+CVE-2005-1851
+
+  Marcin Owsiany and Wojtek Kaniewski discovered potential shell command
+  injection in a contributed script.
+
+CVE-2005-1850
+
+  Marcin Owsiany and Wojtek Kaniewski discovered insecure temporary file
+  creation in contributed scripts.
+
+CVE-2005-1852
+
+  Multiple integer overflows in libgadu, as used in ekg, allows remote
+  attackers to cause a denial of service (crash) and possibly execute
+  arbitrary code via an incoming message.
+
+CVE-2005-2448
+
+  Multiple endianness errors in libgadu in ekg allow remote attackers to
+  cause a denial of service (invalid behaviour in applications) on
+  big-endian systems.

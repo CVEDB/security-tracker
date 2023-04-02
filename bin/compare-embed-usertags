@@ -1,0 +1,40 @@
+#!/bin/sh
+# Copyright 2015 Paul Wise <pabs@debian.org>
+#
+# This file is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This file is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this file.  If not, see <https://www.gnu.org/licenses/>.
+
+# compare-embed-usertags
+# Compares usertags matching *embed* with the embedded-code-copies data
+# and reports any bugs that are missing from the embedded-code-copies data
+
+if [ ! -f data/embedded-code-copies ] ; then
+	echo "Please run from the top-level directory of the repository" >&2
+	exit 1
+fi
+
+header=0
+rsync --recursive rsync://bugs.debian.org/bts-spool-index/user/ data/usertags/
+grep --recursive --ignore-case --files-with-matches '^Tag:.*embed' data/usertags/ |
+while read user ; do
+	sed --silent '/^Tag:.*embed/,/^$/p' "$user" |
+	grep --only-matching '[0-9]\+'
+done |
+sort --unique |
+while read bug ; do
+	if ! grep --silent --fixed-strings "$bug" data/embedded-code-copies ; then
+		test "$header" -eq 1 && printf 'Please add these bugs to data/embedded-code-copies\n\n'
+		printf 'https://bugs.debian.org/%s\n' "$bug"
+		header=0
+	fi
+done

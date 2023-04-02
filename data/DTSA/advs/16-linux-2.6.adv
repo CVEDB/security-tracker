@@ -1,0 +1,120 @@
+source: linux-2.6
+date: September 15, 2005
+author: Joey Hess
+vuln-type: several holes
+problem-scope: remote
+debian-specifc: no
+cve: CVE-2005-2098 CVE-2005-2099 CVE-2005-2456 CVE-2005-2617 CVE-2005-1913 CVE-2005-1761 CVE-2005-2457 CVE-2005-2458 CVE-2005-2459 CVE-2005-2548 CVE-2004-2302 CVE-2005-1765 CVE-2005-1762 CVE-2005-1761 CVE-2005-2555
+testing-fix: 2.6.12-6
+sid-fix: 2.6.12-6
+upgrade: apt-get install linux-image-2.6-386; reboot
+
+Several security related problems have been found in version 2.6 of the
+linux kernel. The Common Vulnerabilities and Exposures project identifies
+the following problems:
+
+CVE-2004-2302
+
+  Race condition in the sysfs_read_file and sysfs_write_file functions in
+  Linux kernel before 2.6.10 allows local users to read kernel memory and
+  cause a denial of service (crash) via large offsets in sysfs files.
+
+CVE-2005-1761
+
+  Vulnerability in the Linux kernel allows local users to cause a
+  denial of service (kernel crash) via ptrace.
+
+CVE-2005-1762
+
+  The ptrace call in the Linux kernel 2.6.8.1 and 2.6.10 for the AMD64
+  platform allows local users to cause a denial of service (kernel crash) via
+  a "non-canonical" address.
+
+CVE-2005-1765
+
+  syscall in the Linux kernel 2.6.8.1 and 2.6.10 for the AMD64 platform, when
+  running in 32-bit compatibility mode, allows local users to cause a denial
+  of service (kernel hang) via crafted arguments.
+
+CVE-2005-1913
+
+  When a non group-leader thread called exec() to execute a different program
+  while an itimer was pending, the timer expiry would signal the old group
+  leader task, which did not exist any more. This caused a kernel panic.
+
+CVE-2005-2098 
+
+  The KEYCTL_JOIN_SESSION_KEYRING operation in the Linux kernel before
+  2.6.12.5 contains an error path that does not properly release the session
+  management semaphore, which allows local users or remote attackers to cause
+  a denial of service (semaphore hang) via a new session keyring (1) with an
+  empty name string, (2) with a long name string, (3) with the key quota
+  reached, or (4) ENOMEM.
+
+CVE-2005-2099
+
+  The Linux kernel before 2.6.12.5 does not properly destroy a keyring that
+  is not instantiated properly, which allows local users or remote attackers
+  to cause a denial of service (kernel oops) via a keyring with a payload
+  that is not empty, which causes the creation to fail, leading to a null
+  dereference in the keyring destructor.
+
+CVE-2005-2456
+
+  Array index overflow in the xfrm_sk_policy_insert function in xfrm_user.c
+  in Linux kernel 2.6 allows local users to cause a denial of service (oops
+  or deadlock) and possibly execute arbitrary code via a p->dir value that is
+  larger than XFRM_POLICY_OUT, which is used as an index in the
+  sock->sk_policy array.
+
+CVE-2005-2457
+
+  The driver for compressed ISO file systems (zisofs) in the Linux kernel
+  before 2.6.12.5 allows local users and remote attackers to cause a denial
+  of service (kernel crash) via a crafted compressed ISO file system.
+
+CVE-2005-2458
+
+  inflate.c in the zlib routines in the Linux kernel before 2.6.12.5 allows
+  remote attackers to cause a denial of service (kernel crash) via a
+  compressed file with "improper tables".
+
+CVE-2005-2459
+
+  The huft_build function in inflate.c in the zlib routines in the Linux
+  kernel before 2.6.12.5 returns the wrong value, which allows remote
+  attackers to cause a denial of service (kernel crash) via a certain
+  compressed file that leads to a null pointer dereference, a different
+  vulnerbility than CVE-2005-2458.
+
+CVE-2005-2548
+
+  vlan_dev.c in Linux kernel 2.6.8 allows remote attackers to cause a denial
+  of service (kernel oops from null dereference) via certain UDP packets that
+  lead to a function call with the wrong argument, as demonstrated using
+  snmpwalk on snmpd.
+
+CVE-2005-2555
+
+  Linux kernel 2.6.x does not properly restrict socket policy access to users
+  with the CAP_NET_ADMIN capability, which could allow local users to conduct
+  unauthorized activities via (1) ipv4/ip_sockglue.c and (2)
+  ipv6/ipv6_sockglue.c.
+
+CVE-2005-2617
+
+  The syscall32_setup_pages function in syscall32.c for Linux kernel 2.6.12
+  and later, on the amd64 architecture, does not check the return value of
+  the insert_vm_struct function, which allows local users to trigger a memory
+  leak via a 32-bit application with crafted ELF headers.
+
+In addition this update fixes some security issues that have not been
+assigned CVE ids:
+
+  - Fix DST leak in icmp_push_reply().  Possible remote DoS?
+
+  - NPTL signal delivery deadlock fix; possible local DoS.
+  
+  - fix a memory leak in devices seq_file implementation; local DoS.
+
+  - Fix SKB leak in ip6_input_finish(); local DoS.

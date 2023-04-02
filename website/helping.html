@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+	<html><head><meta http-equiv="Content-Type" content="text/html; charset=iso8859-1">
+	<title>Helping testing security</title>
+	<link type="text/css" rel="stylesheet" href="style.css">
+	<link rel="shortcut icon" href="http://www.debian.org/favicon.ico">
+	</head>
+	<body>
+	<div align="center">
+	<a href="http://www.debian.org/">
+
+     <img src="http://www.debian.org/logos/openlogo-nd-50.png" border="0" hspace="0" vspace="0" alt=""></a>
+	<a href="http://www.debian.org/">
+     <img src="http://www.debian.org/Pics/debian.png" border="0" hspace="0" vspace="0" alt="Debian Project"></a>
+	</div>
+	<br />
+	<table class="reddy" width="100%">
+	<tr>
+	<td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+
+	<td rowspan="2" class="reddy">Debian testing security team</td>
+	<td class="reddy">
+    <img src="http://www.debian.org/Pics/red-upperright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+	</tr>
+	<tr>
+	<td class="reddy">
+    <img src="http://www.debian.org/Pics/red-lowerleft.png" align="left" border="0" hspace="0" vspace="0"
+     alt="" width="16" height="16"></td>
+	<td class="reddy">
+
+    <img src="http://www.debian.org/Pics/red-lowerright.png" align="right" border="0" hspace="0" vspace="0"
+     alt="" width="15" height="16"></td>
+	</tr>
+	</table>
+
+	<h2>As non-Debian Developer</h2>
+	<p>Sure you can also help improving Debian's security in testing/unstable without being an official developer.</p>
+	<ul>
+		<li>Work on the <a href="index.html#tracker">security tracker</a>, <a href="http://alioth.debian.org/project/request.php?group_id=30437">request</a> to get added
+		to the secure-testing group an <a href="http://alioth.debian.org/">alioth</a> since we use subversion located on alioth to manipulate the tracker data. Make sure to read our <a href="http://anonscm.debian.org/viewvc/secure-testing/doc/narrative_introduction?view=co">narrative introduction</a> if you start with this.</li>
+		<li>Track bugs reported to the <a href="http://bugs.debian.org">Debian BTS</a> for security flaws and help on fixing them and getting a <a href="http://cve.mitre.org">CVE</a>
+		id for it if none exists yet (please <a href="index.html#contact">contact the team</a> for this).
+		<li>Report vulnerabilities for software Debian includes in a package to the <a href="http://bugs.debian.org">Debian BTS</a>. Please use the tag <em>security</em> and include the CVE id there is already one available.</li>
+	</ul>
+	<h2>As Debian package maintainer</h2>
+	<p>There are a few things to keep in mind as a maintainer to make the work of the testing-security team a bit easier.</p>
+	<ul>
+		<li>Watch out for security relevant bugs reported in your packages and react fast on them. <a href="index.html#contact">Contact</a> the team if you need assistance.</li>
+		<li>Make descriptive, meaningful changelog entries. This means to always include CVE ids in the package changelog for bugs that have one and to mention that this is a <em>security</em> upload.</li>
+		<li><a href="index.html#contact">Contact</a> the team if you fix bugs which are not reported to the BTS but have a CVE id so we can mark the version as fixed in the security tracker.</li>
+		<li><a href="uploading.html">Upload</a> your package to the <em>testing-security</em> repository if the migration from unstable would take too long for some reason.</li>
+		<li>The upload should have <em>urgency=high</em> to ensure a fast migration to testing.</li>
+	</ul>
+	
+	<h2>As Debian Developer</h2>
+	<p>As a developer you can do basically the same work as described above for non-Debian developers except a few things</p>
+	<ul>
+		<li>Help on doing <a href="http://www.debian.org/doc/developers-reference/pkgs.html#s-nmu">NMUs</a> to unstable for bugs reported to the BTS with security impact. Make it obvious that this an upload by the testing security team, use descriptive changelog entries and mention the CVE ids for the bugs your are fixing.</li>
+	</ul>
+
+
+<hr><p>$Id: helping.html 6493 2007-09-04 11:06:04Z nion $</p>
+<a href="http://validator.w3.org/check?uri=referer">
+    <img border="0" src="http://www.w3.org/Icons/valid-html401" alt="Valid HTML 4.01!" height="31" width="88"></a>
+	<a href="http://jigsaw.w3.org/css-validator/check/referer">
+    <img border="0" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!"
+     height="31" width="88"></a>
+
+    
+</body></html>	

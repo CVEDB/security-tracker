@@ -1,0 +1,178 @@
+#!/bin/sh
+
+####################
+#    Copyright (C) 2009 by Raphael Geissert <atomo64@gmail.com>
+#
+#
+#    This file is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This file is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this file.  If not, see <https://www.gnu.org/licenses/>.
+####################
+
+set -e
+
+case "$1" in
+    -h|--help)
+	cat <<FOO
+Usage: $(basename "$0") [--help]
+    --help: this information.
+
+This script obtains the list of all source packages in the archive and
+checks that the list of packages in embedded-code-copies is correct.
+Results are written to stderr, everything else in stdout is just informational
+and can safely be ignored or redirected to /dev/null.
+FOO
+    exit
+    ;;
+esac
+
+[ -f data/embedded-code-copies ] || {
+    echo "Please run under the top-level directory of the repository" >&2
+    exit 1
+}
+
+PKGSLIST=$(mktemp)
+
+echo "Querying UDD via coccia.debian.org (you may need to enter a password):"
+ssh -oBatchMode=yes coccia.debian.org "psql -Atx -c \"SELECT DISTINCT source,release from sources where distribution='debian';\" 'service=udd'" > "$PKGSLIST"
+
+export PKGSLIST
+
+perl -w <<'PSCRIPT'
+
+use strict;
+
+# translate pseudo-names into a package name that exists
+my %translate = qw(
+	python* python2.5
+	drupal drupal6
+	typo3 typo3-src
+	linux-kernel linux-2.6
+	zope zope3
+);
+$translate{'linux kernels'} = 'linux-2.6';
+
+# archived stable releases
+my @oldstables = qw(
+	woody
+	sarge
+	etch
+	lenny
+);
+
+my %pkgs;
+
+open(PKGS, '<', $ENV{'PKGSLIST'});
+{
+    my ($pkg, $release, %ref);
+    my $entry = 0;
+    $ref{'source'} = \$pkg;
+    $ref{'release'} = \$release;
+    while(<PKGS>) {
+	chomp;
+	if (m/^$/ && defined($pkg)) {
+	    next unless $entry;
+	    $pkgs{$pkg} = {}
+		unless (exists $pkgs{$pkg});
+	    $pkgs{$pkg}{$release} = 1;
+	    $entry = 0;
+	    $release = $pkg = '';
+	    next;
+	}
+	if($_ eq '') {
+	    print STDERR "Skipping empty line $., \$pkg not defined\n";
+	    next;
+	}
+	my ($k, $v) = split(/\|/);
+	${$ref{$k}} = $v;
+	$entry = 1;
+    }
+}
+close(PKGS);
+
+my (@errors, @warnings);
+
+open(DATA, '<', 'data/embedded-code-copies');
+my ($seen_flag, $embedded_package, %embedding_packages) = (0, '');
+while(<DATA>) {
+    if (m/^---BEGIN/) {
+	$seen_flag = 1;
+	next;
+    }
+    next unless $seen_flag;
+    next if /(?:NOTE|TODO):/;
+    s/\(.*?\)//;
+    s/(?:^\s+|\s+$)//g;
+    next if ($_ eq '');
+    $_ = lc;
+
+    if (m/^\w/) {
+	s,/.+$,,;
+	while (my ($pkg, $count) = each %embedding_packages) {
+	    push @errors, "Duplicated entry for $pkg (for $embedded_package)"
+		if ($count gt 1);
+	}
+	undef %embedding_packages;
+	if (exists($translate{$_})) {
+	    $embedded_package = $translate{$_};
+	} else {
+	    $embedded_package = $_;
+	}
+	unless (exists($pkgs{$embedded_package})) {
+	    # disabled for now, need to check how bin/check-new-issues uses it:
+	    # push @warnings, "'$embedded_package' does not exist, line:$.";
+	}
+	next;
+    }
+
+    if (m/^(?:\[(\w+)\]\s+)?-\s+(.+?)\s(?:<(.+?)>|\d)/) {
+	my ($release, $embedding_package, $status) = ($1 || '', $2, $3 || '');
+	my $reported = 0;
+
+	$embedding_package = $translate{$embedding_package}
+	    if (exists($translate{$embedding_package}));
+
+	unless (exists($pkgs{$embedding_package})
+		|| $reported || $status eq 'removed' || $status eq 'itp') {
+	    push @errors, "Non-existing package '$embedding_package', line:$.";
+	    $reported = 1;
+	}
+
+	if (exists($pkgs{$embedding_package}{'sid'}) && !$reported
+		&& ($status eq 'removed' || $status eq 'itp')) {
+	    push @errors, "Package '$embedding_package' does exist, line:$.";
+	    $reported = 1;
+	}
+
+	if ($release) {
+	    unless ($reported || exists ($pkgs{$embedding_package}{$release})
+		    || grep {$_ eq $release} @oldstables) {
+		push @errors, "'$embedding_package' does not exist in '$release', line:$.";
+		$reported = 1;
+	    }
+	    $embedding_package .= '-' . $release;
+	}
+	$embedding_packages{$embedding_package}++;
+    } else {
+	push @errors, "Malformed line ($.) detected: '$_'";
+    }
+}
+close(DATA);
+
+print STDERR join("\n", @errors);
+print STDERR "\nWarnings\n" if @warnings;
+print STDERR join("\n", @warnings);
+print STDERR "\n" if @errors or @warnings;
+
+PSCRIPT
+
+unlink "$PKGSLIST"

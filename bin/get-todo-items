@@ -1,0 +1,57 @@
+#!/bin/bash
+# Nico Golde <nion@debian.org>
+# Latest change: Do Sep 20 20:13:19 CEST 2007
+# extract TODO items for unfixed security issues in unstable/testing
+
+
+_DIR=`pwd` 
+_NEW_D=(${_DIR//\// })
+_CNT=`COUNT=0; for i in ${_NEW_D[*]}; do [ ${i} = "secure-testing" ] && echo ${COUNT}; COUNT=$(( COUNT + 1 )); done`
+_BASE="$( for i in `seq 0 ${_CNT}`; do echo -n "/${_NEW_D[${i}]}"; done; echo )"
+
+DATA="${_BASE}/data/CVE/list"
+TMP="list.tmp"
+
+:> $TMP
+
+awk "BEGIN { RS = \"CVE-\" } /<unfixed>/" $DATA > $TMP
+
+while read LINE; do
+
+    case "$LINE" in
+    *\-*\ \(*...\))
+        CVE="CVE-$( echo "$LINE" | cut -d ' ' -f 1 )"
+        ;;
+    *\-[0-9,X][0-9,X][0-9,X][0-9,X])
+        CVE="CVE-$( echo "$LINE" | cut -d ' ' -f 1 )"
+        ;;
+    *NOTE:*) ;;
+    *\[lenny\]*) ;;
+    *\[etch\]*) ;;
+    *\[sarge\]*) ;;
+    *\<unfixed\>*)
+        # output unimportant issues with -v
+        if [ ! "$1" = "-v" ]; then
+            STATUS="$( echo "$LINE" | grep -e '(*unimportant)*' )"
+            if [ "x$STATUS" = "x$LINE" ]; then
+                continue
+            fi
+        fi
+
+        PKG="$( echo "$LINE" | sed -e 's/.*- \(.\+\)\ <unfixed>.*/\1/' )"
+        BUG="$( echo "$LINE" | sed -e 's/.*bug\ #\([0-9]\+\).*/\1/' )"
+
+        if [ "x$BUG" = "x" -o "x$BUG" = "x$LINE" ]; then
+            TODO="TODO: report bug"
+            echo "$CVE" "$PKG" "$TODO"
+        else
+            TODO="$( ${_BASE}/bin/get-bug-status "$BUG" )"
+            echo "$CVE" "$PKG" "$BUG" "$TODO"
+        fi
+        ;;
+    *) ;;
+    esac
+
+done < $TMP
+
+rm -f $TMP

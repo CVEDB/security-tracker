@@ -1,0 +1,14 @@
+source: mydns
+date: May 22th, 2007
+author: Stefan Fritsch
+vuln-type: multiple buffer overflows
+problem-scope: remote
+debian-specifc: no
+cve: CVE-2007-2362
+vendor-advisory: 
+testing-fix: 1:1.1.0-7.1lenny1
+sid-fix: 1:1.1.0-8
+upgrade: apt-get upgrade
+
+Multiple buffer overflows in MyDNS allow remote attackers to cause a denial of 
+service (daemon crash) and possibly execute arbitrary code.

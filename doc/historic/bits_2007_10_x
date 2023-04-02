@@ -1,0 +1,158 @@
+Hi fellow developers,
+
+We finally got around to sending this email to inform you about the
+current state of the Testing Security team and its work.
+
+If you at any stage have questions about the Testing Security team,
+please feel free to come to #debian-security on OFTC or write an email to
+secure-testing-team@lists.alioth.debian.org .
+
+
+
+Security status of testing
+--------------------------
+
+Thanks to an increased size of our team, Debian Lenny is in good shape with
+respect to security and has been so for some time. We expect to be able to
+keep up this level of security support (at least) until the release of Lenny.
+
+In the weeks immediately after the release of Etch there were some security
+support problems for testing. We hope to improve our processes so that we won't
+run into the same problems after the release of Lenny. There will be another
+announcement about the state of these efforts well before Lenny's release.
+
+Our web page[0] has been updated to reflect the current status.
+
+
+
+New announcement mails
+----------------------
+
+Previously we were mimicing the announcement method that Stable security
+uses by providing DTSAs (Debian Testing Security Advisories). However,
+these were only prepared for issues that required us to manually prepare
+package updates, thereby forcing a package into testing that would not
+otherwise migrate automatically in a reasonable time-frame. This resulted
+in very infrequent DTSAs because most of the security issues were dealt
+with by fixed packages migrating from unstable to testing.
+
+Therefore, we set up daily announcements (delivered to the
+announcement mailinglist[1]), which include all new security fixes for
+the testing distribution. Most commonly the email shows the migrated
+packages. If there has been a DTSA issued for a package, this will
+show up as well.
+
+In some rare cases, the Testing Security team asks the release
+managers to remove a package from testing, because a security fix in a
+reasonable amount of time seems to be unlikely and the package should
+not be part of testing in our opinion. In this case, the email will
+additionally include information about the removal.
+
+
+
+Efforts to fix security issues in unstable
+------------------------------------------
+
+The Testing Security team works mainly on assigned CVE numbers but
+also follows security relevant bugs reported via the BTS. If you
+encounter a security problem in one of your packages, which does not
+have a CVE number yet, please contact the Testing Security team.  It
+is important to have a CVE id allocated, because they allow us to
+track the security problem in all Debian branches (including Debian
+stable).  When you upload a security fix to unstable, please also
+include the CVE id in your changelog and set the urgency to high. The
+tracker used by both the Testing and Stable Security teams, can be
+found on this webpage[2].
+
+The main task of the Testing Security team is to review CVE id
+relevance to Debian, informing Debian maintainers by filing bugs to
+the BTS (if not already done) and chasing the security fix to move it
+faster into testing.  Whenever possible, we try to provide patches and
+sometimes also NMU the packages in unstable. Please do not regard an
+NMU by the Testing Security team as a bad sign. We try to assist you
+in the best way to keep Debian secure. Also keep in mind that not all
+security related problems have a grave severity, so do not be
+surprised if a normal bug in the Debian BTS results in assigning a CVE
+id for it.  An up to date overview of unresolved issues in unstable
+can be found on the tracker website[3].
+
+
+
+Efforts to fix security issues in testing
+-----------------------------------------
+
+Our efforts to keep testing secure are primarily focused around
+letting fixed packages migrate from unstable. In order to
+ensure this migration process, we are in close contact with the
+release team and request priority bumps to speed up the
+migration. Sometimes a package is kept from migrating due to a
+transition, the occurrence of new bugs in unstable, buildd issues or
+other problems. In these cases, the Testing Security team considers
+the possibility of issuing a DTSA. We always appreciate it when the
+maintainer contacts us about their specific security problem. When we
+are in communication then we can assist by telling you whether to wait
+for migration or to prepare an upload to testing-security. For non-DDs,
+these uploads can be sponsored by every DD, preferable by a member of
+the Testing Security team. If you get a go for an upload to
+testing-security by one of us, please follow the guidelines on the
+webpage[4]. If we feel the need to issue a DTSA and were not contacted
+by the maintainer, we normally go ahead and upload ourselves, although
+efforts by maintainer to be involved in this process is much preferred.
+
+An up to date overview of unresolved issues in testing can be found on
+the tracker website[5].
+
+
+
+Embedded code copies
+--------------------
+
+There are a number of packages including source code from external
+libraries, for example poppler is included in xpdf, kpdf and others.
+To ensure that we don't miss any vulnerabilities in packages that do so
+we maintain a list[6] of embedded code copies in Debian. It is preferable
+that you do not embed copies of code in your packages, but instead link
+against packages that already exist in the archive. Please contact us about
+any missing items you know about.
+
+
+
+Some statistics
+---------------
+
+* 35 DTSAs had been issued in 2007 so far for over 139 CVE ids
+* 39 NMUs were uploaded in the last two months to fix security flaws
+* 49 security related uploads migrated to testing in the last month for 71 CVE ids
+* 5500 CVE ids had been processed by the team so far for this year
+
+
+
+New Testing Security Members
+----------------------------
+
+New members are constantly added to the team. The most recent additions are
+Nico Golde, Steffen Joeris, and Thijs Kinkhorst. The circle of team members
+who may approve releases to the testing-security repository has also been
+enlarged by Stefan Fritsch (since May), Nico Golde and Steffen Joeris
+(both added recently).
+
+If you are interested in joining the team, we always need more people,
+and it's not very hard to contribute in very small ways that have large
+impacts! Contact us if you are interested. You may want to also look at
+our helping page[7].
+
+So far so good. We hope to keep you updated on testing security issues
+more regularly.
+
+Yours,
+Testing Security team
+
+
+[0]: http://testing-security.debian.net/
+[1]: http://lists.alioth.debian.org/mailman/listinfo/secure-testing-announce
+[2]: http://security-tracker.debian.net/tracker/
+[3]: http://security-tracker.debian.net/tracker/status/release/unstable
+[4]: http://testing-security.debian.net/uploading.html
+[5]: http://security-tracker.debian.net/tracker/status/release/testing
+[6]: http://svn.debian.org/wsvn/secure-testing/data/embedded-code-copies?op=file&rev=0&sc=0
+[7]: http://testing-security.debian.net/helping.html

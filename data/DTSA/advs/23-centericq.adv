@@ -1,0 +1,16 @@
+source: centericq
+date: December 5th, 2005
+author: Neil McGovern
+vuln-type: buffer overflow
+problem-scope: local
+debian-specifc: no
+cve: CVE-2005-3863
+testing-fix: 4.21.0-6.0etch1
+sid-fix: 4.21.0-6
+upgrade: apt-get upgrade
+
+CVE-2005-3863
+
+	Mehdi Oudad "deepfear" and Kevin Fernandez "Siegfried" from the Zone-H
+	Research Team discovered a buffer overflow in kkstrtext.h of the ktools
+	library, which is included in centericq.

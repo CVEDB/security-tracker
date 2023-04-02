@@ -1,0 +1,11 @@
+clamav is updated following upstream releases. Independent of solving security
+issues, clamav needs a current runtime to be able to parse all malware
+signatures.
+
+The security team updates clamav via {old,}stable-updates.
+
+https://lists.debian.org/debian-lts/2018/03/msg00033.html
+https://lists.debian.org/debian-lts/2019/03/msg00161.html
+
+LTS updates need to wait until a respective SUA has been issued to avoid
+breaking upgrades.

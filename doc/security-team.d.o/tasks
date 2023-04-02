@@ -1,0 +1,8 @@
+    - DSA release: A more structured version of the current wiki pages
+    - embargo issues: Private queue in RT
+    - proposed-updates
+    - Take care of the "Special" packages (e.g. kernel iceweasel)
+    - Front desk
+    - Managing CVE ids pool: how to ask more ids
+    - Access to private key
+    - Access to upstream bug trackers

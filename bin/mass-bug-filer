@@ -1,0 +1,86 @@
+#!/usr/bin/python2
+from __future__ import print_function
+
+import sys
+import apt
+import apt_pkg
+import os
+import re
+
+if len(sys.argv) < 3:
+    print("usage: %s FILE PACKAGE..." % sys.argv[0], file=sys.stderr)
+    sys.exit(1)
+
+message_file = open(sys.argv[1])
+packages = sys.argv[2:]
+
+cache = apt.Cache()
+errors = False
+for p in packages:
+    if p not in cache:
+        print("error: no such package:", p, file=sys.stderr)
+        errors = True
+if errors:
+    sys.exit(2)
+
+h_subject = None
+h_to = 'submit@bugs.debian.org'
+h_bug = {'Severity' : 'grave',
+         'Tags' : 'security'}
+re_header = re.compile('^([a-zA-Z0-9-]+):\s*(\S.*?)\s*$')
+source_lines = message_file.readlines()
+state = 0
+body = []
+for line in source_lines:
+    if state == 1:
+        body.append(line)
+        continue
+        
+    if line == '\n':
+        if h_subject is None:
+            print("error: missing Subject header", file=sys.stderr)
+            sys.exit(2)
+        state = 1
+        continue
+
+    # state == 0
+    match = re_header.match(line)
+    if match is None:
+        print("error: invalid line:", line, file=sys.stderr)
+        sys.exit(2)
+    (k, v) = match.groups()
+    if k == "Subject":
+        h_subject = v
+        continue
+    if k in h_bug:
+        h_bug[k] = v
+        continue
+    print("error: invalid header field:", k, file=sys.stderr)
+    sys.exit(2)
+
+def make_message(pkg):
+    yield "To: %s\nSubject: %s\n\n" % (h_to, h_subject)
+    yield "Package: %s\n" % pkg
+    for x in h_bug.iteritems():
+        yield "%s: %s\n" % x
+    yield "\n"
+    for x in body:
+        yield x
+
+def sendmail(lines):
+    p = os.popen("/usr/lib/sendmail -oee -i -t", "w")
+    closed = False
+    try:
+        for x in lines:
+            p.write(x)
+    finally:
+        p.close()
+
+for p in packages:
+    sendmail(make_message(p))
+
+for p in packages:
+    print("\t- %s <unfixed> (bug filed)" % p)
+
+
+

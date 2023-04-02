@@ -1,0 +1,16 @@
+source: inkscape
+date: December 5th, 2005
+author: Neil McGovern
+vuln-type: buffer overflow
+problem-scope: remote
+debian-specifc: no
+cve: CVE-2005-3737
+testing-fix: 0.43-0.0etch1
+sid-fix: 0.43-1
+upgrade: apt-get install inkscape
+
+CVE-2005-3737
+
+	Joxean Koret discovered that inkscape is vulnerable in the SVG importer
+	(style.cpp), which might allow remote attackers to execute arbitrary code
+	via a SVG file with long CSS style property values.

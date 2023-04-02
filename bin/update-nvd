@@ -1,0 +1,34 @@
+#!/usr/bin/python3
+
+import os.path
+import sys
+
+import setup_paths
+import nvd
+import security_db
+
+base = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+db_file = os.path.join(base, 'data/security.db')
+db = security_db.DB(db_file)
+
+incremental = False
+data = []
+for name in sys.argv[1:]:
+    if name == '-i':
+        incremental = True
+        continue
+    f = open(name)
+    data += nvd.parse(f)
+    f.close()
+
+# For some reason, NVD adds duplicates, so we need to get rid of them.
+# Sort afterwords to increase locality in the insert process.
+deduplicate = {}
+for x in data:
+    deduplicate[x[0]] = x
+data = list(deduplicate.values())
+data.sort()
+
+cursor = db.writeTxn()
+db.updateNVD(cursor, data, incremental)
+db.commit(cursor)

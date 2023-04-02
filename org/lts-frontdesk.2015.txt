@@ -1,0 +1,43 @@
+Presentation
+------------
+
+The LTS frontdesk handles:
+
+ * CVE triaging:
+   https://wiki.debian.org/LTS/Development#Triage_new_security_issues
+
+ * Making sure that queries on debian-lts@lists.debian.org get an answer.
+
+Who is in charge ?
+------------------
+
+From 08-06 to 14-06:Raphaël Hertzog <hertzog@debian.org>
+From 15-06 to 21-06:Thorsten Alteholz <alteholz@debian.org>
+From 22-06 to 28-06:Guido Günther <agx@sigxcpu.org>
+From 29-06 to 05-07:Thorsten Alteholz <alteholz@debian.org>
+From 06-07 to 12-07:Guido Günther <agx@sigxcpu.org>
+From 13-07 to 19-07:Ben Hutchings <ben@decadent.org.uk>
+From 20-07 to 26-07:Raphaël Hertzog <hertzog@debian.org>
+From 27-07 to 02-08:Santiago Ruano Rincón <santiagorr@riseup.net>
+From 03-08 to 09-08:Thorsten Alteholz <alteholz@debian.org>
+From 10-08 to 16-08:Guido Günther <agx@sigxcpu.org>
+From 17-08 to 23-08:Ben Hutchings <ben@decadent.org.uk>
+From 24-08 to 30-08:Raphaël Hertzog <hertzog@debian.org>
+From 31-08 to 06-09:Santiago Ruano Rincón <santiagorr@riseup.net>
+From 07-09 to 13-09:Guido Günther <agx@sigxcpu.org>
+From 14-09 to 20-09:Thorsten Alteholz <alteholz@debian.org>
+From 21-09 to 27-09:Ben Hutchings <ben@decadent.org.uk>
+From 28-09 to 04-10:Raphaël Hertzog <hertzog@debian.org>
+From 05-10 to 11-10:Santiago Ruano Rincón <santiagorr@riseup.net>
+From 12-10 to 18-10:Ben Hutchings <ben@decadent.org.uk>
+From 19-10 to 25-10:Thorsten Alteholz <alteholz@debian.org>
+From 26-10 to 01-11:Guido Günther <agx@sigxcpu.org>
+From 02-11 to 08-11:Raphaël Hertzog <hertzog@debian.org>
+From 09-11 to 15-11:Santiago Ruano Rincón <santiagorr@riseup.net>
+From 16-11 to 22-11:Chris Lamb <chris@chris-lamb.co.uk>
+From 23-11 to 29-11:Ben Hutchings <ben@decadent.org.uk>
+From 30-11 to 06-12:Thorsten Alteholz <alteholz@debian.org>
+From 07-12 to 13-12:Guido Günther <agx@sigxcpu.org>
+From 14-12 to 20-12:Raphaël Hertzog <hertzog@debian.org>
+From 21-12 to 27-12:Santiago Ruano Rincón <santiagorr@riseup.net>
+From 28-12 to 03-01:Ben Hutchings <ben@decadent.org.uk>

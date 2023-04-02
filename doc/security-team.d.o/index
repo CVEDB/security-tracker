@@ -1,0 +1,45 @@
+<table style="margin: 0 auto 0 auto;width: 100%;text-align:center;">
+	<tbody>
+            <tr><th>bullseye 11</th><th>bookworm 12</th><th>sid</th></tr>
+            <tr><th>bullseye-security</th><th>testing</th><th>unstable</th></tr>
+	<tr>
+	<td valign="top">
+		<a href="https://security-tracker.debian.org/tracker/status/release/stable">Vulnerable Packages</a><br\>
+	</td><td valign="top">
+		<a href="https://security-tracker.debian.org/tracker/status/release/testing">Vulnerable Packages</a><br\>
+	</td><td valign="top">
+		<a href="https://security-tracker.debian.org/tracker/status/release/unstable">Vulnerable Packages</a><br\>
+	</td></tr>
+	<tr><td valign="top">
+                <a href="https://salsa.debian.org/security-tracker-team/security-tracker/raw/master/data/next-point-update.txt">Next point update</a><br\>
+	</td><td valign="top">
+		Next point update<br\>
+	</td><td valign="top">
+		Next point update<br\>
+	</td></tr>
+</tbody></table>
+
+Security team documentation
+---------------------------
+
+This is more a TODO list than an index. For now.
+Please, feel free to [contribute with this document](https://salsa.debian.org/security-tracker-team/security-tracker/tree/master/doc/security-team.d.o).
+
+* [Organization](organization.html)
+    - How to contribute with the security team
+* [How to interact with the security team](contact.html)
+    - As a vulnerability reporter
+        - public issues
+        - private issues (embargo)
+    - As a package maintainer
+        - DSA vulnerability
+        - SPU vulnerability
+        - Just unstable
+    - As an upstream? (embargo issues? backporting patches?)
+* [Internal tasks tasks](tasks.html)
+    - [DSA release](dsa_release.html)
+* [How to interact with the Security Tracker](security_tracker.html)
+    - How to contribute to the security tracker code
+* [Triage "low severity" issues](triage.html)
+* [Troubleshooting tips](tips.html)
+* [Glossary](glossary.html)

@@ -1,0 +1,22 @@
+source: fuse
+date: Janurary 20th, 2006
+author: Neil McGovern
+vuln-type: potential data corruption when installed seduid root
+problem-scope: local
+debian-specifc: no
+cve: CVE-2005-3531
+vendor-advisory: 
+testing-fix: 2.3.0-4.2etch1
+sid-fix: 2.4.1-0.1
+upgrade: apt-get upgrade
+
+Thomas Biege discovered that fusermount in FUSE before 2.4.1, if installed
+setuid root, allows local users to corrupt /etc/mtab and possibly modify mount
+options by performing a mount over a directory whose name contains certain
+special characters
+
+Successful exploitation could result in a denial of service if mount options
+become unusable. An attacker can also exploit this issue to add arbitrary mount
+points that could grant the attacker read and possibly write access to
+otherwise restricted or privileged mount points. Other attacks are also
+possible.

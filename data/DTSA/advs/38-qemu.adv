@@ -1,0 +1,40 @@
+source: qemu
+date: May 26th, 2007
+author: Stefan Fritsch
+vuln-type: several vulnerabilities
+problem-scope: local
+debian-specifc: no
+cve:  CVE-2007-1320 CVE-2007-1321 CVE-2007-1322 CVE-2007-1323 CVE-2007-1366
+vendor-advisory: http://taviso.decsystem.org/virtsec.pdf
+testing-fix: 0.8.2-5lenny1
+sid-fix: 0.9.0-2
+upgrade: apt-get upgrade
+
+Several vulnerabilities have been discovered in the QEMU processor
+emulator, which may lead to the execution of arbitrary code or denial of
+service. The Common Vulnerabilities and Exposures project identifies the
+following problems:
+
+CVE-2007-1320
+    Tavis Ormandy discovered that a memory management routine of the Cirrus
+    video driver performs insufficient bounds checking, which might
+    allow the execution of arbitrary code through a heap overflow.
+
+CVE-2007-1321
+    Tavis Ormandy discovered that the NE2000 network driver and the socket
+    code perform insufficient input validation, which might allow the
+    execution of arbitrary code through a heap overflow.
+
+CVE-2007-1322
+    Tavis Ormandy discovered that the "icebp" instruction can be abused to
+    terminate the emulation, resulting in denial of service.
+
+CVE-2007-1323
+    Tavis Ormandy discovered that the NE2000 network driver and the socket
+    code perform insufficient input validation, which might allow the
+    execution of arbitrary code through a heap overflow.
+
+CVE-2007-1366
+    Tavis Ormandy discovered that the "aam" instruction can be abused to
+    crash qemu through a division by zero, resulting in denial of
+    service.

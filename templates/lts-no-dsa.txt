@@ -1,0 +1,38 @@
+Content-Type: text/plain; charset=utf-8
+To: {{ to }}
+Cc: {{ cc }}
+Subject: About the security issues affecting {{ package }} in Buster
+
+Dear maintainer(s),
+
+The Debian LTS team recently reviewed the security issue(s) affecting your
+package in Buster:
+{%- if cve -%}
+{% for entry in cve %}
+https://security-tracker.debian.org/tracker/{{ entry }}
+{%- endfor -%}
+{%- else %}
+https://security-tracker.debian.org/tracker/source-package/{{ package }}
+{%- endif %}
+
+We decided that we would not prepare a buster security update (usually
+because the security impact is low and that we concentrate our limited
+resources on higher severity issues and on the most widely used packages).
+That said the buster users would most certainly benefit from a fixed
+package.
+
+If you want to work on such an update, you're welcome to do so. Please
+try to follow the workflow we have defined here:
+https://wiki.debian.org/LTS/Development
+
+If that workflow is a burden to you, feel free to just prepare an
+updated source package and send it to debian-lts@lists.debian.org (via a
+debdiff, or with an URL pointing to the source package, or even with a
+pointer to your packaging repository), and the members of the LTS team
+will take care of the rest. However please make sure to submit a tested
+package.
+
+Thank you very much.
+
+{{ sender }},
+  on behalf of the Debian LTS team.

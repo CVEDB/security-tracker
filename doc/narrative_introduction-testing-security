@@ -1,0 +1,23 @@
+	A Narrative Introduction to the Testing Security
+
+Stable security deals with embargoed/vendor-sec issues, we don't, we
+deal with issues that have already been assigned CVE numbers (although
+we often times request these assignments), have been posted to common
+security mailing lists, or are seen in commit logs of software that is
+tracked (such as the Linux Kernel).
+
+It is our philosophy that if the Internet knows that there is a
+vulnerability in something, then we better know about it and the
+package maintainer needs to know about it and it needs to be fixed as
+soon as possible. It doesn't make sense to hide issues that everyone
+knows about already, in fact users have told us that they prefer to
+know not only when a package they have installed is vulnerable (so
+they can disable it or firewall it off, or patch it or whatever), but
+to also know that Debian is working on a fix. Transparency is what our
+users expect, and what they deserve. Tracking publicly known issues
+openly (and the occasional unfortunate embargoed issue privately) is
+good for the project as a whole, especially the public's perception of
+the project.
+
+TODO:
+document DTSAs

@@ -1,0 +1,15 @@
+This file tracks packages, which have turned out to be maintained
+in a problematic manner, e.g. security-sensitive packages without
+an active maintainer. Such packages need to be reviewed prior to
+a release (at least some months before the freeze phase), so that
+they find a new maintainer or get removed from the archive:
+
+----
+
+libmikmod (Mar 2010)
+maintainer seems MIA, latest upload in 2004
+
+--
+
+weborf (Nov 2010)
+Every new upstream fixes new vulnerabilities, dropped from Squeeze

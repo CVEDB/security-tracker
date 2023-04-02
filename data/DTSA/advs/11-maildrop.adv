@@ -1,0 +1,17 @@
+source: maildrop
+date: August 29th, 2005
+author: Andres Salomon
+vuln-type: local privilege escalation
+problem-scope: local
+debian-specific: yes
+cve: CVE-2005-2655
+testing-fix: 1.5.3-1.1etch1
+sid-fix: 1.5.3-2
+upgrade: apt-get install maildrop
+
+The lockmail binary shipped with maildrop allows for an attacker to
+obtain an effective gid as group "mail".  Debian ships the binary with its
+setgid bit set, but the program does not drop privileges when run.  It takes
+an argument that is executed, and since it does not drop privileges, an
+attacker can execute an arbitrary command with an effective gid of the "mail"
+group.

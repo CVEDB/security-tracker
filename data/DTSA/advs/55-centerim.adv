@@ -1,0 +1,22 @@
+source: centerim
+date: September 1st , 2007
+author: Steffen Joeris
+vuln-type: buffer overflows
+problem-scope: remote
+debian-specifc: no
+cve: CVE-2007-3713
+vendor-advisory: 
+testing-fix: 4.22.1-2lenny1
+sid-fix: 4.22.1-2.1
+upgrade: apt-get upgrade
+
+It was discovered that there are multiple buffer overflows, which could lead 
+to the execution of arbitrary code.
+
+CVE-2007-3713
+
+Multiple buffer overflows in Konst CenterICQ 4.9.11 through 4.21 allow
+remote attackers to execute arbitrary code via unspecified vectors.
+NOTE: the provenance of this information is unknown; the details are 
+obtained solely from third party information. NOTE: this might overlap
+CVE-2007-0160.

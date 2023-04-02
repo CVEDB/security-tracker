@@ -1,0 +1,22 @@
+source: clamav
+date: September 22nd, 2005
+author: Neil McGovern
+vuln-type: buffer overflow and infinate loop problems
+problem-scope: remote
+debian-specific: no
+cve: CVE-2005-2919 CVE-2005-2920
+testing-fix: 0.86.2-4etch2
+sid-fix: 0.87-1
+upgrade: apt-get upgrade
+
+Multiple security holes were found in clamav:
+
+CVE-2005-2919
+
+  A possible infinate loop has been discovered in libclamav/fsg.c
+
+CVE-2005-2920
+
+  A possible buffer overflow has been found in libclamav/upx.c
+
+Thanks to Stephen Granan <sgran@debian.org> for the updated packages

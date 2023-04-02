@@ -1,0 +1,65 @@
+Presentation
+------------
+
+The LTS frontdesk handles:
+
+ * CVE triaging:
+   https://wiki.debian.org/LTS/Development#Triage_new_security_issues
+
+ * Making sure that queries on debian-lts@lists.debian.org get an answer.
+
+Who is in charge ?
+------------------
+
+From 02-01 to 08-01:Chris Lamb <chris@chris-lamb.co.uk>
+From 09-01 to 15-01:Thorsten Alteholz <alteholz@debian.org>
+From 16-01 to 22-01:Markus Koschany <apo@debian.org>
+From 23-01 to 29-01:Ola Lundqvist <opal@debian.org>
+From 30-01 to 05-02:Guido Günther <agx@sigxcpu.org>
+From 06-02 to 12-02:Markus Koschany <apo@debian.org>
+From 13-02 to 19-02:Chris Lamb <chris@chris-lamb.co.uk>
+From 20-02 to 26-02:Thorsten Alteholz <alteholz@debian.org>
+From 27-02 to 05-03:
+From 06-03 to 12-03:Markus Koschany <apo@debian.org>
+From 13-03 to 19-03:Chris Lamb <chris@chris-lamb.co.uk>
+From 20-03 to 26-03:Ola Lundqvist <opal@debian.org>
+From 27-03 to 02-04:Guido Günther <agx@sigxcpu.org>
+From 03-04 to 09-04:Chris Lamb <chris@chris-lamb.co.uk>
+From 10-04 to 16-04:Markus Koschany <apo@debian.org>
+From 17-04 to 23-04:Ola Lundqvist <opal@debian.org>
+From 24-04 to 30-04:Thorsten Alteholz <alteholz@debian.org>
+From 01-05 to 07-05:Markus Koschany <apo@debian.org>
+From 08-05 to 14-05:Chris Lamb <chris@chris-lamb.co.uk>
+From 15-05 to 21-05:Ola Lundqvist <opal@debian.org>
+From 22-05 to 28-05:Raphaël Hertzog <hertzog@debian.org>
+From 29-05 to 04-06:Guido Günther <agx@sigxcpu.org>
+From 05-06 to 11-06:Ola Lundqvist <opal@debian.org>
+From 12-06 to 18-06:Chris Lamb <chris@chris-lamb.co.uk>
+From 19-06 to 25-06:Raphaël Hertzog <hertzog@debian.org>
+From 26-06 to 02-07:Thorsten Alteholz <alteholz@debian.org>
+From 03-07 to 09-07:Chris Lamb <chris@chris-lamb.co.uk>
+From 10-07 to 16-07:Raphaël Hertzog <hertzog@debian.org>
+From 17-07 to 23-07:Guido Günther <agx@sigxcpu.org>
+From 24-07 to 30-07:Markus Koschany <apo@debian.org>
+From 31-07 to 06-08:Markus Koschany <apo@debian.org>
+From 07-08 to 13-08:Chris Lamb <chris@chris-lamb.co.uk>
+From 14-08 to 20-08:Ola Lundqvist <opal@debian.org>
+From 21-08 to 27-08:Thorsten Alteholz <alteholz@debian.org>
+From 28-08 to 03-09:Raphaël Hertzog <hertzog@debian.org>
+From 04-09 to 10-09:Ola Lundqvist <opal@debian.org>
+From 11-09 to 17-09:Chris Lamb <chris@chris-lamb.co.uk>
+From 18-09 to 24-09:Markus Koschany <apo@debian.org>
+From 25-09 to 01-10:Guido Günher <agx@sigxcpu.org>
+From 02-10 to 08-10:Chris Lamb <chris@chris-lamb.co.uk>
+From 09-10 to 15-10:Ola Lundqvist <opal@debian.org>
+From 16-10 to 22-10:Raphaël Hertzog <hertzog@debian.org>
+From 23-10 to 29-10:Thorsten Alteholz <alteholz@debian.org>
+From 30-10 to 05-11:Markus Koschany <apo@debian.org>
+From 06-11 to 12-11:Ola Lundqvist <opal@debian.org>
+From 13-11 to 19-11:Chris Lamb <chris@chris-lamb.co.uk>
+From 20-11 to 26-11:Raphaël Hertzog <hertzog@debian.org>
+From 27-11 to 03-12:Chris Lamb <chris@chris-lamb.co.uk>
+From 04-12 to 10-12:Thorsten Alteholz <alteholz@debian.org>
+From 11-12 to 17-12:Ola Lundqvist <opal@debian.org>
+From 18-12 to 24-12:Raphaël Hertzog <hertzog@debian.org>
+From 25-12 to 31-12:Hugo Lefeuvre <hle@debian.org>

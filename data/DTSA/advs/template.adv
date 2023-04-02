@@ -1,0 +1,13 @@
+source: xxx
+date: Bloptember 99th, 1990
+author: xxx
+vuln-type: xxx
+problem-scope: remote/local
+debian-specifc: yes/no
+cve: xxx xxx
+vendor-advisory: 
+testing-fix: xxx
+sid-fix: xxx
+upgrade: apt-get install xxx
+
+xxx multiline description here
